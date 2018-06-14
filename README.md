@@ -1,5 +1,6 @@
-# mpl-altair
-Matplotlib backend for Altair Visualization Library
+Matplotlib Backend for Altair Visualization Library
+==================================================
+[![Join the chat at https://gitter.im/matplotlib/mpl-altair](https://badges.gitter.im/matplotlib/mpl-altair.svg)](https://gitter.im/matplotlib/mpl-altair?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # follow these conventions:
 https://matplotlib.org/devel/index.html
@@ -10,3 +11,4 @@ pytest
 # dependencies 
 - anything altair or matplotlib depends on
 
+\
