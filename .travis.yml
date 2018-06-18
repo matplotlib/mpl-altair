@@ -1,0 +1,28 @@
+language: python
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/.cache/matplotlib
+
+matrix:
+  fast_finish: true
+  include:
+    - python: 3.5
+    - python: 3.6
+    - python: nightly
+  allow_failures:
+    - python: nightly
+
+
+install:
+  - python -m pip install --upgrade pip
+  - python -m pip install --upgrade codecov coverage
+  - python -m pip install -ve .
+
+script:
+  - coverage run python -m pytest
+  - coverage report -m
+  - set -e
+  - codecov
