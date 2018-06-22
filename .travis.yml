@@ -18,11 +18,11 @@ matrix:
 
 install:
   - python -m pip install --upgrade pip
-  - python -m pip install --upgrade codecov coverage
+  - python -m pip install --upgrade codecov coverage pytest
   - python -m pip install -ve .
 
 script:
-  - coverage run python -m pytest
+  - coverage run run_tests.py
   - coverage report -m
   - set -e
   - codecov
