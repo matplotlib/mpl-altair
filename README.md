@@ -6,9 +6,7 @@ Matplotlib Backend for Altair Visualization Library
 https://matplotlib.org/devel/index.html
 
 # testing framework:
-pytest
+[pytest](https://docs.pytest.org/en/latest/)
 
 # dependencies 
 - anything altair or matplotlib depends on
-
-\
