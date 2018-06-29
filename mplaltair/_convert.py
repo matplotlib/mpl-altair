@@ -6,10 +6,14 @@ from altair.utils.schemapi import Undefined
 _mpl_scatter_equivalent = {
     'x': (lambda d: _process_x(d)),
     'y': (lambda d: _process_y(d)),
+    'x2': (lambda d: _process_not_implemented(d)),  # NotImplementedError - ALT
+    'y2': (lambda d: _process_not_implemented(d)),  # NotImplementedError - ALT
     'color': (lambda d: _process_color(d)),
-    'size': (lambda d: _process_size(d)),  # NotImplementedError
-    'opacity': (lambda d: _process_opacity(d)),  # NotImplementedError for array-like opacities
-    'shape': (lambda d: _process_shape(d))  # NotImplementedError
+    'fill': (lambda d: _process_fill(d)),
+    'opacity': (lambda d: _process_opacity(d)),  # NotImplementedError for array-like opacities - MPL
+    'shape': (lambda d: _process_shape(d)),  # NotImplementedError - MPL
+    'size': (lambda d: _process_size(d)),
+    'stroke': (lambda d: _process_not_implemented(d)),  # NotImplementedError - ALT
 }
 
 
@@ -84,11 +88,11 @@ def _process_y(data):
     return "y", data
 
 
-def _process_size(data):
-    return "s", data
-
-
 def _process_color(data):
+    return "c", data
+
+
+def _process_fill(data):
     return "c", data
 
 
@@ -100,4 +104,12 @@ def _process_opacity(data):
 
 
 def _process_shape(data):
+    raise NotImplementedError
+
+
+def _process_size(data):
+    return "s", data
+
+
+def _process_not_implemented(data):
     raise NotImplementedError
