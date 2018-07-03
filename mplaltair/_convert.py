@@ -76,7 +76,7 @@ def _process_color(enc_spec, data):
 def _process_fill(enc_spec, data):
     """Returns the MPL encoding equivalent for Altair fill channel
     """
-    raise NotImplementedError
+    return _process_color(enc_spec, data)
 
 @_process_data_mappings
 def _process_shape(enc_spec, data):
