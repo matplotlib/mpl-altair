@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import altair as alt
 import pandas as pd
 import mplaltair._convert as convert
@@ -16,14 +17,14 @@ df_temporal = pd.DataFrame({
 def test_temporal_x(column):
     chart = alt.Chart(df_temporal).mark_point().encode(alt.X(column))
     mapping = convert.convert_temporal(chart)
-    assert list(mapping['x']) == list(df_temporal[column].values)
+    assert list(mapping['x']) == list(mdates.date2num(df_temporal[column].values))
 
 
 @pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
 def test_temporal_y(column):
     chart = alt.Chart(df_temporal).mark_point().encode(alt.Y(column))
     mapping = convert.convert_temporal(chart)
-    assert list(mapping['y']) == list(df_temporal[column].values)
+    assert list(mapping['y']) == list(mdates.date2num(df_temporal[column].values))
 
 
 @pytest.mark.xfail(raises=NotImplementedError)
@@ -37,14 +38,14 @@ def test_temporal_x2_y2(column):
 def test_temporal_color(column):
     chart = alt.Chart(df_temporal).mark_point().encode(alt.Color(column))
     mapping = convert.convert_temporal(chart)
-    assert list(mapping['c']) == list(df_temporal[column].values)
+    assert list(mapping['c']) == list(mdates.date2num(df_temporal[column].values))
 
 
 @pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
 def test_temporal_fill(column):
     chart = alt.Chart(df_temporal).mark_point().encode(alt.Fill(column))
     mapping = convert.convert_temporal(chart)
-    assert list(mapping['c']) == list(df_temporal[column].values)
+    assert list(mapping['c']) == list(mdates.date2num(df_temporal[column].values))
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="The alpha argument in scatter() cannot take arrays")
@@ -58,15 +59,15 @@ def test_temporal_opacity(column):
 @pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
 def test_temporal_shape(column):
     chart = alt.Chart(df_temporal).mark_point().encode(alt.Shape(column))
-    convert.convert_temporal(chart)
+    mapping = convert.convert_temporal(chart)
+    assert list(mapping['s']) == list(mdates.date2num(df_temporal[column].values))
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="Dates would need to be normalized for the size.")
 @pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
 def test_temporal_size(column):
     chart = alt.Chart(df_temporal).mark_point().encode(alt.Size(column))
-    mapping = convert.convert_temporal(chart)
-    assert list(mapping['s']) == list(df_temporal[column].values)
+    convert.convert_temporal(chart)
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="Stroke is not well defined in Altair")
@@ -78,7 +79,8 @@ def test_temporal_stroke(column):
 
 @pytest.mark.parametrize("channel", [alt.Color("years"), alt.Fill("years")])
 def test_temporal_scatter(channel):
-    chart = alt.Chart(df_temporal).mark_point().encode(alt.X("years"), alt.Y("quantitative"), channel)
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.X("years"), channel)
     mapping = convert.convert_temporal(chart)
+    mapping['y'] = df_temporal['quantitative'].values
     plt.scatter(**mapping)
     plt.show()

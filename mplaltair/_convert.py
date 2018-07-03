@@ -1,5 +1,6 @@
 from altair.utils.core import parse_shorthand
 from altair.utils.schemapi import Undefined
+import matplotlib.dates as mdates
 
 _mpl_temporal_equivalent = {
     'x': (lambda d: _process_temporal_x(d)),
@@ -35,6 +36,10 @@ def convert_temporal(chart):
     for encoding_channel in chart.to_dict()['encoding']:
         channel = chart.encoding[encoding_channel]
         data = _locate_channel_data(channel, chart.data)
+        try:
+            data = mdates.date2num(data)
+        except ValueError:
+            raise
         mapping[_mpl_temporal_equivalent[encoding_channel](data)[0]] = _mpl_temporal_equivalent[encoding_channel](data)[1]
 
     return mapping
