@@ -94,7 +94,17 @@ def _process_opacity(enc_spec, data):
 def _process_size(enc_spec, data):
     """Returns the MPL encoding equivalent for Altair size channel
     """
-    raise NotImplementedError
+    ds = _get_column(enc_spec, data)
+
+    dtype = enc_spec['type']
+    if dtype == 'quantitative':
+        return ('s', ds)
+    elif dtype == 'nominal':
+        raise NotImplementedError
+    elif dtype == 'ordinal':
+        return ('s', ds)
+    elif dtype == 'temporal':
+        raise NotImplementedError
 
 @_process_data_mappings
 def _process_stroke(enc_spec, data):
