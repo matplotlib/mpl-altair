@@ -23,7 +23,6 @@ classifiers = [
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Topic :: Scientific/Engineering :: Visualization',
-    classifiers=classifiers,
     ]
 
 
@@ -39,6 +38,7 @@ setup_parameters = dict(
     python_requires='>=3.5',
     license="BSD",
     platforms='any',
+    classifiers=classifiers,
     long_description=descr)
 
 setup(**setup_parameters)
