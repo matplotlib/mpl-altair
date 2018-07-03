@@ -10,7 +10,7 @@ _mpl_temporal_equivalent = {
     'fill': (lambda d: _process_fill(d)),
     'opacity': (lambda d: _process_opacity(d)),  # NotImplementedError for array-like opacities - MPL
     'shape': (lambda d: _process_shape(d)),  # NotImplementedError - MPL
-    'size': (lambda d: _process_size(d)),
+    'size': (lambda d: _process_size(d)),  # NotImplementedError - MPL
     'stroke': (lambda d: _process_not_implemented(d)),  # NotImplementedError - ALT
 }
 
@@ -85,11 +85,11 @@ def _process_y(data):
 
 
 def _process_color(data):
-    raise NotImplementedError
+    return "c", data
 
 
 def _process_fill(data):
-    raise NotImplementedError
+    return "c", data
 
 
 def _process_opacity(data):

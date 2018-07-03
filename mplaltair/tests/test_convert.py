@@ -26,9 +26,52 @@ def test_temporal_y(column):
     assert list(mapping['y']) == list(df_temporal[column].values)
 
 
-def test_temporal_scatter():
-    chart = alt.Chart(df_temporal).mark_point().encode(alt.X("years"))
+@pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
+def test_temporal_color(column):
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.Color(column))
     mapping = convert.convert_temporal(chart)
-    mapping["y"] = df_temporal['quantitative'].values
+    assert list(mapping['c']) == list(df_temporal[column].values)
+
+
+@pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
+def test_temporal_fill(column):
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.Fill(column))
+    mapping = convert.convert_temporal(chart)
+    assert list(mapping['c']) == list(df_temporal[column].values)
+
+
+@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
+def test_temporal_opacity(column):
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.Opacity(column))
+    convert.convert_temporal(chart)
+
+
+@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
+def test_temporal_shape(column):
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.Shape(column))
+    convert.convert_temporal(chart)
+
+
+@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
+def test_temporal_size(column):
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.Size(column))
+    mapping = convert.convert_temporal(chart)
+    assert list(mapping['s']) == list(df_temporal[column].values)
+
+
+@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
+def test_temporal_stroke(column):
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.Stroke(column))
+    convert.convert_temporal(chart)
+
+
+@pytest.mark.parametrize("channel", [alt.Color("years"), alt.Fill("years")])
+def test_temporal_scatter(channel):
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.X("years"), alt.Y("quantitative"), channel)
+    mapping = convert.convert_temporal(chart)
     plt.scatter(**mapping)
     plt.show()
