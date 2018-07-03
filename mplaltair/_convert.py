@@ -1,5 +1,6 @@
 import matplotlib
 import altair
+
 from ._data import _normalize_data
 
 def _process_data_mappings(f):
@@ -16,15 +17,22 @@ def _process_data_mappings(f):
     return g
 
 def _allowed_ranged_marks(enc_channel, mark):
-    """TODO
+    """TODO: DOCS
     """
-    return enc_channel in ['x2', 'y2'] and mark in ['area', 'bar', 'rect', 'rule']
+    return mark in ['area', 'bar', 'rect', 'rule'] if enc_channel in ['x2', 'y2'] else True
 
 @_process_data_mappings
 def _process_x(enc_spec, data):
     """Returns the MPL encoding equivalent for Altair x channel
     """
-    raise NotImplementedError
+    try:
+        field = enc_spec['field']
+        if not field:
+            raise ValueError("Field not specified in the encoding x")
+        dx = data[enc_spec['field']]
+    except KeyError:
+        raise KeyError("{} does not match any column in the data".format(enc_spec))
+    return ('x', dx)
 
 @_process_data_mappings
 def _process_y(enc_spec, data):
@@ -93,7 +101,7 @@ _mappings = {
     'stroke': _process_stroke,
 }
 
-def convert(spec, figure=None):
+def convert(spec):
     """Convert an altair encoding to a Matplotlib figure
 
 
@@ -125,15 +133,11 @@ def convert(spec, figure=None):
     if not encoding:
         raise ValueError("Encoding not provided with the chart specification")
 
-    for enc_channel, enc_spec in encoding:
+    for enc_channel, enc_spec in encoding.items():
         if not _allowed_ranged_marks(enc_channel, mark):
             raise ValueError("Ranged encoding channels like x2, y2 not allowed for Mark: {}".format(spec['mark']))
 
-        mpl_encoding_channel, data = mapping[enc_channel](enc_spec, data)
+        mpl_encoding_channel, data = _mappings[enc_channel](enc_spec, data)
         mapping[mpl_encoding_channel] = data
     
-    if figure is None:
-        from matplotlib import pyplot as plt
-        figure = plt.figure()
-
-    return figure, mapping
+    return mapping
