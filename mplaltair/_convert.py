@@ -38,7 +38,14 @@ def _process_x(enc_spec, data):
 def _process_y(enc_spec, data):
     """Returns the MPL encoding equivalent for Altair y channel
     """
-    raise NotImplementedError
+    try:
+        field = enc_spec['field']
+        if not field:
+            raise ValueError("Field not specified in the encoding x")
+        dy = data[enc_spec['field']]
+    except KeyError:
+        raise KeyError("{} does not match any column in the data".format(enc_spec))
+    return ('y', dy)
 
 @_process_data_mappings
 def _process_x2(enc_spec, data):
