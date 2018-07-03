@@ -2,16 +2,16 @@ from altair.utils.core import parse_shorthand
 from altair.utils.schemapi import Undefined
 
 _mpl_temporal_equivalent = {
-    'x': (lambda d: _process_x(d)),
-    'y': (lambda d: _process_y(d)),
-    'x2': (lambda d: _process_not_implemented(d)),  # NotImplementedError - ALT
-    'y2': (lambda d: _process_not_implemented(d)),  # NotImplementedError - ALT
-    'color': (lambda d: _process_color(d)),
-    'fill': (lambda d: _process_fill(d)),
-    'opacity': (lambda d: _process_opacity(d)),  # NotImplementedError for array-like opacities - MPL
-    'shape': (lambda d: _process_shape(d)),  # NotImplementedError - MPL
-    'size': (lambda d: _process_size(d)),  # NotImplementedError - MPL
-    'stroke': (lambda d: _process_not_implemented(d)),  # NotImplementedError - ALT
+    'x': (lambda d: _process_temporal_x(d)),
+    'y': (lambda d: _process_temporal_y(d)),
+    'x2': (lambda d: _process_temporal_not_implemented(d)),  # NotImplementedError - ALT
+    'y2': (lambda d: _process_temporal_not_implemented(d)),  # NotImplementedError - ALT
+    'color': (lambda d: _process_temporal_color(d)),
+    'fill': (lambda d: _process_temporal_fill(d)),
+    'opacity': (lambda d: _process_temporal_opacity(d)),  # NotImplementedError - MPL
+    'shape': (lambda d: _process_temporal_shape(d)),  # NotImplementedError - MPL
+    'size': (lambda d: _process_temporal_size(d)),  # NotImplementedError - MPL
+    'stroke': (lambda d: _process_temporal_not_implemented(d)),  # NotImplementedError - ALT
 }
 
 
@@ -76,33 +76,33 @@ def _aggregate_channel():
     raise NotImplementedError
 
 
-def _process_x(data):
+def _process_temporal_x(data):
     return "x", data
 
 
-def _process_y(data):
+def _process_temporal_y(data):
     return "y", data
 
 
-def _process_color(data):
+def _process_temporal_color(data):
     return "c", data
 
 
-def _process_fill(data):
+def _process_temporal_fill(data):
     return "c", data
 
 
-def _process_opacity(data):
+def _process_temporal_opacity(data):
     raise NotImplementedError
 
 
-def _process_shape(data):
+def _process_temporal_shape(data):
     raise NotImplementedError
 
 
-def _process_size(data):
+def _process_temporal_size(data):
     raise NotImplementedError
 
 
-def _process_not_implemented(data):
+def _process_temporal_not_implemented(data):
     raise NotImplementedError

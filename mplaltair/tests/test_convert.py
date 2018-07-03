@@ -26,6 +26,13 @@ def test_temporal_y(column):
     assert list(mapping['y']) == list(df_temporal[column].values)
 
 
+@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
+def test_temporal_x2_y2(column):
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.X2(column), alt.Y2(column))
+    convert.convert_temporal(chart)
+
+
 @pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
 def test_temporal_color(column):
     chart = alt.Chart(df_temporal).mark_point().encode(alt.Color(column))
@@ -40,21 +47,21 @@ def test_temporal_fill(column):
     assert list(mapping['c']) == list(df_temporal[column].values)
 
 
-@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.xfail(raises=NotImplementedError, reason="The alpha argument in scatter() cannot take arrays")
 @pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
 def test_temporal_opacity(column):
     chart = alt.Chart(df_temporal).mark_point().encode(alt.Opacity(column))
     convert.convert_temporal(chart)
 
 
-@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.xfail(raises=NotImplementedError, reason="The marker argument in scatter() cannot take arrays")
 @pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
 def test_temporal_shape(column):
     chart = alt.Chart(df_temporal).mark_point().encode(alt.Shape(column))
     convert.convert_temporal(chart)
 
 
-@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.xfail(raises=NotImplementedError, reason="Dates would need to be normalized for the size.")
 @pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
 def test_temporal_size(column):
     chart = alt.Chart(df_temporal).mark_point().encode(alt.Size(column))
@@ -62,7 +69,7 @@ def test_temporal_size(column):
     assert list(mapping['s']) == list(df_temporal[column].values)
 
 
-@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.xfail(raises=NotImplementedError, reason="Stroke is not well defined in Altair")
 @pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
 def test_temporal_stroke(column):
     chart = alt.Chart(df_temporal).mark_point().encode(alt.Stroke(column))
