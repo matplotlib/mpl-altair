@@ -47,3 +47,23 @@ def test_convert_y_fail():
     chart_spec = json.loads(alt.Chart(df).encode(y='b:N').mark_point().to_json())
     with pytest.raises(KeyError):
         convert(chart_spec)
+
+def test_convert_color_success_quantitative():
+    chart_spec = json.loads(alt.Chart(df).encode(color='quant').mark_point().to_json())
+    mapping = convert(chart_spec)
+    assert list(mapping['c']) == list(df.quant.values)
+
+def test_convert_color_success_ordinal():
+    chart_spec = json.loads(alt.Chart(df).encode(color='ord').mark_point().to_json())
+    mapping = convert(chart_spec)
+    assert list(mapping['c']) == list(df.ord.values)
+
+def test_convert_color_success_nominal():
+    chart_spec = json.loads(alt.Chart(df).encode(color='nom').mark_point().to_json())
+    with pytest.raises(NotImplementedError):
+        convert(chart_spec)
+
+def test_convert_color_fail():
+    chart_spec = json.loads(alt.Chart(df).encode(color='b:N').mark_point().to_json())
+    with pytest.raises(KeyError):
+        convert(chart_spec)
