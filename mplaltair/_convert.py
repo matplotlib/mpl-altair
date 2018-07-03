@@ -21,30 +21,27 @@ def _allowed_ranged_marks(enc_channel, mark):
     """
     return mark in ['area', 'bar', 'rect', 'rule'] if enc_channel in ['x2', 'y2'] else True
 
+def _get_column(enc_spec, data):
+    try:
+        field = enc_spec.get('field')
+        if not field:
+            raise ValueError("Field not specified in the encoding x")
+        return data[enc_spec['field']]
+    except KeyError:
+        raise KeyError("{} does not match any column in the data".format(enc_spec))
+
 @_process_data_mappings
 def _process_x(enc_spec, data):
     """Returns the MPL encoding equivalent for Altair x channel
     """
-    try:
-        field = enc_spec['field']
-        if not field:
-            raise ValueError("Field not specified in the encoding x")
-        dx = data[enc_spec['field']]
-    except KeyError:
-        raise KeyError("{} does not match any column in the data".format(enc_spec))
+    dx = _get_column(enc_spec, data)
     return ('x', dx)
 
 @_process_data_mappings
 def _process_y(enc_spec, data):
     """Returns the MPL encoding equivalent for Altair y channel
     """
-    try:
-        field = enc_spec['field']
-        if not field:
-            raise ValueError("Field not specified in the encoding x")
-        dy = data[enc_spec['field']]
-    except KeyError:
-        raise KeyError("{} does not match any column in the data".format(enc_spec))
+    dy = _get_column(enc_spec, data)
     return ('y', dy)
 
 @_process_data_mappings
