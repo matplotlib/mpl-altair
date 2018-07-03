@@ -87,3 +87,23 @@ def test_convert_fill_fail():
     chart_spec = json.loads(alt.Chart(df).encode(fill='b:N').mark_point().to_json())
     with pytest.raises(KeyError):
         convert(chart_spec)
+
+def test_convert_size_success_quantitative():
+    chart_spec = json.loads(alt.Chart(df).encode(size='quant').mark_point().to_json())
+    mapping = convert(chart_spec)
+    assert list(mapping['s']) == list(df.quant.values)
+
+def test_convert_size_success_ordinal():
+    chart_spec = json.loads(alt.Chart(df).encode(size='ord').mark_point().to_json())
+    mapping = convert(chart_spec)
+    assert list(mapping['s']) == list(df.ord.values)
+
+def test_convert_size_success_nominal():
+    chart_spec = json.loads(alt.Chart(df).encode(size='nom').mark_point().to_json())
+    with pytest.raises(NotImplementedError):
+        convert(chart_spec)
+
+def test_convert_size_fail():
+    chart_spec = json.loads(alt.Chart(df).encode(size='b:N').mark_point().to_json())
+    with pytest.raises(KeyError):
+        convert(chart_spec)
