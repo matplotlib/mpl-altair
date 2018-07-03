@@ -65,12 +65,16 @@ def _locate_channel_data(channel, data):
         return channel.value
     elif hasattr(channel, "aggregate") and channel.aggregate is not Undefined:
         return _aggregate_channel()
+    elif hasattr(channel, "timeUnit") and channel.timeUnit is not Undefined:
+        return _handle_timeUnit()
     elif hasattr(channel, "field") and channel.field is not Undefined:
         return data[channel.field].values
     elif hasattr(channel, "shorthand") and channel.shorthand is not Undefined:
         parsed = parse_shorthand(channel.shorthand, data)
         if "aggregate" in parsed:
             return _aggregate_channel()
+        elif "timeUnit" in parsed:
+            return _handle_timeUnit()
         elif "field" in parsed:
             return data[parsed['field']].values
     else:
@@ -78,6 +82,10 @@ def _locate_channel_data(channel, data):
 
 
 def _aggregate_channel():
+    raise NotImplementedError
+
+
+def _handle_timeUnit():
     raise NotImplementedError
 
 

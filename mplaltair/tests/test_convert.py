@@ -84,3 +84,9 @@ def test_temporal_scatter(channel):
     mapping['y'] = df_temporal['quantitative'].values
     plt.scatter(**mapping)
     plt.show()
+
+
+@pytest.mark.xfail(raises=NotImplementedError, reason="specifying timeUnit is not supported yet")
+def test_timeUnit():
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.X('date(combination)'))
+    convert.convert_temporal(chart)
