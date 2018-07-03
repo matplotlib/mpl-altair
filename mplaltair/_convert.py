@@ -60,7 +60,17 @@ def _process_y2(enc_spec, data):
 def _process_color(enc_spec, data):
     """Returns the MPL encoding equivalent for Altair color channel
     """
-    raise NotImplementedError
+    dc = _get_column(enc_spec, data)
+
+    dtype = enc_spec['type']
+    if dtype == 'quantitative':
+        return ('c', dc)
+    elif dtype == 'nominal':
+        raise NotImplementedError
+    elif dtype == 'ordinal':
+        return ('c', dc)
+    elif dtype == 'temporal':
+        raise NotImplementedError
 
 @_process_data_mappings
 def _process_fill(enc_spec, data):
