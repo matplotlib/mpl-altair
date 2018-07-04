@@ -1,7 +1,3 @@
-from altair.utils.core import parse_shorthand
-from altair.utils.schemapi import Undefined
-
-
 # mapping of altair channel to mpl kwargs for scatter()
 _mpl_scatter_equivalent = {
     'x': (lambda d: _process_x(d)),
@@ -36,10 +32,9 @@ def convert_quantitative(chart):
 
     mapping = {}
 
-    for encoding_channel in chart.to_dict()['encoding']:  # Need chart to get dictionary of channels from the encoding
-        channel = chart.encoding[encoding_channel]
-        data = _locate_channel_data(channel, chart.data)
-        mapping[_mpl_scatter_equivalent[encoding_channel](data)[0]] = _mpl_scatter_equivalent[encoding_channel](data)[1]
+    for channel in chart.to_dict()['encoding']:  # Need chart to get dictionary of channels from the encoding
+        data = _locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
+        mapping[_mpl_scatter_equivalent[channel](data)[0]] = _mpl_scatter_equivalent[channel](data)[1]
 
     return mapping
 
@@ -60,18 +55,12 @@ def _locate_channel_data(channel, data):
 
     """
 
-    if hasattr(channel, "value") and channel.value is not Undefined:  # from the value version of the channel
-        return channel.value
-    elif hasattr(channel, "aggregate") and channel.aggregate is not Undefined:
+    if channel.get('value'):  # from the value version of the channel
+        return channel.get('value')
+    elif channel.get('aggregate'):
         return _aggregate_channel()
-    elif hasattr(channel, "field") and channel.field is not Undefined:
-        return data[channel.field].values
-    elif hasattr(channel, "shorthand") and channel.shorthand is not Undefined:
-        parsed = parse_shorthand(channel.shorthand, data)
-        if "aggregate" in parsed:
-            return _aggregate_channel()
-        elif "field" in parsed:
-            return data[parsed['field']].values
+    elif channel.get('field'):
+        return data[channel.get('field')].values
     else:
         raise ValueError("Cannot find data for the channel")
 
