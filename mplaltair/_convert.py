@@ -1,5 +1,3 @@
-from altair.utils.core import parse_shorthand
-from altair.utils.schemapi import Undefined
 import matplotlib.dates as mdates
 
 _mpl_temporal_equivalent = {
@@ -33,14 +31,13 @@ def convert_temporal(chart):
 
     mapping = {}
 
-    for encoding_channel in chart.to_dict()['encoding']:
-        channel = chart.encoding[encoding_channel]
-        data = _locate_channel_data(channel, chart.data)
+    for channel in chart.to_dict()['encoding']:
+        data = _locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
         try:
-            data = mdates.date2num(data)
+            data = mdates.date2num(data)  # Convert dates to Matplotlib dates
         except ValueError:
             raise
-        mapping[_mpl_temporal_equivalent[encoding_channel](data)[0]] = _mpl_temporal_equivalent[encoding_channel](data)[1]
+        mapping[_mpl_temporal_equivalent[channel](data)[0]] = _mpl_temporal_equivalent[channel](data)[1]
 
     return mapping
 
@@ -61,22 +58,14 @@ def _locate_channel_data(channel, data):
 
     """
 
-    if hasattr(channel, "value") and channel.value is not Undefined:  # from the value version of the channel
+    if channel.get('value'):
         return channel.value
-    elif hasattr(channel, "aggregate") and channel.aggregate is not Undefined:
+    elif channel.get('aggregate'):
         return _aggregate_channel()
-    elif hasattr(channel, "timeUnit") and channel.timeUnit is not Undefined:
+    elif channel.get('timeUnit'):
         return _handle_timeUnit()
-    elif hasattr(channel, "field") and channel.field is not Undefined:
-        return data[channel.field].values
-    elif hasattr(channel, "shorthand") and channel.shorthand is not Undefined:
-        parsed = parse_shorthand(channel.shorthand, data)
-        if "aggregate" in parsed:
-            return _aggregate_channel()
-        elif "timeUnit" in parsed:
-            return _handle_timeUnit()
-        elif "field" in parsed:
-            return data[parsed['field']].values
+    elif channel.get('field'):
+        return data[channel.get('field')].values
     else:
         raise ValueError("Cannot find data for the channel")
 
