@@ -1,18 +1,3 @@
-# mapping of altair channel to mpl kwargs for scatter()
-_mpl_scatter_equivalent = {
-    'x': (lambda d: _process_x(d)),
-    'y': (lambda d: _process_y(d)),
-    'x2': (lambda d: _process_not_implemented(d)),  # NotImplementedError - ALT
-    'y2': (lambda d: _process_not_implemented(d)),  # NotImplementedError - ALT
-    'color': (lambda d: _process_color(d)),
-    'fill': (lambda d: _process_fill(d)),
-    'opacity': (lambda d: _process_opacity(d)),  # NotImplementedError for array-like opacities - MPL
-    'shape': (lambda d: _process_shape(d)),  # NotImplementedError - MPL
-    'size': (lambda d: _process_size(d)),
-    'stroke': (lambda d: _process_not_implemented(d)),  # NotImplementedError - ALT
-}
-
-
 def convert_quantitative(chart):
     """Convert quantitative Altair encodings to their Matplotlib equivalents
 
@@ -102,3 +87,18 @@ def _process_size(data):
 
 def _process_not_implemented(data):
     raise NotImplementedError
+
+
+# mapping of altair channel to mpl kwargs for scatter()
+_mpl_scatter_equivalent = {
+    'x': _process_x,
+    'y': _process_y,
+    'x2': _process_not_implemented,  # NotImplementedError - ALT
+    'y2': _process_not_implemented,  # NotImplementedError - ALT
+    'color': _process_color,
+    'fill': _process_fill,
+    'opacity': _process_opacity,  # NotImplementedError for array-like opacities - MPL
+    'shape': _process_shape,  # NotImplementedError - MPL
+    'size': _process_size,
+    'stroke': _process_not_implemented,  # NotImplementedError - ALT
+}

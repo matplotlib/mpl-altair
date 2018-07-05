@@ -1,6 +1,6 @@
 import altair as alt
 import pandas as pd
-import mplaltair._convert as convert
+import mplaltair._quantitative as convert
 import pytest
 
 df_quantitative = pd.DataFrame({
