@@ -1,40 +1,46 @@
-import pandas as pd
+def _locate_channel_dtype(channel, data):
+    """Locates data used for each channel
+        Parameters
+        ----------
+        channel
+            The encoding channel from the Altair chart
+        data : Pandas DataFrame
+            Data from the Altair chart
+        Returns
+        -------
+        A string representing the data type from the Altair chart ('quantitative', 'ordinal', 'numeric', 'temporal')
+        """
+    if channel.get('type'):
+        return channel.get('type')
+    else:
+        # TODO: find some way to deal with 'value' so that, opacity, for instance, can be plotted with a value defined
+        if channel.get('value'):
+            raise NotImplementedError
+        raise NotImplementedError
 
-from ._utils import _fetch
 
-def _normalize_data(spec):
-    """Converts the data to a Pandas dataframe
-
+def _locate_channel_data(channel, data):
+    """Locates data used for each channel
     Parameters
     ----------
-    spec : dict
-    The vega-lite specification in json format
-
+    channel
+        The encoding channel from the Altair chart
+    data : Pandas DataFrame
+        Data from the Altair chart
     Returns
     -------
-    dict
-    The vega-lite specification with the data format fixed to a Pandas dataframe
-
-    Raises
-    ------
-    KeyError
-    Raised when the specification does not contain any data attribute
-
-    NotImplementedError
-    Raised when the data specification has an unsupported data source
+    A numpy ndarray containing the data used for the channel
     """
 
-    if not spec.get('data'):
-        raise KeyError('Please specify a data source.')
-
-    if spec['data'].get('url'):
-        df = pd.DataFrame(_fetch(spec['data']['url']))
-    elif spec['data'].get('values'):
-        df = pd.DataFrame(spec['data']['values'])
+    if channel.get('value'):  # from the value version of the channel
+        return channel.get('value')
+    elif channel.get('aggregate'):
+        return _aggregate_channel()
+    elif channel.get('field'):
+        return data[channel.get('field')].values
     else:
-        raise NotImplementedError('Given data specification is unsupported at the moment.')
+        raise ValueError("Cannot find data for the channel")
 
-    del spec['data']
-    spec['data'] = df
 
-    return spec
+def _aggregate_channel():
+    raise NotImplementedError
