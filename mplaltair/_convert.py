@@ -125,7 +125,7 @@ _mappings = {
     'stroke': _process_stroke,
 }
 
-def convert(spec):
+def _convert(spec):
     """Convert an altair encoding to a Matplotlib figure
 
 
