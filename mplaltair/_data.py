@@ -1,6 +1,7 @@
 import pandas as pd
 
 from ._utils import _fetch
+from ._exceptions import ValidationError
 
 def _normalize_data(spec):
     """Converts the data to a Pandas dataframe
@@ -17,7 +18,7 @@ def _normalize_data(spec):
 
     Raises
     ------
-    KeyError
+    ValidationError
     Raised when the specification does not contain any data attribute
 
     NotImplementedError
@@ -25,7 +26,7 @@ def _normalize_data(spec):
     """
 
     if not spec.get('data'):
-        raise KeyError('Please specify a data source.')
+        raise ValidationError('Please specify a data source.')
     
     if spec['data'].get('url'):
         df = pd.DataFrame(_fetch(spec['data']['url']))
