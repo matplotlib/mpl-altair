@@ -3,7 +3,7 @@ import pytest
 import altair as alt
 import pandas as pd
 
-from .._convert import convert
+from mplaltair import convert
 
 df = pd.DataFrame({'quant': [1, 1.5, 2], 'ord': [0, 1, 2], 'nom': ['A', 'B', 'C']})
 
