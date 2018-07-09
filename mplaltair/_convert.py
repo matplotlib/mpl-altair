@@ -1,3 +1,4 @@
+import matplotlib.dates as mdates
 from ._data import _locate_channel_data, _locate_channel_dtype
 
 def _allowed_ranged_marks(enc_channel, mark):
@@ -40,7 +41,7 @@ def _process_color(dtype, data):
     elif dtype == 'ordinal':
         return ('c', data)
     elif dtype == 'temporal':
-        raise NotImplementedError
+        return ('c', data)
 
 
 def _process_fill(dtype, data):
@@ -112,6 +113,11 @@ def convert(chart):
     for channel in chart.to_dict()['encoding']:
         data = _locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
         dtype = _locate_channel_dtype(chart.to_dict()['encoding'][channel], chart.data)
+        if dtype == 'temporal':
+            try:
+                data = mdates.date2num(data)  # Convert dates to Matplotlib dates
+            except ValueError:
+                raise
         mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
     
     return mapping

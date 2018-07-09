@@ -36,6 +36,8 @@ def _locate_channel_data(channel, data):
         return channel.get('value')
     elif channel.get('aggregate'):
         return _aggregate_channel()
+    elif channel.get('timeUnit'):
+        return _handle_timeUnit()
     elif channel.get('field'):
         return data[channel.get('field')].values
     else:
@@ -43,4 +45,8 @@ def _locate_channel_data(channel, data):
 
 
 def _aggregate_channel():
+    raise NotImplementedError
+
+
+def _handle_timeUnit():
     raise NotImplementedError
