@@ -6,6 +6,10 @@ cache:
     - $HOME/.cache/pip
     - $HOME/.cache/matplotlib
 
+env:
+  global:
+    - MPLBACKEND=agg
+
 matrix:
   fast_finish: true
   include:
