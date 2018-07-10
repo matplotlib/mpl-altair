@@ -1,27 +1,47 @@
 import matplotlib.dates as mdates
-from ._data import _locate_channel_data, _locate_channel_dtype
+from ._data import _locate_channel_data, _locate_channel_dtype, _locate_channel_scale
 
 
-def _setup_locator(chart):
+def _set_lims(scale_info):
+    """Limits need to have the minimum value, maximum value, and if it should start at zero"""
+
+    if scale_info['dtype'] == 'quantitative':
+        _axis_mappings = {
+            'x': {'min': 'left', 'max': 'right'},
+            'y': {'min': 'bottom', 'max': 'top'},
+        }
+        lims = {}
+
+        if 'domain' in scale_info:
+            # do domain things and return b/c domain takes precedence over zero
+            pass
+
+        if min(scale_info['data']) > 0:
+            if 'zero' not in scale_info or scale_info['zero'] == True:
+                lims[_axis_mappings[scale_info['axis']].get('min')] = 0  # quantitative sets min to be 0 by default
+            else:
+                lims[_axis_mappings[scale_info['axis']].get('min')] = min(scale_info['data'])  # basic approach
+
+        if max(scale_info['data']) < 0:
+            if 'zero' not in scale_info or scale_info['zero'] == True:
+                lims[_axis_mappings[scale_info['axis']].get('max')] = 0
+            else:
+                lims[_axis_mappings[scale_info['axis']].get('max')] = max(scale_info['data'])  # basic approach
+
+        # set the limits
+        if scale_info['axis'] == 'x':
+            scale_info['ax'].set_xlim(**lims)
+        else:
+            scale_info['ax'].set_ylim(**lims)
+
+
+def _set_scale_type(scale_info):
+    """Scale Type needs to have the scale type and optionally base and optionally pow"""
     pass
 
-
-def _setup_lims(data, dtype, axis):
-    _axis_mappings = {
-        'x': {'min': 'left', 'max': 'right'},
-        'y': {'min': 'bottom', 'max': 'top'},
-    }
-    lims = {}
-    if dtype == 'quantitative':
-        if min(data) > 0:
-            lims[_axis_mappings[axis].get('min')] = 0
-        else:
-            lims[_axis_mappings[axis].get('min')] = min(data)
-
-        lims[_axis_mappings[axis].get('max')] = max(data)
-        return lims
-    else:
-        return None
+def _set_tick_locator(scale_info):
+    """Tick Locator needs to have a lot of information"""
+    pass
 
 def convert_axis(ax, chart):
     """Convert elements of the altair chart to Matplotlib axis properties
@@ -35,28 +55,12 @@ def convert_axis(ax, chart):
     """
 
     for channel in chart.to_dict()['encoding']:
-        if channel == 'x' or channel == 'y':
-            data = _locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
-            dtype = _locate_channel_dtype(chart.to_dict()['encoding'][channel], chart.data)
-            if dtype == 'temporal':
-                try:
-                    data = mdates.date2num(data)  # Convert dates to Matplotlib dates
-                except ValueError:
-                    raise
-            if channel == 'x':
-                xlims = _setup_lims(data, dtype, 'x')
-                xloc = None  # Not implemented yet
-            else:  # channel == 'y'
-                ylims = _setup_lims(data, dtype, 'y')
-                yloc = None  # Not implemented yet
-        else:
-            print("No data for axis")
-
-    if xloc is not None:
-        ax.xaxis.set_major_locator(xloc)
-    if yloc is not None:
-        ax.yaxis.set_minor_locator(yloc)
-    if xlims is not None:
-        ax.set_xlim(**xlims)
-    if ylims is not None:
-        ax.set_ylim(**ylims)
+        if channel in ['x', 'y']:
+            scale_info = _locate_channel_scale(chart, channel)
+            scale_info['ax'] = ax
+            scale_info['axis'] = channel
+            scale_info['data'] = _locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
+            scale_info['dtype'] = _locate_channel_dtype(chart.to_dict()['encoding'][channel], chart.data)
+            _set_lims(scale_info)
+            _set_scale_type(scale_info)
+            _set_tick_locator(scale_info)
