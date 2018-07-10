@@ -2,37 +2,42 @@ import matplotlib.dates as mdates
 from ._data import _locate_channel_data, _locate_channel_dtype, _locate_channel_scale
 
 
-def _set_lims(scale_info):
+def _set_lims(channel):
     """Limits need to have the minimum value, maximum value, and if it should start at zero"""
 
-    if scale_info['dtype'] == 'quantitative':
-        _axis_mappings = {
+    if channel['dtype'] == 'quantitative':
+        _axis_kwargs = {
             'x': {'min': 'left', 'max': 'right'},
             'y': {'min': 'bottom', 'max': 'top'},
         }
+
         lims = {}
 
-        if 'domain' in scale_info:
-            # do domain things and return b/c domain takes precedence over zero
-            pass
-
-        if min(scale_info['data']) > 0:
-            if 'zero' not in scale_info or scale_info['zero'] == True:
-                lims[_axis_mappings[scale_info['axis']].get('min')] = 0  # quantitative sets min to be 0 by default
+        if 'domain' in channel:
+            # do domain things and skip examining zero b/c domain takes precedence over zero
+            if channel['domain'] == 'unaggregated':
+                raise NotImplementedError
             else:
-                lims[_axis_mappings[scale_info['axis']].get('min')] = min(scale_info['data'])  # basic approach
-
-        if max(scale_info['data']) < 0:
-            if 'zero' not in scale_info or scale_info['zero'] == True:
-                lims[_axis_mappings[scale_info['axis']].get('max')] = 0
+                lims[_axis_kwargs[channel['axis']].get('min')] = channel['domain'][0]
+                lims[_axis_kwargs[channel['axis']].get('max')] = channel['domain'][1]
+        else:
+            if ('zero' not in channel or channel['zero'] == True) and min(channel['data']) > 0:
+                lims[_axis_kwargs[channel['axis']].get('min')] = 0  # quantitative sets min to be 0 by default
             else:
-                lims[_axis_mappings[scale_info['axis']].get('max')] = max(scale_info['data'])  # basic approach
+                lims[_axis_kwargs[channel['axis']].get('min')] = min(channel['data'])  # basic approach
+
+            if ('zero' not in channel or channel['zero'] == True) and max(channel['data']) < 0:
+                lims[_axis_kwargs[channel['axis']].get('max')] = 0
+            else:
+                lims[_axis_kwargs[channel['axis']].get('max')] = max(channel['data'])  # basic approach
 
         # set the limits
-        if scale_info['axis'] == 'x':
-            scale_info['ax'].set_xlim(**lims)
+        if channel['axis'] == 'x':
+            channel['ax'].set_xlim(**lims)
         else:
-            scale_info['ax'].set_ylim(**lims)
+            channel['ax'].set_ylim(**lims)
+    else:
+        raise NotImplementedError
 
 
 def _set_scale_type(scale_info):

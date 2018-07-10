@@ -12,8 +12,8 @@ df_quant = pd.DataFrame({
     "neg": [-3, -4, -5]
 })
 
-
-@pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'neg'), ('b', 'alpha')])
+@pytest.mark.skip
+@pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
 def test_axis_quantitative(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(alt.X(x), alt.Y(y))
     mapping = convert(chart)
@@ -22,8 +22,8 @@ def test_axis_quantitative(x, y):
     convert_axis(ax, chart)
     plt.show()
 
-
-@pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'neg'), ('b', 'alpha')])
+@pytest.mark.skip
+@pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
 def test_axis_quantitative_false_zero(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X(x, scale=alt.Scale(zero=False)),
@@ -35,11 +35,25 @@ def test_axis_quantitative_false_zero(x, y):
     convert_axis(ax, chart)
     plt.show()
 
-@pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'neg'), ('b', 'alpha')])
+@pytest.mark.skip
+@pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
 def test_axis_quantitative_true_zero(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X(x, scale=alt.Scale(zero=True)),
         alt.Y(y, scale=alt.Scale(zero=True))
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    plt.show()
+
+
+@pytest.mark.parametrize('x,y,x_dom,y_dom', [('a', 'c', [0.5, 4], [-5, 10]), ('neg', 'alpha', [-6, -2], [0, 1])])
+def test_axis_quantitative_domain(x, y, x_dom, y_dom):
+    chart = alt.Chart(df_quant).mark_point().encode(
+        alt.X(x, scale=alt.Scale(domain=x_dom)),
+        alt.Y(y, scale=alt.Scale(domain=y_dom))
     )
     mapping = convert(chart)
     fig, ax = plt.subplots()
