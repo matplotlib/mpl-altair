@@ -2,8 +2,15 @@ import matplotlib.dates as mdates
 from ._data import _locate_channel_data, _locate_channel_dtype, _locate_channel_scale
 
 
-def _set_lims(channel):
-    """Limits need to have the minimum value, maximum value, and if it should start at zero"""
+def _set_limits(channel):
+    """Set the axis limits on the Matplotlib axis
+
+    Parameters
+    ----------
+    channel : dict
+        The mapping of the channel metadata and the scale data
+
+    """
 
     if channel['dtype'] == 'quantitative':
         _axis_kwargs = {
@@ -13,8 +20,8 @@ def _set_lims(channel):
 
         lims = {}
 
-        if 'domain' in channel:
-            # do domain things and skip examining zero b/c domain takes precedence over zero
+        # determine limits
+        if 'domain' in channel:  # domain takes precedence over zero in Altair
             if channel['domain'] == 'unaggregated':
                 raise NotImplementedError
             else:
@@ -44,9 +51,11 @@ def _set_scale_type(scale_info):
     """Scale Type needs to have the scale type and optionally base and optionally pow"""
     pass
 
+
 def _set_tick_locator(scale_info):
     """Tick Locator needs to have a lot of information"""
     pass
+
 
 def convert_axis(ax, chart):
     """Convert elements of the altair chart to Matplotlib axis properties
@@ -66,6 +75,6 @@ def convert_axis(ax, chart):
             scale_info['axis'] = channel
             scale_info['data'] = _locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
             scale_info['dtype'] = _locate_channel_dtype(chart.to_dict()['encoding'][channel], chart.data)
-            _set_lims(scale_info)
+            _set_limits(scale_info)
             _set_scale_type(scale_info)
             _set_tick_locator(scale_info)
