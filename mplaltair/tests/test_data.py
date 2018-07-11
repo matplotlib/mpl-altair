@@ -2,6 +2,7 @@ import pytest
 import pandas as pd
 from vega_datasets import data
 from .._data import _normalize_data
+from .._exceptions import ValidationError
 
 def test_data_list():
     spec = {
@@ -22,7 +23,7 @@ def test_data_url():
 
 def test_data_no_pass():
     spec = {}
-    with pytest.raises(KeyError):
+    with pytest.raises(ValidationError):
         _normalize_data(spec)
 
 def test_data_invalid():
