@@ -37,3 +37,24 @@ def test_data_timeUnit_field():
     chart = alt.Chart(df_temporal).mark_point().encode(alt.X(field='combination', type='temporal', timeUnit='month'))
     for channel in chart.to_dict()['encoding']:
         data = convert._locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
+
+
+@pytest.mark.xfail
+def test_data_aggregate_temporal():
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.X(field='years', type='temporal', aggregate='average'))
+    for channel in chart.to_dict()['encoding']:
+        data = convert._locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
+
+
+@pytest.mark.xfail(raises=ValueError)
+def test_data_unexpected_encoding_redundant():
+    """This test is redundant after merging with convert-numeric"""
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.X('years'))
+    convert._locate_channel_data({'unexpected': 'a', 'no_field': 'a', 'no_value': 'a'}, chart.data)
+
+
+def test_data_value_redundant():
+    """This test is redundant after merging with convert-numeric"""
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.X('years'))
+    convert._locate_channel_data({'value': 0.5}, chart.data)
+

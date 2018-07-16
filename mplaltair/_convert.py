@@ -59,7 +59,7 @@ def _locate_channel_data(channel, data):
     """
 
     if channel.get('value'):
-        return channel.value
+        return channel.get('value')
     elif channel.get('aggregate'):
         return _aggregate_channel()
     elif channel.get('timeUnit'):
