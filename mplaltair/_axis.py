@@ -47,9 +47,14 @@ def _set_limits(channel):
         raise NotImplementedError
 
 
-def _set_scale_type(scale_info):
-    """Scale Type needs to have the scale type and optionally base and optionally pow"""
-    pass
+def _set_scale_type(channel):
+    """Scale Type needs to have the scale type and optional base and optional pow"""
+    if 'type' in channel:
+        if channel['type'] == 'log':
+            if channel['axis'] == 'x':
+                channel['ax'].set_xscale('log')
+            else:  # y-axis
+                channel['ax'].set_yscale('log')
 
 
 def _set_tick_locator(scale_info):
@@ -73,8 +78,8 @@ def convert_axis(ax, chart):
             scale_info = _locate_channel_scale(chart, channel)
             scale_info['ax'] = ax
             scale_info['axis'] = channel
-            scale_info['data'] = _locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
-            scale_info['dtype'] = _locate_channel_dtype(chart.to_dict()['encoding'][channel], chart.data)
-            _set_limits(scale_info)
+            scale_info['data'] = _locate_channel_data(chart, channel)
+            scale_info['dtype'] = _locate_channel_dtype(chart, channel)
             _set_scale_type(scale_info)
+            _set_limits(scale_info)
             _set_tick_locator(scale_info)
