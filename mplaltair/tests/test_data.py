@@ -80,3 +80,8 @@ def test_data_dtype_fail():
     for channel in chart.to_dict()['encoding']:
         dtype = _data._locate_channel_dtype(chart.to_dict()['encoding'][channel], chart.data)
     assert dtype == 'quantitative'
+
+@pytest.mark.xfail(raises=ValueError)
+def test_data_unexpected_encoding():
+    chart = alt.Chart(df).mark_point().encode(alt.X('a'))
+    _data._locate_channel_data({'unexpected': 'a', 'no_field': 'a', 'no_value': 'a'}, chart.data)

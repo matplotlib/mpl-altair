@@ -55,7 +55,6 @@ def test_convert_y_fail():
     with pytest.raises(KeyError):
         convert(chart_spec)
 
-#TODO: x2, y2
 @pytest.mark.xfail(raises=NotImplementedError, reason="It doesn't make sense to have x2 and y2 on scatter plots")
 def test_quantitative_x2_y2():
     chart = alt.Chart(df_quant).mark_point().encode(alt.X('a'), alt.Y('b'), alt.X2('c'), alt.Y2('alpha'))
@@ -111,7 +110,6 @@ def test_convert_fill_fail():
     with pytest.raises(KeyError):
         convert(chart_spec)
 
-# TODO: shape
 @pytest.mark.xfail(raises=NotImplementedError, reason="The marker argument in scatter() cannot take arrays")
 def test_quantitative_shape():
     chart = alt.Chart(df_quant).mark_point().encode(alt.Shape('shape'))
@@ -125,7 +123,6 @@ def test_convert_shape_fail_temporal(column):
     mapping = convert(chart)
     assert list(mapping['s']) == list(mdates.date2num(df[column].values))
 
-# TODO: Opacity
 @pytest.mark.xfail(raises=NotImplementedError, reason="Merge: the dtype for opacity isn't assumed to be quantitative")
 def test_quantitative_opacity_value():
     chart = alt.Chart(df_quant).mark_point().encode(opacity=alt.value(.5))
@@ -166,7 +163,6 @@ def test_convert_size_fail_temporal(column):
     convert(chart)
 
 
-# TODO: Stroke
 @pytest.mark.xfail(raises=NotImplementedError, reason="Stroke is not well supported in Altair")
 def test_quantitative_stroke():
     chart = alt.Chart(df_quant).mark_point().encode(alt.Stroke('fill'))
