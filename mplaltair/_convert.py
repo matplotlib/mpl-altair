@@ -35,7 +35,7 @@ def convert_temporal(chart):
         data = _locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
         try:
             data = mdates.date2num(data)  # Convert dates to Matplotlib dates
-        except ValueError:
+        except AttributeError:
             raise
         mapping[_mpl_temporal_equivalent[channel](data)[0]] = _mpl_temporal_equivalent[channel](data)[1]
 

@@ -90,3 +90,9 @@ def test_temporal_scatter(channel):
 def test_timeUnit():
     chart = alt.Chart(df_temporal).mark_point().encode(alt.X('date(combination)'))
     convert.convert_temporal(chart)
+
+
+@pytest.mark.xfail(raises=AttributeError, reason="convert_temporal only converts temporal encodings")
+def test_convert_temporal_fail():
+    chart = alt.Chart(df_temporal).mark_point().encode(alt.X('quantitative'))
+    convert.convert_temporal(chart)
