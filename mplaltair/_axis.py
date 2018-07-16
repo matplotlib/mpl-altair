@@ -1,14 +1,15 @@
 import matplotlib.dates as mdates
-from ._data import _locate_channel_data, _locate_channel_dtype, _locate_channel_scale
+import matplotlib.ticker as ticker
+from ._data import _locate_channel_data, _locate_channel_dtype, _locate_channel_scale, _locate_channel_axis
 
 
-def _set_limits(channel):
+def _set_limits(channel, scale):
     """Set the axis limits on the Matplotlib axis
 
     Parameters
     ----------
-    channel : dict
-        The mapping of the channel metadata and the scale data
+    scale : dict
+        The mapping of the scale metadata and the scale data
 
     """
 
@@ -21,19 +22,19 @@ def _set_limits(channel):
         lims = {}
 
         # determine limits
-        if 'domain' in channel:  # domain takes precedence over zero in Altair
-            if channel['domain'] == 'unaggregated':
+        if 'domain' in scale:  # domain takes precedence over zero in Altair
+            if scale['domain'] == 'unaggregated':
                 raise NotImplementedError
             else:
-                lims[_axis_kwargs[channel['axis']].get('min')] = channel['domain'][0]
-                lims[_axis_kwargs[channel['axis']].get('max')] = channel['domain'][1]
+                lims[_axis_kwargs[channel['axis']].get('min')] = scale['domain'][0]
+                lims[_axis_kwargs[channel['axis']].get('max')] = scale['domain'][1]
         else:
-            if ('zero' not in channel or channel['zero'] == True) and min(channel['data']) > 0:
+            if ('zero' not in scale or scale['zero'] == True) and min(channel['data']) > 0:
                 lims[_axis_kwargs[channel['axis']].get('min')] = 0  # quantitative sets min to be 0 by default
             else:
                 lims[_axis_kwargs[channel['axis']].get('min')] = min(channel['data'])  # basic approach
 
-            if ('zero' not in channel or channel['zero'] == True) and max(channel['data']) < 0:
+            if ('zero' not in scale or scale['zero'] == True) and max(channel['data']) < 0:
                 lims[_axis_kwargs[channel['axis']].get('max')] = 0
             else:
                 lims[_axis_kwargs[channel['axis']].get('max')] = max(channel['data'])  # basic approach
@@ -47,19 +48,25 @@ def _set_limits(channel):
         raise NotImplementedError
 
 
-def _set_scale_type(channel):
+def _set_scale_type(channel, scale):
     """Scale Type needs to have the scale type and optional base and optional pow"""
-    if 'type' in channel:
-        if channel['type'] == 'log':
+    if 'type' in scale:
+        if scale['type'] == 'log':
             if channel['axis'] == 'x':
                 channel['ax'].set_xscale('log')
             else:  # y-axis
                 channel['ax'].set_yscale('log')
 
 
-def _set_tick_locator(scale_info):
+def _set_tick_locator(channel, axis):
     """Tick Locator needs to have a lot of information"""
-    pass
+    if 'values' in axis:
+        if channel['axis'] == 'x':
+            channel['ax'].xaxis.set_major_locator(ticker.FixedLocator(axis.get('values')))
+        else:  # y-axis
+            channel['ax'].yaxis.set_major_locator(ticker.FixedLocator(axis.get('values')))
+    else:
+        pass
 
 
 def convert_axis(ax, chart):
@@ -75,11 +82,11 @@ def convert_axis(ax, chart):
 
     for channel in chart.to_dict()['encoding']:
         if channel in ['x', 'y']:
+            chart_info = {'ax': ax, 'axis': channel,
+                          'data': _locate_channel_data(chart, channel),
+                          'dtype': _locate_channel_dtype(chart, channel)}
             scale_info = _locate_channel_scale(chart, channel)
-            scale_info['ax'] = ax
-            scale_info['axis'] = channel
-            scale_info['data'] = _locate_channel_data(chart, channel)
-            scale_info['dtype'] = _locate_channel_dtype(chart, channel)
-            _set_scale_type(scale_info)
-            _set_limits(scale_info)
-            _set_tick_locator(scale_info)
+            axis_info = _locate_channel_axis(chart, channel)
+            _set_scale_type(chart_info, scale_info)
+            _set_limits(chart_info, scale_info)
+            _set_tick_locator(chart_info, axis_info)

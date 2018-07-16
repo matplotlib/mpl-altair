@@ -84,3 +84,25 @@ def _locate_channel_scale(chart, channel):
         return channel_val.get('scale')
     else:
         return {}
+
+
+def _locate_channel_axis(chart, channel):
+    """Locates the channel's scale information. Note that this implementation is a little
+    different (and a little cleaner) than the other locate functions in this module.
+
+    Parameters
+    ----------
+    chart
+        The Altair chart
+    channel
+        The Altair channel being examined
+
+    Returns
+    -------
+    A dictionary with the axis information
+    """
+    channel_val = chart.to_dict()['encoding'][channel]
+    if channel_val.get('axis'):
+        return channel_val.get('axis')
+    else:
+        return {}

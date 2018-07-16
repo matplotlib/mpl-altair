@@ -12,7 +12,7 @@ df_quant = pd.DataFrame({
     "neg": [-3, -4, -5], 'log': [10, 100, 1000]
 })
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
 def test_axis_quantitative(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(alt.X(x), alt.Y(y))
@@ -22,7 +22,7 @@ def test_axis_quantitative(x, y):
     convert_axis(ax, chart)
     plt.show()
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
 def test_axis_false_zero_quantitative(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(
@@ -35,7 +35,7 @@ def test_axis_false_zero_quantitative(x, y):
     convert_axis(ax, chart)
     plt.show()
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
 def test_axis_true_zero_quantitative(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(
@@ -48,7 +48,7 @@ def test_axis_true_zero_quantitative(x, y):
     convert_axis(ax, chart)
     plt.show()
 
-
+# @pytest.mark.skip
 @pytest.mark.parametrize('x,y,x_dom,y_dom', [('a', 'c', [0.5, 4], [-5, 10]), ('neg', 'alpha', [-6, -2], [0, 1])])
 def test_axis_domain_quantitative(x, y, x_dom, y_dom):
     chart = alt.Chart(df_quant).mark_point().encode(
@@ -61,7 +61,7 @@ def test_axis_domain_quantitative(x, y, x_dom, y_dom):
     convert_axis(ax, chart)
     plt.show()
 
-
+# @pytest.mark.skip
 @pytest.mark.xfail(raises=NotImplementedError)
 def test_axis_unaggregated_quantitative():
     chart = alt.Chart(df_quant).mark_point().encode(
@@ -71,9 +71,10 @@ def test_axis_unaggregated_quantitative():
     mapping = convert(chart)
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
+    plt.close()
     convert_axis(ax, chart)
 
-
+# @pytest.mark.skip
 def test_axis_log_x_quantitative():
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X('log', scale=alt.Scale(type='log')),
@@ -85,10 +86,22 @@ def test_axis_log_x_quantitative():
     convert_axis(ax, chart)
     plt.show()
 
+# @pytest.mark.skip
 def test_axis_log_y_quantitative():
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X('a'),
         alt.Y('log', scale=alt.Scale(type='log'))
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    plt.show()
+
+
+def test_axis_fixed_ticks_quantitative():
+    chart = alt.Chart(df_quant).mark_point().encode(
+        alt.X('a', axis=alt.Axis(values=[-1, 1, 1.5, 2.125, 3])), alt.Y('b')
     )
     mapping = convert(chart)
     fig, ax = plt.subplots()
