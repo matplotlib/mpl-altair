@@ -37,3 +37,9 @@ def test_data_aggregate_quantitative(column):
     chart = alt.Chart(df_quantitative).mark_point().encode(alt.X(field=column, type='quantitative', aggregate='average'))
     for channel in chart.to_dict()['encoding']:
         data = convert._locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
+
+
+@pytest.mark.xfail(raises=ValueError)
+def test_data_unexpected_encoding():
+    chart = alt.Chart(df_quantitative).mark_point().encode(alt.X('a'))
+    convert._locate_channel_data({'unexpected': 'a', 'no_field': 'a', 'no_value': 'a'}, chart.data)

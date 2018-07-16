@@ -62,13 +62,11 @@ def test_quantitative_opacity_array():
 def test_quantitative_shape():
     chart = alt.Chart(df_basic).mark_point().encode(alt.Shape('shape'))
     mapping = convert.convert_quantitative(chart)
-    assert list(mapping['marker']) == list(df_basic['shape'].values)
 
 
 def test_quantitative_size():
     chart = alt.Chart(df_basic).mark_point().encode(alt.Size('s'))
     mapping = convert.convert_quantitative(chart)
-    assert list(mapping['s']) == list(df_basic['s'].values)
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="Stroke is not well supported in Altair")
