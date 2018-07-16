@@ -24,7 +24,7 @@ def test_axis_quantitative(x, y):
 
 @pytest.mark.skip
 @pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
-def test_axis_quantitative_false_zero(x, y):
+def test_axis_false_zero_quantitative(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X(x, scale=alt.Scale(zero=False)),
         alt.Y(y, scale=alt.Scale(zero=False))
@@ -37,7 +37,7 @@ def test_axis_quantitative_false_zero(x, y):
 
 @pytest.mark.skip
 @pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
-def test_axis_quantitative_true_zero(x, y):
+def test_axis_true_zero_quantitative(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X(x, scale=alt.Scale(zero=True)),
         alt.Y(y, scale=alt.Scale(zero=True))
@@ -50,7 +50,7 @@ def test_axis_quantitative_true_zero(x, y):
 
 
 @pytest.mark.parametrize('x,y,x_dom,y_dom', [('a', 'c', [0.5, 4], [-5, 10]), ('neg', 'alpha', [-6, -2], [0, 1])])
-def test_axis_quantitative_domain(x, y, x_dom, y_dom):
+def test_axis_domain_quantitative(x, y, x_dom, y_dom):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X(x, scale=alt.Scale(domain=x_dom)),
         alt.Y(y, scale=alt.Scale(domain=y_dom))
@@ -62,7 +62,19 @@ def test_axis_quantitative_domain(x, y, x_dom, y_dom):
     plt.show()
 
 
-def test_axis_quantitative_log_x():
+@pytest.mark.xfail(raises=NotImplementedError)
+def test_axis_unaggregated_quantitative():
+    chart = alt.Chart(df_quant).mark_point().encode(
+        alt.X('a', scale=alt.Scale(domain="unaggregated")),
+        alt.Y('c', scale=alt.Scale(domain="unaggregated"))
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+
+
+def test_axis_log_x_quantitative():
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X('log', scale=alt.Scale(type='log')),
         alt.Y('a')
@@ -73,7 +85,7 @@ def test_axis_quantitative_log_x():
     convert_axis(ax, chart)
     plt.show()
 
-def test_axis_quantitative_log_y():
+def test_axis_log_y_quantitative():
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X('a'),
         alt.Y('log', scale=alt.Scale(type='log'))
