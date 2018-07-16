@@ -1,8 +1,5 @@
-try:
-    from urllib.request import urlopen
-    from urllib.error import HTTPError
-except ImportError:
-    from urllib2 import urlopen, HTTPError
+from urllib.request import urlopen
+from urllib.error import HTTPError
 
 import pandas as pd
 
