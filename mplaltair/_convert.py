@@ -6,7 +6,6 @@ def _allowed_ranged_marks(enc_channel, mark):
     """
     return mark in ['area', 'bar', 'rect', 'rule'] if enc_channel in ['x2', 'y2'] else True
 
-
 def _process_x(dtype, data):
     """Returns the MPL encoding equivalent for Altair x channel
     """

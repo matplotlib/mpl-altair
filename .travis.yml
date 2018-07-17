@@ -6,6 +6,10 @@ cache:
     - $HOME/.cache/pip
     - $HOME/.cache/matplotlib
 
+env:
+  global:
+    - MPLBACKEND=agg
+
 matrix:
   fast_finish: true
   include:
@@ -23,7 +27,7 @@ install:
   - python -m pip install -ve .
 
 script:
-  - coverage run run_tests.py
+  - pytest --cov=mplaltair --mpl
   - coverage report -m
   - set -e
   - codecov

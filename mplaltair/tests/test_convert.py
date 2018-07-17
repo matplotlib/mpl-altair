@@ -104,9 +104,9 @@ def test_convert_color_fail():
     with pytest.raises(KeyError):
         convert(chart_spec)
 
-@pytest.mark.parametrize('channel', ['quant', 'ord'])
-def test_convert_fill(channel):
-    chart_spec = alt.Chart(df).encode(fill=channel).mark_point()
+@pytest.mark.parametrize('channel,type', [('quant', 'Q'), ('ord', 'O')])
+def test_convert_fill(channel, type):
+    chart_spec = alt.Chart(df).encode(fill='{}:{}'.format(channel, type)).mark_point()
     mapping = convert(chart_spec)
     assert list(mapping['c']) == list(df[channel].values)
 
@@ -120,6 +120,7 @@ def test_convert_fill_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.Fill(column))
     mapping = convert(chart)
     assert list(mapping['c']) == list(mdates.date2num(df[column].values))
+
 
 def test_convert_fill_fail():
     chart_spec = alt.Chart(df).encode(fill='b:N').mark_point()
@@ -156,9 +157,9 @@ def test_convert_opacity_fail_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.Opacity(column))
     convert(chart)
 
-@pytest.mark.parametrize('channel,dtype', [('quant','quantitative'), ('ord', 'ordinal')])
-def test_convert_size_success(channel, dtype):
-    chart_spec = alt.Chart(df).encode(size=alt.Size(field=channel, type=dtype)).mark_point()
+@pytest.mark.parametrize('channel,type', [('quant', 'Q'), ('ord', 'O')])
+def test_convert_size_success(channel, type):
+    chart_spec = alt.Chart(df).encode(size='{}:{}'.format(channel, type)).mark_point()
     mapping = convert(chart_spec)
     assert list(mapping['s']) == list(df[channel].values)
 

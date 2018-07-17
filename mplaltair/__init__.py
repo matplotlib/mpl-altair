@@ -14,9 +14,10 @@ def convert(chart):
 
     Returns
     -------
-    mapping: dict
-        Mapping from parts of the encoding to the Matplotlib artists.
-        This is for later customization
+    mapping : dict
+        Mapping from parts of the encoding to the Matplotlib artists.  This is
+        for later customization.
+
 
     """
     return _convert(chart)

@@ -1,3 +1,5 @@
+from ._exceptions import ValidationError
+
 def _locate_channel_dtype(chart, channel):
     """Locates dtype used for each channel
         Parameters
@@ -35,6 +37,11 @@ def _locate_channel_data(chart, channel):
     Returns
     -------
     A numpy ndarray containing the data used for the channel
+
+    Raises
+    ------
+    ValidationError
+        Raised when the specification does not contain any data attribute
 
     """
 
