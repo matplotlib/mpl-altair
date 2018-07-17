@@ -2,6 +2,7 @@
 branch = true
 source =
     mplaltair
+omit = *tests*
 
 [report]
 exclude_lines =
