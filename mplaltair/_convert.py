@@ -1,4 +1,5 @@
 import matplotlib.dates as mdates
+from ._data import _locate_channel_data
 
 
 def convert_temporal(chart):
@@ -27,42 +28,6 @@ def convert_temporal(chart):
         mapping[_mpl_temporal_equivalent[channel](data)[0]] = _mpl_temporal_equivalent[channel](data)[1]
 
     return mapping
-
-
-def _locate_channel_data(channel, data):
-    """Locates data used for each channel
-
-    Parameters
-    ----------
-    channel
-        The encoding channel from the Altair chart
-    data : Pandas DataFrame
-        Data from the Altair chart
-
-    Returns
-    -------
-    A numpy ndarray containing the data used for the channel
-
-    """
-
-    if channel.get('value'):
-        return channel.get('value')
-    elif channel.get('aggregate'):
-        return _aggregate_channel()
-    elif channel.get('timeUnit'):
-        return _handle_timeUnit()
-    elif channel.get('field'):
-        return data[channel.get('field')].values
-    else:
-        raise ValueError("Cannot find data for the channel")
-
-
-def _aggregate_channel():
-    raise NotImplementedError
-
-
-def _handle_timeUnit():
-    raise NotImplementedError
 
 
 def _process_temporal_x(data):
