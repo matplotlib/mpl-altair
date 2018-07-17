@@ -21,6 +21,17 @@ df_quant = pd.DataFrame({
     "s": [50, 100, 200.0], "alpha": [.1, .5, .8], "shape": [1, 2, 3], "fill": [1, 2, 3]
 })
 
+
+def test_encoding_not_provided():
+    chart_spec = alt.Chart(df).mark_point()
+    with pytest.raises(ValueError):
+        convert(chart_spec)
+
+def test_invalid_encodings():
+    chart_spec = alt.Chart(df).encode(x2='quant').mark_point()
+    with pytest.raises(ValueError):
+        convert(chart_spec)
+
 @pytest.mark.parametrize('channel', ['quant', 'ord', 'nom'])
 def test_convert_x_success(channel):
     chart_spec = alt.Chart(df).encode(x=channel).mark_point()
@@ -55,12 +66,12 @@ def test_convert_y_fail():
     with pytest.raises(KeyError):
         convert(chart_spec)
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="It doesn't make sense to have x2 and y2 on scatter plots")
+@pytest.mark.xfail(raises=ValueError, reason="It doesn't make sense to have x2 and y2 on scatter plots")
 def test_quantitative_x2_y2():
     chart = alt.Chart(df_quant).mark_point().encode(alt.X('a'), alt.Y('b'), alt.X2('c'), alt.Y2('alpha'))
     convert(chart)
 
-@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.xfail(raises=ValueError)
 @pytest.mark.parametrize("column", ["years", "months", "days", "hrs", "combination"])
 def test_convert_x2_y2_fail_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.X2(column), alt.Y2(column))

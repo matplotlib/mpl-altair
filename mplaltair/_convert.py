@@ -110,6 +110,13 @@ def convert(chart):
     """
     mapping = {}
 
+    if not chart.to_dict().get('encoding'):
+        raise ValueError("Encoding not provided with the chart specification")
+
+    for enc_channel, enc_spec in chart.to_dict()['encoding'].items():
+        if not _allowed_ranged_marks(enc_channel, chart.to_dict()['mark']):
+            raise ValueError("Ranged encoding channels like x2, y2 not allowed for Mark: {}".format(chart['mark']))
+
     for channel in chart.to_dict()['encoding']:
         data = _locate_channel_data(chart, channel)
         dtype = _locate_channel_dtype(chart, channel)
