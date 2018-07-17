@@ -24,8 +24,6 @@ def _allowed_ranged_marks(enc_channel, mark):
 def _get_column(enc_spec, data):
     try:
         field = enc_spec.get('field')
-        if not field:
-            raise ValueError("Field not specified in the encoding x")
         return data[enc_spec['field']]
     except KeyError:
         raise KeyError("{} does not match any column in the data".format(enc_spec))
