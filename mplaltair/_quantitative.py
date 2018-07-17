@@ -20,7 +20,7 @@ def convert_quantitative(chart):
     mapping = {}
 
     for channel in chart.to_dict()['encoding']:  # Need chart to get dictionary of channels from the encoding
-        data = _locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
+        data = _locate_channel_data(chart, channel)
         mapping[_mpl_scatter_equivalent[channel](data)[0]] = _mpl_scatter_equivalent[channel](data)[1]
 
     return mapping
