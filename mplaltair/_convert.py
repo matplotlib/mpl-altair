@@ -1,6 +1,6 @@
 from ._data import _locate_channel_data
 
-def convert_quantitative(chart):
+def _convert(chart):
     """Convert quantitative Altair encodings to their Matplotlib equivalents
 
 
