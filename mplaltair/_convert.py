@@ -20,7 +20,7 @@ def convert_temporal(chart):
     mapping = {}
 
     for channel in chart.to_dict()['encoding']:
-        data = _locate_channel_data(chart.to_dict()['encoding'][channel], chart.data)
+        data = _locate_channel_data(chart, channel)
         try:
             data = mdates.date2num(data)  # Convert dates to Matplotlib dates
         except AttributeError:
