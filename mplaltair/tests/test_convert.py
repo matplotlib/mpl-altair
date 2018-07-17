@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-from .._convert import convert
+from mplaltair import convert
 
 
 df = pd.DataFrame({
@@ -31,6 +31,11 @@ def test_invalid_encodings():
     chart_spec = alt.Chart(df).encode(x2='quant').mark_point()
     with pytest.raises(ValueError):
         convert(chart_spec)
+
+@pytest.mark.xfail(raises=AttributeError)
+def test_invalid_temporal():
+    chart = alt.Chart(df).mark_point().encode(alt.X('quant:T'))
+    convert(chart)
 
 @pytest.mark.parametrize('channel', ['quant', 'ord', 'nom'])
 def test_convert_x_success(channel):
@@ -77,9 +82,9 @@ def test_convert_x2_y2_fail_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.X2(column), alt.Y2(column))
     convert(chart)
 
-@pytest.mark.parametrize('channel', ['quant', 'ord'])
-def test_convert_color_success(channel):
-    chart_spec = alt.Chart(df).encode(color=channel).mark_point()
+@pytest.mark.parametrize('channel,dtype', [('quant','quantitative'), ('ord','ordinal')])
+def test_convert_color_success(channel, dtype):
+    chart_spec = alt.Chart(df).encode(color=alt.Color(field=channel, type=dtype)).mark_point()
     mapping = convert(chart_spec)
     assert list(mapping['c']) == list(df[channel].values)
 
@@ -151,9 +156,9 @@ def test_convert_opacity_fail_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.Opacity(column))
     convert(chart)
 
-@pytest.mark.parametrize('channel', ['quant', 'ord'])
-def test_convert_size_success(channel):
-    chart_spec = alt.Chart(df).encode(size=channel).mark_point()
+@pytest.mark.parametrize('channel,dtype', [('quant','quantitative'), ('ord', 'ordinal')])
+def test_convert_size_success(channel, dtype):
+    chart_spec = alt.Chart(df).encode(size=alt.Size(field=channel, type=dtype)).mark_point()
     mapping = convert(chart_spec)
     assert list(mapping['s']) == list(df[channel].values)
 

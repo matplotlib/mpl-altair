@@ -40,7 +40,7 @@ def _process_color(dtype, data):
         raise NotImplementedError
     elif dtype == 'ordinal':
         return ('c', data)
-    elif dtype == 'temporal':
+    else:  # temporal
         return ('c', data)
 
 
@@ -93,7 +93,7 @@ _mappings = {
     'stroke': _process_stroke,
 }
 
-def convert(chart):
+def _convert(chart):
     """Convert an altair encoding to a Matplotlib figure
 
 
@@ -123,7 +123,7 @@ def convert(chart):
         if dtype == 'temporal':
             try:
                 data = mdates.date2num(data)  # Convert dates to Matplotlib dates
-            except ValueError:
+            except AttributeError:
                 raise
         mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
     
