@@ -2,7 +2,7 @@ import matplotlib.dates as mdates
 from ._data import _locate_channel_data
 
 
-def convert_temporal(chart):
+def _convert(chart):
     """Convert temporal Altair encodings to their Matplotlib equivalents
 
     Parameters
