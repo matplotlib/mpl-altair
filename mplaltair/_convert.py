@@ -1,18 +1,5 @@
 import matplotlib.dates as mdates
 
-_mpl_temporal_equivalent = {
-    'x': (lambda d: _process_temporal_x(d)),
-    'y': (lambda d: _process_temporal_y(d)),
-    'x2': (lambda d: _process_temporal_not_implemented(d)),  # NotImplementedError - ALT
-    'y2': (lambda d: _process_temporal_not_implemented(d)),  # NotImplementedError - ALT
-    'color': (lambda d: _process_temporal_color(d)),
-    'fill': (lambda d: _process_temporal_fill(d)),
-    'opacity': (lambda d: _process_temporal_opacity(d)),  # NotImplementedError - MPL
-    'shape': (lambda d: _process_temporal_shape(d)),  # NotImplementedError - MPL
-    'size': (lambda d: _process_temporal_size(d)),  # NotImplementedError - MPL
-    'stroke': (lambda d: _process_temporal_not_implemented(d)),  # NotImplementedError - ALT
-}
-
 
 def convert_temporal(chart):
     """Convert temporal Altair encodings to their Matplotlib equivalents
@@ -108,3 +95,17 @@ def _process_temporal_size(data):
 
 def _process_temporal_not_implemented(data):
     raise NotImplementedError
+
+
+_mpl_temporal_equivalent = {
+    'x': _process_temporal_x,
+    'y': _process_temporal_y,
+    'x2': _process_temporal_not_implemented,  # NotImplementedError - ALT
+    'y2': _process_temporal_not_implemented,  # NotImplementedError - ALT
+    'color': _process_temporal_color,
+    'fill': _process_temporal_fill,
+    'opacity': _process_temporal_opacity,  # NotImplementedError - MPL
+    'shape': _process_temporal_shape,  # NotImplementedError - MPL
+    'size': _process_temporal_size,  # NotImplementedError - MPL
+    'stroke': _process_temporal_not_implemented,  # NotImplementedError - ALT
+}
