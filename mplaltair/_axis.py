@@ -56,6 +56,8 @@ def _set_scale_type(channel, scale):
                 channel['ax'].set_xscale('log')
             else:  # y-axis
                 channel['ax'].set_yscale('log')
+        else:
+            raise NotImplementedError
 
 
 def _set_tick_locator(channel, axis):
