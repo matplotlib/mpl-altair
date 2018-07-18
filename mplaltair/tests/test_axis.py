@@ -8,8 +8,8 @@ import pytest
 
 df_quant = pd.DataFrame({
     "a": [1, 2, 3], "b": [1.2, 2.4, 3.8], "c": [7, 5, -3],
-    "s": [50, 100, 200.0], "alpha": [.1, .5, .8], "shape": [1, 2, 3], "fill": [1, 2, 3],
-    "neg": [-3, -4, -5], 'log': [10, 100, 1000]
+    "s": [50, 100, 200.0], "alpha": [0, .5, .8], "shape": [1, 2, 3], "fill": [1, 2, 3],
+    "neg": [-3, -4, -5], 'log': [11, 100, 1000]
 })
 
 
@@ -42,6 +42,8 @@ def test_axis_false_zero_quantitative(x, y):
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
+    ax.set_xlabel("Zero False")
+    ax.set_ylabel("Zero False")
     plt.show()
 
 # @pytest.mark.skip
@@ -55,6 +57,8 @@ def test_axis_true_zero_quantitative(x, y):
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
+    ax.set_xlabel("Zero True")
+    ax.set_ylabel("Zero True")
     plt.show()
 
 # @pytest.mark.skip
@@ -68,6 +72,8 @@ def test_axis_domain_quantitative(x, y, x_dom, y_dom):
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
+    ax.set_xlabel(str(x_dom))
+    ax.set_ylabel(str(y_dom))
     plt.show()
 
 # @pytest.mark.skip
