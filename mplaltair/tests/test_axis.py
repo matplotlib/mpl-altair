@@ -9,10 +9,11 @@ import pytest
 df_quant = pd.DataFrame({
     "a": [1, 2, 3], "b": [1.2, 2.4, 3.8], "c": [7, 5, -3],
     "s": [50, 100, 200.0], "alpha": [0, .5, .8], "shape": [1, 2, 3], "fill": [1, 2, 3],
-    "neg": [-3, -4, -5], 'log': [11, 100, 1000]
+    "neg": [-3, -4, -5], 'log': [11, 100, 1000], 'log2': [2, 16, 64]
 })
 
 
+@pytest.mark.skip
 def test_axis_more_than_x_and_y():
     chart = alt.Chart(df_quant).mark_point().encode(alt.X('a'), alt.Y('b'), color=alt.Color('c'))
     mapping = convert(chart)
@@ -21,7 +22,7 @@ def test_axis_more_than_x_and_y():
     convert_axis(ax, chart)
     plt.show()
 
-# @pytest.mark.skip
+@pytest.mark.skip
 @pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
 def test_axis_quantitative(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(alt.X(x), alt.Y(y))
@@ -31,7 +32,7 @@ def test_axis_quantitative(x, y):
     convert_axis(ax, chart)
     plt.show()
 
-# @pytest.mark.skip
+@pytest.mark.skip
 @pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
 def test_axis_false_zero_quantitative(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(
@@ -46,7 +47,7 @@ def test_axis_false_zero_quantitative(x, y):
     ax.set_ylabel("Zero False")
     plt.show()
 
-# @pytest.mark.skip
+@pytest.mark.skip
 @pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
 def test_axis_true_zero_quantitative(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(
@@ -61,7 +62,7 @@ def test_axis_true_zero_quantitative(x, y):
     ax.set_ylabel("Zero True")
     plt.show()
 
-# @pytest.mark.skip
+@pytest.mark.skip
 @pytest.mark.parametrize('x,y,x_dom,y_dom', [('a', 'c', [0.5, 4], [-5, 10]), ('neg', 'alpha', [-6, -2], [0, 1])])
 def test_axis_domain_quantitative(x, y, x_dom, y_dom):
     chart = alt.Chart(df_quant).mark_point().encode(
@@ -76,7 +77,7 @@ def test_axis_domain_quantitative(x, y, x_dom, y_dom):
     ax.set_ylabel(str(y_dom))
     plt.show()
 
-# @pytest.mark.skip
+@pytest.mark.skip
 @pytest.mark.xfail(raises=NotImplementedError)
 def test_axis_unaggregated_quantitative():
     chart = alt.Chart(df_quant).mark_point().encode(
@@ -90,10 +91,10 @@ def test_axis_unaggregated_quantitative():
     convert_axis(ax, chart)
 
 # @pytest.mark.skip
-@pytest.mark.parametrize('column,type', [('log','log'), pytest.param('log','pow', marks=pytest.mark.xfail)])
-def test_axis_scale_type_x_quantitative(column, type):
+@pytest.mark.parametrize('column,type,base', [('log','log',10), ('log2', 'log', 2), pytest.param('log','pow',10, marks=pytest.mark.xfail)])
+def test_axis_scale_type_x_quantitative(column, type, base):
     chart = alt.Chart(df_quant).mark_point().encode(
-        alt.X(column, scale=alt.Scale(type=type)),
+        alt.X(column, scale=alt.Scale(type=type, base=base)),
         alt.Y('a')
     )
     mapping = convert(chart)
@@ -103,11 +104,11 @@ def test_axis_scale_type_x_quantitative(column, type):
     plt.show()
 
 # @pytest.mark.skip
-@pytest.mark.parametrize('column,type', [('log','log'), pytest.param('log','pow', marks=pytest.mark.xfail)])
-def test_axis_scale_type_y_quantitative(column, type):
+@pytest.mark.parametrize('column,type,base', [('log','log',10), ('log2','log',5), pytest.param('log','pow',10, marks=pytest.mark.xfail)])
+def test_axis_scale_type_y_quantitative(column, type, base):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X('a'),
-        alt.Y(column, scale=alt.Scale(type=type))
+        alt.Y(column, scale=alt.Scale(type=type, base=base))
     )
     mapping = convert(chart)
     fig, ax = plt.subplots()
@@ -115,6 +116,7 @@ def test_axis_scale_type_y_quantitative(column, type):
     convert_axis(ax, chart)
     plt.show()
 
+@pytest.mark.skip
 def test_axis_fixed_ticks_quantitative():
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X('a', axis=alt.Axis(values=[-1, 1, 1.5, 2.125, 3])), alt.Y('b', axis=alt.Axis(values=[-1, 1, 1.5, 2.125, 3]))

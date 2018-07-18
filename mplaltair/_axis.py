@@ -31,13 +31,14 @@ def _set_limits(channel, scale):
                 lims[_axis_kwargs[channel['axis']].get('max')] = scale['domain'][1]
         elif 'type' in scale and scale['type'] != 'linear':
             lims = _set_scale_type(channel, scale)
-
         else:
+            # Check that a positive minimum is zero if zero is True:
             if ('zero' not in scale or scale['zero'] == True) and min(channel['data']) > 0:
                 lims[_axis_kwargs[channel['axis']].get('min')] = 0  # quantitative sets min to be 0 by default
             else:
                 pass  # use default
 
+            # Check that a negative maximum is zero if zero is True:
             if ('zero' not in scale or scale['zero'] == True) and max(channel['data']) < 0:
                 lims[_axis_kwargs[channel['axis']].get('max')] = 0
             else:
@@ -48,6 +49,9 @@ def _set_limits(channel, scale):
             channel['ax'].set_xlim(**lims)
         else:
             channel['ax'].set_ylim(**lims)
+
+    elif channel['dtype'] == 'temporal':
+        raise NotImplementedError
     else:
         raise NotImplementedError
 
@@ -56,12 +60,19 @@ def _set_scale_type(channel, scale):
     """If the scale is non-linear, change the scale and return appropriate axis limits."""
     lims = {}
     if scale['type'] == 'log':
+
+        base = 10  # default base is 10 in altair
+        if 'base' in scale:
+            base = scale['base']
+
         if channel['axis'] == 'x':
-            channel['ax'].set_xscale('log')
-            lims['xmin'] = 10**np.floor(np.log10(channel['data'].min()))  # round down to nearest major tick
+            channel['ax'].set_xscale('log', basex=base)
+            # lower limit: round down to nearest major tick (using log base change rule)
+            lims['xmin'] = base**np.floor(np.log10(channel['data'].min())/np.log10(base))
         else:  # y-axis
-            channel['ax'].set_yscale('log')
-            lims['ymin'] = 10**np.floor(np.log10(channel['data'].min()))  # round down to nearest major tick
+            channel['ax'].set_yscale('log', basey=base)
+            # lower limit: round down to nearest major tick (using log base change rule)
+            lims['ymin'] = base**np.floor(np.log10(channel['data'].min())/np.log10(base))
     elif scale['type'] == 'pow':
         raise NotImplementedError
     elif scale['type'] == 'sqrt':  # Note: just a pow with exponent of 0.5
