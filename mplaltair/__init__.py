@@ -1,7 +1,10 @@
 import matplotlib
 import altair
-
+import matplotlib.scale as mscale
 from ._convert import _convert
+from ._scales import PowerScale
+
+mscale.register_scale(PowerScale)
 
 def convert(chart):
     """Convert an altair encoding to a Matplotlib figure
