@@ -141,3 +141,17 @@ def test_axis_fixed_ticks_quantitative():
     ax.scatter(**mapping)
     convert_axis(ax, chart)
     plt.show()
+
+
+@pytest.mark.parametrize('x,y', [(1, 1), (3, 3), (5,5)])
+def test_axis_tickCount(x, y):
+    chart = alt.Chart(df_quant).mark_point().encode(
+        alt.X('log', axis=alt.Axis(tickCount=x)), alt.Y('a', axis=alt.Axis(tickCount=y))
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    ax.set_xlabel(str(x))
+    ax.set_ylabel(str(y))
+    plt.show()

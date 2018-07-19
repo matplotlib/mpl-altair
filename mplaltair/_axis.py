@@ -107,6 +107,13 @@ def _set_tick_locator(channel, axis):
             channel['ax'].xaxis.set_major_locator(ticker.FixedLocator(axis.get('values')))
         else:  # y-axis
             channel['ax'].yaxis.set_major_locator(ticker.FixedLocator(axis.get('values')))
+    elif 'tickCount' in axis:
+        if channel['axis'] == 'x':
+            channel['ax'].xaxis.set_major_locator(ticker.MaxNLocator(steps=[2, 5, 10], nbins=axis.get('tickCount')+1,
+                                                                     min_n_ticks=axis.get('tickCount')))
+        else:  # y-axis
+            channel['ax'].yaxis.set_major_locator(ticker.MaxNLocator(steps=[2, 5, 10], nbins=axis.get('tickCount')+1,
+                                                                     min_n_ticks=axis.get('tickCount')))
     elif channel['dtype'] == 'temporal':
         locator = mdates.AutoDateLocator()
         if channel['axis'] == 'x':
