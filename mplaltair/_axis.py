@@ -113,10 +113,14 @@ def _set_tick_locator(channel, axis):
             channel['ax'].yaxis.set_major_locator(ticker.MaxNLocator(steps=[2, 5, 10], nbins=axis.get('tickCount')+1,
                                                                      min_n_ticks=axis.get('tickCount')))
     elif channel['dtype'] == 'temporal':
-        locator = mdates.AutoDateLocator()
+        locator = mdates.AutoDateLocator(interval_multiples=True)
         if channel['axis'] == 'x':
             channel['ax'].xaxis.set_major_locator(locator)
             channel['ax'].xaxis.set_major_formatter(mdates.AutoDateFormatter(locator))
+            for label in channel['ax'].get_xticklabels():
+                # Rotate the labels on the x-axis so they don't run into each other.
+                label.set_rotation(30)
+                label.set_ha('right')
         else:  # y-axis
             channel['ax'].yaxis.set_major_locator(locator)
             channel['ax'].yaxis.set_major_formatter(mdates.AutoDateFormatter(locator))

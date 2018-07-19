@@ -12,8 +12,12 @@ df_quant = pd.DataFrame({
     "a": [1, 2, 3], "b": [1.2, 2.4, 3.8], "c": [7, 5, -3],
     "s": [50, 100, 200.0], "alpha": [0, .5, .8], "shape": [1, 2, 3], "fill": [1, 2, 3],
     "neg": [-3, -4, -5], 'log': [11, 100, 1000], 'log2': [1, 3, 5],
-    "years": pd.date_range('01/01/2015', periods=3, freq='Y'), "months": pd.date_range('1/1/2015', periods=3, freq='M'),
-    "days": pd.date_range('1/1/2015', periods=3, freq='D'), "hrs": pd.date_range('1/1/2015', periods=3, freq='H'),
+    "years": pd.to_datetime(['1/1/2015', '1/1/2016', '1/1/2017']),
+    "months": pd.to_datetime(['1/1/2015', '2/1/2015', '3/1/2015']),
+    "days": pd.to_datetime(['1/1/2015', '1/2/2015', '1/3/2015']),
+    "hrs": pd.to_datetime(['1/1/2015 01:00', '1/1/2015 02:00', '1/1/2015 03:00']),
+    # "years": pd.date_range('01/01/2015', periods=3, freq='Y'), "months": pd.date_range('1/1/2015', periods=3, freq='M'),
+    # "days": pd.date_range('1/1/2015', periods=3, freq='D'), "hrs": pd.date_range('1/1/2015', periods=3, freq='H'),
     "combination": pd.to_datetime(['1/1/2015 00:00', '1/4/2016 10:00', '5/1/2016'])
 })
 
@@ -42,7 +46,9 @@ def test_axis_more_than_x_and_y():
     plt.show()
 
 # @pytest.mark.skip
-@pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha'), ('months', 'a'), ('a', 'combination')])
+@pytest.mark.parametrize('x,y', [
+    ('a', 'c'), ('neg', 'alpha'),
+    ('months', 'a'), ('a', 'months'), ('a', 'combination')])
 def test_axis(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(alt.X(x), alt.Y(y))
     mapping = convert(chart)
@@ -51,6 +57,30 @@ def test_axis(x, y):
     convert_axis(ax, chart)
     ax.set_xlabel(x)
     ax.set_ylabel(y)
+    plt.show()
+
+@pytest.mark.parametrize('y', ['years', 'months', 'days', 'hrs', 'combination'])
+def test_axis_temporal_y(y):
+    chart = alt.Chart(df_quant).mark_point().encode(alt.X('a'), alt.Y(y))
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    ax.set_xlabel('a')
+    ax.set_ylabel(y)
+    fig.tight_layout()
+    plt.show()
+
+@pytest.mark.parametrize('x', ['years', 'months', 'days', 'hrs', 'combination'])
+def test_axis_temporal_x(x):
+    chart = alt.Chart(df_quant).mark_point().encode(alt.X(x), alt.Y('a'))
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    ax.set_xlabel(x)
+    ax.set_ylabel('a')
+    fig.tight_layout()
     plt.show()
 
 # @pytest.mark.skip
