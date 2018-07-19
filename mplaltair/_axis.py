@@ -58,10 +58,6 @@ def _set_limits(channel, scale):
 
 def _set_scale_type(channel, scale):
     """If the scale is non-linear, change the scale and return appropriate axis limits."""
-    _scale_kwargs = {
-        'x': {'base': 'basex'},
-        'y': {'base': 'basey'}
-    }
     lims = {}
     if scale['type'] == 'log':
 
@@ -77,18 +73,20 @@ def _set_scale_type(channel, scale):
             channel['ax'].set_yscale('log', basey=base)
             # lower limit: round down to nearest major tick (using log base change rule)
             lims['ymin'] = base**np.floor(np.log10(channel['data'].min())/np.log10(base))
+
     elif scale['type'] == 'pow' or scale['type'] == 'sqrt':
-        # Failed attempt at creating a power scale:
-        # exponent = 2
-        # if scale['type'] == 'sqrt':
-        #     exponent = 0.5
-        # elif 'exponent' in scale:
-        #     exponent = scale['exponent']
-        # if channel['axis'] == 'x':
-        #     channel['ax'].set_xscale('power_scale', exponent=exponent)
-        # else:
-        #     channel['ax'].set_yscale('power_scale', exponent=exponent)
-        raise NotImplementedError
+
+        exponent = 2
+        if scale['type'] == 'sqrt':
+            exponent = 0.5
+        elif 'exponent' in scale:
+            exponent = scale['exponent']
+
+        if channel['axis'] == 'x':
+            channel['ax'].set_xscale('power_scale', exponent=exponent)
+        else:  # y-axis
+            channel['ax'].set_yscale('power_scale', exponent=exponent)
+
     elif scale['type'] == 'time':
         raise NotImplementedError
     elif scale['type'] == 'utc':

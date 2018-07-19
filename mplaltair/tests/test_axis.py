@@ -18,6 +18,12 @@ df_quant = pd.DataFrame({
 })
 
 
+@pytest.mark.xfail(raises=AttributeError)
+def test_invalid_temporal():
+    chart = alt.Chart(df_quant).mark_point().encode(alt.X('a:T'))
+    fig, ax = plt.subplots()
+    convert_axis(ax, chart)
+
 def test_axis_dtype():
     chart = alt.Chart(df_quant).mark_point().encode(alt.X('years'), alt.Y('a'))
     mapping = convert(chart)
@@ -36,8 +42,8 @@ def test_axis_more_than_x_and_y():
     plt.show()
 
 # @pytest.mark.skip
-@pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha'), ('months', 'a')])
-def test_axis_quantitative(x, y):
+@pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha'), ('months', 'a'), ('a', 'combination')])
+def test_axis(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(alt.X(x), alt.Y(y))
     mapping = convert(chart)
     fig, ax = plt.subplots()
@@ -48,33 +54,19 @@ def test_axis_quantitative(x, y):
     plt.show()
 
 # @pytest.mark.skip
-@pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
-def test_axis_false_zero_quantitative(x, y):
+@pytest.mark.parametrize('x,y,zero', [('a', 'c', False), ('neg', 'alpha', False),
+                                      ('a', 'c', True), ('neg', 'alpha', True)])
+def test_axis_zero_quantitative(x, y, zero):
     chart = alt.Chart(df_quant).mark_point().encode(
-        alt.X(x, scale=alt.Scale(zero=False)),
-        alt.Y(y, scale=alt.Scale(zero=False))
+        alt.X(x, scale=alt.Scale(zero=zero)),
+        alt.Y(y, scale=alt.Scale(zero=zero))
     )
     mapping = convert(chart)
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
-    ax.set_xlabel("Zero False")
-    ax.set_ylabel("Zero False")
-    plt.show()
-
-# @pytest.mark.skip
-@pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
-def test_axis_true_zero_quantitative(x, y):
-    chart = alt.Chart(df_quant).mark_point().encode(
-        alt.X(x, scale=alt.Scale(zero=True)),
-        alt.Y(y, scale=alt.Scale(zero=True))
-    )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    ax.set_xlabel("Zero True")
-    ax.set_ylabel("Zero True")
+    ax.set_xlabel("Zero {}".format(zero))
+    ax.set_ylabel("Zero {}".format(zero))
     plt.show()
 
 # @pytest.mark.skip
@@ -106,35 +98,10 @@ def test_axis_unaggregated_quantitative():
     convert_axis(ax, chart)
 
 # @pytest.mark.skip
-@pytest.mark.parametrize('column,type,base', [('log','log',10), ('log2', 'log', 2), pytest.param('log','pow',10, marks=pytest.mark.xfail)])
-def test_axis_scale_type_x_quantitative(column, type, base):
-    chart = alt.Chart(df_quant).mark_point().encode(
-        alt.X(column, scale=alt.Scale(type=type, base=base)),
-        alt.Y('a')
-    )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    plt.show()
-
-# @pytest.mark.skip
-@pytest.mark.parametrize('column,type,base,exponent', [('log','log',10,1), ('log2','log',5,1), pytest.param('log','pow',10,2, marks=pytest.mark.xfail)])
-def test_axis_scale_type_y_quantitative(column, type, base, exponent):
-    chart = alt.Chart(df_quant).mark_point().encode(
-        alt.X('a'),
-        alt.Y(column, scale=alt.Scale(type=type, base=base, exponent=exponent))
-    )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    plt.show()
-
-# @pytest.mark.skip
 def test_axis_fixed_ticks_quantitative():
     chart = alt.Chart(df_quant).mark_point().encode(
-        alt.X('a', axis=alt.Axis(values=[-1, 1, 1.5, 2.125, 3])), alt.Y('b', axis=alt.Axis(values=[-1, 1, 1.5, 2.125, 3]))
+        alt.X('a', axis=alt.Axis(values=[-1, 1, 1.5, 2.125, 3])),
+        alt.Y('b', axis=alt.Axis(values=[-1, 1, 1.5, 2.125, 3]))
     )
     mapping = convert(chart)
     fig, ax = plt.subplots()
@@ -142,9 +109,8 @@ def test_axis_fixed_ticks_quantitative():
     convert_axis(ax, chart)
     plt.show()
 
-
-@pytest.mark.parametrize('x,y', [(1, 1), (3, 3), (5,5)])
-def test_axis_tickCount(x, y):
+@pytest.mark.parametrize('x,y', [(1, 1), (4, 4), (9, 9)])
+def test_axis_tickCount_quantitative(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X('log', axis=alt.Axis(tickCount=x)), alt.Y('a', axis=alt.Axis(tickCount=y))
     )
@@ -155,3 +121,64 @@ def test_axis_tickCount(x, y):
     ax.set_xlabel(str(x))
     ax.set_ylabel(str(y))
     plt.show()
+
+
+# Scale type tests
+
+@pytest.mark.parametrize('column,type', [('log', 'log'), ('a', 'pow')])
+def test_axis_scale_basic(column, type):
+    chart = alt.Chart(df_quant).mark_point().encode(
+        alt.X(column, scale=alt.Scale(type=type)),
+        alt.Y('a')
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    ax.set_xlabel("{} {}".format(column, type))
+    ax.set_ylabel('a')
+    plt.show()
+
+# @pytest.mark.skip
+@pytest.mark.parametrize('column,type,base,exponent', [('log','log',10, 1), ('log2', 'log', 2, 1),
+                                                       ('a','pow',10, .5), ('log','pow',10,2), ('a','sqrt',10,1)])
+def test_axis_scale_type_x_quantitative(column, type, base, exponent):
+    chart = alt.Chart(df_quant).mark_point().encode(
+        alt.X(column, scale=alt.Scale(type=type, base=base, exponent=exponent)),
+        alt.Y('a')
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    ax.set_xlabel("{} {} {} {}".format(column, type, base, exponent))
+    ax.set_ylabel('a')
+    plt.show()
+
+# @pytest.mark.skip
+@pytest.mark.parametrize('column,type,base,exponent', [('log','log',10,1), ('log2','log',5,1),
+                                                       ('a','pow',10,.5), ('log','pow',10,2), ('a','sqrt',10,1)])
+def test_axis_scale_type_y_quantitative(column, type, base, exponent):
+    chart = alt.Chart(df_quant).mark_point().encode(
+        alt.X('a'),
+        alt.Y(column, scale=alt.Scale(type=type, base=base, exponent=exponent))
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    ax.set_xlabel('a')
+    ax.set_ylabel("{} {} {} {}".format(column, type, base, exponent))
+    plt.show()
+
+@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.parametrize('type', ['time', 'utc', 'sequential', 'ordinal'])
+def test_axis_scale_NotImplemented(type):
+    chart = alt.Chart(df_quant).mark_point().encode(
+        alt.X('a', scale=alt.Scale(type=type)),
+        alt.Y('a')
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
