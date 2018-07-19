@@ -51,7 +51,7 @@ def _set_limits(channel, scale):
             channel['ax'].set_ylim(**lims)
 
     elif channel['dtype'] == 'temporal':
-        raise NotImplementedError
+        pass
     else:
         raise NotImplementedError
 
@@ -78,16 +78,16 @@ def _set_scale_type(channel, scale):
             # lower limit: round down to nearest major tick (using log base change rule)
             lims['ymin'] = base**np.floor(np.log10(channel['data'].min())/np.log10(base))
     elif scale['type'] == 'pow' or scale['type'] == 'sqrt':
-        exponent = 2
-        if scale['type'] == 'sqrt':
-            exponent = 0.5
-        elif 'exponent' in scale:
-            exponent = scale['exponent']
-        if channel['axis'] == 'x':
-            channel['ax'].set_xscale('power_scale', exponent=exponent)
-        else:
-            channel['ax'].set_yscale('power_scale', exponent=exponent)
-    elif scale['type'] == 'sqrt':  # Note: just a pow with exponent of 0.5
+        # Failed attempt at creating a power scale:
+        # exponent = 2
+        # if scale['type'] == 'sqrt':
+        #     exponent = 0.5
+        # elif 'exponent' in scale:
+        #     exponent = scale['exponent']
+        # if channel['axis'] == 'x':
+        #     channel['ax'].set_xscale('power_scale', exponent=exponent)
+        # else:
+        #     channel['ax'].set_yscale('power_scale', exponent=exponent)
         raise NotImplementedError
     elif scale['type'] == 'time':
         raise NotImplementedError
@@ -107,6 +107,15 @@ def _set_tick_locator(channel, axis):
             channel['ax'].xaxis.set_major_locator(ticker.FixedLocator(axis.get('values')))
         else:  # y-axis
             channel['ax'].yaxis.set_major_locator(ticker.FixedLocator(axis.get('values')))
+    elif channel['dtype'] == 'temporal':
+        locator = mdates.AutoDateLocator()
+        if channel['axis'] == 'x':
+            channel['ax'].xaxis.set_major_locator(locator)
+            channel['ax'].xaxis.set_major_formatter(mdates.AutoDateFormatter(locator))
+        else:  # y-axis
+            channel['ax'].yaxis.set_major_locator(locator)
+            channel['ax'].yaxis.set_major_formatter(mdates.AutoDateFormatter(locator))
+        channel['ax'].autoscale_view()
     else:
         pass  # Use the auto locator (it has similar, if not the same settings as Altair)
 
@@ -127,6 +136,11 @@ def convert_axis(ax, chart):
             chart_info = {'ax': ax, 'axis': channel,
                           'data': _locate_channel_data(chart, channel),
                           'dtype': _locate_channel_dtype(chart, channel)}
+            if chart_info['dtype'] == 'temporal':
+                try:
+                    chart_info['data'] = mdates.date2num(chart_info['data'])  # Convert dates to Matplotlib dates
+                except AttributeError:
+                    raise
             scale_info = _locate_channel_scale(chart, channel)
             axis_info = _locate_channel_axis(chart, channel)
 
