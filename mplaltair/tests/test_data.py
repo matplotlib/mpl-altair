@@ -41,25 +41,27 @@ def test_data_value_quantitative():
 
 
 @pytest.mark.parametrize("column", ['a', 'b', 'c'])
-@pytest.mark.xfail(raises=NotImplementedError)
-def test_data_aggregate_quantitative(column):
+def test_data_aggregate_quantitative_fail(column):
+    """"'Passes' if it raises a NotImplementedError"""
     chart = alt.Chart(df).mark_point().encode(alt.X(field=column, type='quantitative', aggregate='average'))
     for channel in chart.to_dict()['encoding']:
-        data = _data._locate_channel_data(chart, channel)
+        with pytest.raises(NotImplementedError):
+            data = _data._locate_channel_data(chart, channel)
 
 
-@pytest.mark.xfail(raises=NotImplementedError)
-def test_data_timeUnit_shorthand_temporal():
+def test_data_timeUnit_shorthand_temporal_fail():
     chart = alt.Chart(df).mark_point().encode(alt.X('month(combination):T'))
     for channel in chart.to_dict()['encoding']:
-        data = _data._locate_channel_data(chart, channel)
+        with pytest.raises(NotImplementedError):
+            data = _data._locate_channel_data(chart, channel)
 
 
-@pytest.mark.xfail(raises=NotImplementedError)
-def test_data_timeUnit_field_temporal():
+def test_data_timeUnit_field_temporal_fail():
+    """"'Passes' if it raises a NotImplementedError"""
     chart = alt.Chart(df).mark_point().encode(alt.X(field='combination', type='temporal', timeUnit='month'))
     for channel in chart.to_dict()['encoding']:
-        data = _data._locate_channel_data(chart, channel)
+        with pytest.raises(NotImplementedError):
+            data = _data._locate_channel_data(chart, channel)
 
 
 # _locate_channel_dtype() tests
@@ -74,9 +76,9 @@ def test_data_dtype(column, expected):
     assert dtype == expected
 
 
-@pytest.mark.xfail(raises=NotImplementedError)
 def test_data_dtype_fail():
+    """"'Passes' if it raises a NotImplementedError"""
     chart = alt.Chart(df).mark_point().encode(opacity=alt.value(.5))
     for channel in chart.to_dict()['encoding']:
-        dtype = _data._locate_channel_dtype(chart, channel)
-    assert dtype == 'quantitative'
+        with pytest.raises(NotImplementedError):
+            dtype = _data._locate_channel_dtype(chart, channel)
