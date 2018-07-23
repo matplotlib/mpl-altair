@@ -21,7 +21,7 @@ df_quant = pd.DataFrame({
     "combination": pd.to_datetime(['1/1/2015 00:00', '1/4/2016 10:00', '5/1/2016'])
 })
 
-
+@pytest.mark.skip(reason="in test_axis_temporal")
 @pytest.mark.xfail(raises=AttributeError)
 def test_invalid_temporal():
     chart = alt.Chart(df_quant).mark_point().encode(alt.X('a:T'))
@@ -36,7 +36,7 @@ def test_axis_dtype():
     convert_axis(ax, chart)
     assert _locate_channel_dtype(chart, 'x') == 'temporal'
 
-# @pytest.mark.skip
+@pytest.mark.skip
 def test_axis_more_than_x_and_y():
     chart = alt.Chart(df_quant).mark_point().encode(alt.X('a'), alt.Y('b'), color=alt.Color('c'))
     mapping = convert(chart)
@@ -59,6 +59,7 @@ def test_axis(x, y):
     ax.set_ylabel(y)
     plt.show()
 
+@pytest.mark.skip(reason="in test_axis_temporal")
 @pytest.mark.parametrize('y', ['years', 'months', 'days', 'hrs', 'combination'])
 def test_axis_temporal_y(y):
     chart = alt.Chart(df_quant).mark_point().encode(alt.X('a'), alt.Y(y))
@@ -71,6 +72,7 @@ def test_axis_temporal_y(y):
     fig.tight_layout()
     plt.show()
 
+@pytest.mark.skip(reason="in test_axis_temporal")
 @pytest.mark.parametrize('x', ['years', 'months', 'days', 'hrs', 'combination'])
 def test_axis_temporal_x(x):
     chart = alt.Chart(df_quant).mark_point().encode(alt.X(x), alt.Y('a'))
@@ -139,6 +141,7 @@ def test_axis_fixed_ticks_quantitative():
     convert_axis(ax, chart)
     plt.show()
 
+# @pytest.mark.skip
 @pytest.mark.parametrize('x,y', [(1, 1), (4, 4), (9, 9)])
 def test_axis_tickCount_quantitative(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(
@@ -155,6 +158,7 @@ def test_axis_tickCount_quantitative(x, y):
 
 # Scale type tests
 
+# @pytest.mark.skip
 @pytest.mark.parametrize('column,type', [('log', 'log'), ('a', 'pow')])
 def test_axis_scale_basic(column, type):
     chart = alt.Chart(df_quant).mark_point().encode(
