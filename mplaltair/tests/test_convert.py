@@ -47,7 +47,8 @@ def test_convert_x_success(channel):
 def test_convert_x_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.X(column))
     mapping = convert(chart)
-    assert list(mapping['x']) == list(mdates.date2num(df[column].values))
+    # assert list(mapping['x']) == list(mdates.date2num(df[column].values))
+    assert list(mapping['x']) == list(df[column].values)
 
 def test_convert_x_fail():
     chart_spec = alt.Chart(df).encode(x='b:N').mark_point()
@@ -64,7 +65,8 @@ def test_convert_y_success(channel):
 def test_convert_y_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.Y(column))
     mapping = convert(chart)
-    assert list(mapping['y']) == list(mdates.date2num(df[column].values))
+    # assert list(mapping['y']) == list(mdates.date2num(df[column].values))
+    assert list(mapping['y']) == list(df[column].values)
 
 def test_convert_y_fail():
     chart_spec = alt.Chart(df).encode(y='b:N').mark_point()
@@ -97,7 +99,8 @@ def test_convert_color_success_nominal():
 def test_convert_color_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.Color(column))
     mapping = convert(chart)
-    assert list(mapping['c']) == list(mdates.date2num(df[column].values))
+    # assert list(mapping['c']) == list(mdates.date2num(df[column].values))
+    assert list(mapping['c']) == list(df[column].values)
 
 def test_convert_color_fail():
     chart_spec = alt.Chart(df).encode(color='b:N').mark_point()
@@ -119,7 +122,8 @@ def test_convert_fill_success_nominal():
 def test_convert_fill_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.Fill(column))
     mapping = convert(chart)
-    assert list(mapping['c']) == list(mdates.date2num(df[column].values))
+    # assert list(mapping['c']) == list(mdates.date2num(df[column].values))
+    assert list(mapping['c']) == list(df[column].values)
 
 
 def test_convert_fill_fail():

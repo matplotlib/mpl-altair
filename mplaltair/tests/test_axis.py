@@ -159,7 +159,7 @@ def test_axis_tickCount_quantitative(x, y):
 # Scale type tests
 
 # @pytest.mark.skip
-@pytest.mark.parametrize('column,type', [('log', 'log'), ('a', 'pow')])
+@pytest.mark.parametrize('column,type', [('log', 'log')])
 def test_axis_scale_basic(column, type):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X(column, scale=alt.Scale(type=type)),
@@ -174,8 +174,7 @@ def test_axis_scale_basic(column, type):
     plt.show()
 
 # @pytest.mark.skip
-@pytest.mark.parametrize('column,type,base,exponent', [('log','log',10, 1), ('log2', 'log', 2, 1),
-                                                       ('a','pow',10, .5), ('log','pow',10,2), ('a','sqrt',10,1)])
+@pytest.mark.parametrize('column,type,base,exponent', [('log','log',10, 1), ('log2', 'log', 2, 1)])
 def test_axis_scale_type_x_quantitative(column, type, base, exponent):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X(column, scale=alt.Scale(type=type, base=base, exponent=exponent)),
@@ -190,8 +189,7 @@ def test_axis_scale_type_x_quantitative(column, type, base, exponent):
     plt.show()
 
 # @pytest.mark.skip
-@pytest.mark.parametrize('column,type,base,exponent', [('log','log',10,1), ('log2','log',5,1),
-                                                       ('a','pow',10,.5), ('log','pow',10,2), ('a','sqrt',10,1)])
+@pytest.mark.parametrize('column,type,base,exponent', [('log','log',10,1), ('log2','log',5,1)])
 def test_axis_scale_type_y_quantitative(column, type, base, exponent):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X('a'),
@@ -206,7 +204,7 @@ def test_axis_scale_type_y_quantitative(column, type, base, exponent):
     plt.show()
 
 @pytest.mark.xfail(raises=NotImplementedError)
-@pytest.mark.parametrize('type', ['time', 'utc', 'sequential', 'ordinal'])
+@pytest.mark.parametrize('type', ['pow', 'sqrt', 'time', 'utc', 'sequential', 'ordinal'])
 def test_axis_scale_NotImplemented(type):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X('a', scale=alt.Scale(type=type)),

@@ -75,7 +75,8 @@ def _set_scale_type(channel, scale):
             lims['ymin'] = base**np.floor(np.log10(channel['data'].min())/np.log10(base))
 
     elif scale['type'] == 'pow' or scale['type'] == 'sqrt':
-
+        """When Matplotlib gets a power scale, the following should work:
+        
         exponent = 2
         if scale['type'] == 'sqrt':
             exponent = 0.5
@@ -86,6 +87,8 @@ def _set_scale_type(channel, scale):
             channel['ax'].set_xscale('power_scale', exponent=exponent)
         else:  # y-axis
             channel['ax'].set_yscale('power_scale', exponent=exponent)
+        """
+        raise NotImplementedError
 
     elif scale['type'] == 'time':
         raise NotImplementedError

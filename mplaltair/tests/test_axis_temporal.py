@@ -36,7 +36,7 @@ def test_nonstandard_date():
     ax.set_ylabel('yield')
     plt.show()
 
-@pytest.mark.xfail(raises=AttributeError)
+@pytest.mark.xfail(raises=ValueError)
 def test_invalid_temporal():
     chart = alt.Chart(df).mark_point().encode(alt.X('a:T'))
     fig, ax = plt.subplots()
