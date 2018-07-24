@@ -5,6 +5,8 @@ from mplaltair import convert
 from .._axis import convert_axis
 import pytest
 
+from vega_datasets import data
+
 df = pd.DataFrame({
     "a": [1, 2, 3, 4, 5], "b": [1.2, 2.4, 3.8, 4.5, 5.2], "c": [7, 5, -3, 2, 0],
     "s": [50, 100, 75.0, 150, 200.0], "alpha": [0, .3, .5, .7, .8],
@@ -17,6 +19,22 @@ df = pd.DataFrame({
     # "days": pd.date_range('1/1/2015', periods=5, freq='D'), "hrs": pd.date_range('1/1/2015', periods=5, freq='H'),
     "combination": pd.to_datetime(['1/1/2015 00:00', '1/4/2016 10:00', '5/1/2016', '5/1/2016 10:10', '3/3/2016'])
 })
+
+df_nonstandard = pd.DataFrame({
+    'a': [1, 2, 3],
+    'c': ['2015-03-07 12:32:17', '2015-03-08 12:32:17', '2015-03-09 12:32:17'],
+    'd': ['2015-03-15', '2015-03-16', '2015-03-17'],
+    'e': pd.to_datetime(['1/4/2016 10:00', '5/1/2016 10:10', '3/3/2016'])
+})
+def test_nonstandard_date():
+    chart = alt.Chart(df_nonstandard).mark_point().encode(alt.X('e:T'), alt.Y('a'))
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    ax.set_xlabel('year')
+    ax.set_ylabel('yield')
+    plt.show()
 
 @pytest.mark.xfail(raises=AttributeError)
 def test_invalid_temporal():

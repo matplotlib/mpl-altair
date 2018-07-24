@@ -1,4 +1,5 @@
 import matplotlib.dates as mdates
+import numpy as np
 from ._data import _locate_channel_data, _locate_channel_dtype
 
 def _allowed_ranged_marks(enc_channel, mark):
@@ -120,10 +121,16 @@ def _convert(chart):
         data = _locate_channel_data(chart, channel)
         dtype = _locate_channel_dtype(chart, channel)
         if dtype == 'temporal':
-            try:
-                data = mdates.date2num(data)  # Convert dates to Matplotlib dates
-            except AttributeError:
-                raise
+            for i in range(len(data)):
+                if isinstance(data[i], str):
+                    try:
+                        data[i] = np.datetime64(data[i])  # np or pd?
+                    except ValueError:
+                        raise
+            # try:
+            #     data = mdates.date2num(data)  # Convert dates to Matplotlib dates
+            # except AttributeError:
+            #     raise
         mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
     
     return mapping

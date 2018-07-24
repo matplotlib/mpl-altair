@@ -113,7 +113,7 @@ def _set_tick_locator(channel, axis):
             channel['ax'].yaxis.set_major_locator(ticker.MaxNLocator(steps=[2, 5, 10], nbins=axis.get('tickCount')+1,
                                                                      min_n_ticks=axis.get('tickCount')))
     elif channel['dtype'] == 'temporal':
-        locator = mdates.AutoDateLocator(interval_multiples=True)
+        locator = mdates.AutoDateLocator()
         if channel['axis'] == 'x':
             channel['ax'].xaxis.set_major_locator(locator)
             channel['ax'].xaxis.set_major_formatter(mdates.AutoDateFormatter(locator))
@@ -146,10 +146,16 @@ def convert_axis(ax, chart):
                           'data': _locate_channel_data(chart, channel),
                           'dtype': _locate_channel_dtype(chart, channel)}
             if chart_info['dtype'] == 'temporal':
-                try:
-                    chart_info['data'] = mdates.date2num(chart_info['data'])  # Convert dates to Matplotlib dates
-                except AttributeError:
-                    raise
+                for i in range(len(chart_info['data'])):
+                    if isinstance(chart_info['data'][i], str):
+                        try:
+                            chart_info['data'][i] = np.datetime64(chart_info['data'][i])  # np or pandas?
+                        except ValueError:
+                            raise
+                # try:
+                #     chart_info['data'] = mdates.date2num(chart_info['data'])  # Convert dates to Matplotlib dates
+                # except AttributeError:
+                #     raise
             scale_info = _locate_channel_scale(chart, channel)
             axis_info = _locate_channel_axis(chart, channel)
 
