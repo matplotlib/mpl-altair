@@ -77,31 +77,18 @@ def test_axis_temporal_x(x):
     fig.tight_layout()
     plt.show()
 
-df_temp = pd.DataFrame({
-    'a': [1, 2, 3, 4, 5],
-    'utc': pd.to_datetime(['1/1/2015 01:00', '1/1/2015 02:00', '1/1/2015 03:00', '1/1/2015 04:00', '1/1/2015 05:00'], utc=True),
-    'no_utc': pd.to_datetime(['1/1/2015 01:00', '1/1/2015 02:00', '1/1/2015 03:00', '1/1/2015 04:00', '1/1/2015 05:00']),
-    'tz': pd.date_range('1/1/2015', periods=5, freq='H', tz='US/Eastern'),
-    'no_tz': pd.date_range('1/1/2015', periods=5, freq='H')
-})
-
-@pytest.mark.parametrize('x', ['utc:T', 'no_utc:T', 'tz:T', 'no_tz:T'])
-def test_axis_temporal_timezone(x):
-    chart = alt.Chart(df_temp).mark_point().encode(alt.X(x), alt.Y('a'))
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    ax.set_xlabel(x)
-    ax.set_ylabel('a')
-    fig.tight_layout()
-    plt.show()
 
 def test_axis_temporal_domain():
+    domain = [alt.DateTime(year=2015, date=1, month="Feb"), alt.DateTime(year=2015, date=30, month="April")]
     pass
 
-@pytest.mark.parametrize('x,tickCount', [('years', 1), ('months', 3), ('days', 5),
-                                         ('hrs', 9), ('combination', 10)])
+@pytest.mark.parametrize('x,tickCount', [
+    ('years', 1), ('years', 3), ('years', 5), ('years', 9), ('years', 10),
+    # ('months', 1), ('months', 3), ('months', 5), ('months', 9), ('months', 10),
+    # ('days', 1), ('days', 3), ('days', 5), ('days', 9), ('days', 10),
+    ('hrs', 1), ('hrs', 3), ('hrs', 5), ('hrs', 9), ('hrs', 10),
+    ('combination', 1), ('combination', 3), ('combination', 5), ('combination', 9), ('combination', 10)
+])
 def test_axis_temporal_tickCount(x, tickCount):
     chart = alt.Chart(df).mark_point().encode(alt.X(x, axis=alt.Axis(tickCount=tickCount)), alt.Y('a'))
     mapping = convert(chart)
@@ -118,3 +105,24 @@ def test_axis_temporal_nice():
 
 def test_axis_temporal_type():
     pass
+
+
+df_tz = pd.DataFrame({
+    'a': [1, 2, 3, 4, 5],
+    'utc': pd.to_datetime(['1/1/2015 01:00', '1/1/2015 02:00', '1/1/2015 03:00', '1/1/2015 04:00', '1/1/2015 05:00'], utc=True),
+    'no_utc': pd.to_datetime(['1/1/2015 01:00', '1/1/2015 02:00', '1/1/2015 03:00', '1/1/2015 04:00', '1/1/2015 05:00']),
+    'tz': pd.date_range('1/1/2015', periods=5, freq='H', tz='US/Eastern'),
+    'no_tz': pd.date_range('1/1/2015', periods=5, freq='H')
+})
+
+@pytest.mark.parametrize('x', ['utc:T', 'no_utc:T', 'tz:T', 'no_tz:T'])
+def test_axis_temporal_timezone(x):
+    chart = alt.Chart(df_tz).mark_point().encode(alt.X(x), alt.Y('a'))
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    ax.set_xlabel(x)
+    ax.set_ylabel('a')
+    fig.tight_layout()
+    plt.show()

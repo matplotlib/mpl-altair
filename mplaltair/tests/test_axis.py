@@ -21,12 +21,12 @@ df_quant = pd.DataFrame({
     "combination": pd.to_datetime(['1/1/2015 00:00', '1/4/2016 10:00', '5/1/2016'])
 })
 
-@pytest.mark.skip(reason="in test_axis_temporal")
-@pytest.mark.xfail(raises=AttributeError)
-def test_invalid_temporal():
-    chart = alt.Chart(df_quant).mark_point().encode(alt.X('a:T'))
-    fig, ax = plt.subplots()
-    convert_axis(ax, chart)
+# @pytest.mark.skip(reason="in test_axis_temporal")
+# @pytest.mark.xfail(raises=AttributeError)
+# def test_invalid_temporal():
+#     chart = alt.Chart(df_quant).mark_point().encode(alt.X('a:T'))
+#     fig, ax = plt.subplots()
+#     convert_axis(ax, chart)
 
 def test_axis_dtype():
     chart = alt.Chart(df_quant).mark_point().encode(alt.X('years'), alt.Y('a'))
@@ -47,8 +47,9 @@ def test_axis_more_than_x_and_y():
 
 # @pytest.mark.skip
 @pytest.mark.parametrize('x,y', [
-    ('a', 'c'), ('neg', 'alpha'),
-    ('months', 'a'), ('a', 'months'), ('a', 'combination')])
+    ('a', 'c'), ('neg', 'alpha')  # ,
+#    ('months', 'a'), ('a', 'months'), ('a', 'combination')
+])
 def test_axis(x, y):
     chart = alt.Chart(df_quant).mark_point().encode(alt.X(x), alt.Y(y))
     mapping = convert(chart)
@@ -59,31 +60,31 @@ def test_axis(x, y):
     ax.set_ylabel(y)
     plt.show()
 
-@pytest.mark.skip(reason="in test_axis_temporal")
-@pytest.mark.parametrize('y', ['years', 'months', 'days', 'hrs', 'combination'])
-def test_axis_temporal_y(y):
-    chart = alt.Chart(df_quant).mark_point().encode(alt.X('a'), alt.Y(y))
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    ax.set_xlabel('a')
-    ax.set_ylabel(y)
-    fig.tight_layout()
-    plt.show()
+# @pytest.mark.skip(reason="in test_axis_temporal")
+# @pytest.mark.parametrize('y', ['years', 'months', 'days', 'hrs', 'combination'])
+# def test_axis_temporal_y(y):
+#     chart = alt.Chart(df_quant).mark_point().encode(alt.X('a'), alt.Y(y))
+#     mapping = convert(chart)
+#     fig, ax = plt.subplots()
+#     ax.scatter(**mapping)
+#     convert_axis(ax, chart)
+#     ax.set_xlabel('a')
+#     ax.set_ylabel(y)
+#     fig.tight_layout()
+#     plt.show()
 
-@pytest.mark.skip(reason="in test_axis_temporal")
-@pytest.mark.parametrize('x', ['years', 'months', 'days', 'hrs', 'combination'])
-def test_axis_temporal_x(x):
-    chart = alt.Chart(df_quant).mark_point().encode(alt.X(x), alt.Y('a'))
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    ax.set_xlabel(x)
-    ax.set_ylabel('a')
-    fig.tight_layout()
-    plt.show()
+# @pytest.mark.skip(reason="in test_axis_temporal")
+# @pytest.mark.parametrize('x', ['years', 'months', 'days', 'hrs', 'combination'])
+# def test_axis_temporal_x(x):
+#     chart = alt.Chart(df_quant).mark_point().encode(alt.X(x), alt.Y('a'))
+#     mapping = convert(chart)
+#     fig, ax = plt.subplots()
+#     ax.scatter(**mapping)
+#     convert_axis(ax, chart)
+#     ax.set_xlabel(x)
+#     ax.set_ylabel('a')
+#     fig.tight_layout()
+#     plt.show()
 
 # @pytest.mark.skip
 @pytest.mark.parametrize('x,y,zero', [('a', 'c', False), ('neg', 'alpha', False),

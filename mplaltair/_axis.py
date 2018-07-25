@@ -2,6 +2,7 @@ import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
 import numpy as np
 from ._data import _locate_channel_data, _locate_channel_dtype, _locate_channel_scale, _locate_channel_axis
+from ._date import convert_to_mpl_date
 
 
 def _set_limits(channel, scale):
@@ -14,14 +15,14 @@ def _set_limits(channel, scale):
 
     """
 
+    _axis_kwargs = {
+        'x': {'min': 'xmin', 'max': 'xmax'},
+        'y': {'min': 'ymin', 'max': 'ymax'},
+    }
+
+    lims = {}
+
     if channel['dtype'] == 'quantitative':
-        _axis_kwargs = {
-            'x': {'min': 'xmin', 'max': 'xmax'},
-            'y': {'min': 'ymin', 'max': 'ymax'},
-        }
-
-        lims = {}
-
         # determine limits
         if 'domain' in scale:  # domain takes precedence over zero in Altair
             if scale['domain'] == 'unaggregated':
@@ -44,16 +45,27 @@ def _set_limits(channel, scale):
             else:
                 pass  # use default
 
-        # set the limits
-        if channel['axis'] == 'x':
-            channel['ax'].set_xlim(**lims)
-        else:
-            channel['ax'].set_ylim(**lims)
-
     elif channel['dtype'] == 'temporal':
-        pass
+        if 'domain' in scale:
+            """Work is currently being done in Altair to modify what datetypes are allowed for domain specification.
+            When something more stable is released the following might be useful for setting the date:
+            
+            lims[_axis_kwargs[channel['axis']].get('min')] = convert_to_mpl_date(scale['domain'][0])
+            lims[_axis_kwargs[channel['axis']].get('max')] = convert_to_mpl_date(scale['domain'][1])
+            """
+            raise NotImplementedError
+        elif 'type' in scale:
+            lims = _set_scale_type(channel, scale)
+        else:
+            pass  # use default
     else:
         raise NotImplementedError
+
+    # set the limits
+    if channel['axis'] == 'x':
+        channel['ax'].set_xlim(**lims)
+    else:
+        channel['ax'].set_ylim(**lims)
 
 
 def _set_scale_type(channel, scale):
@@ -103,6 +115,7 @@ def _set_scale_type(channel, scale):
 
 def _set_tick_locator(channel, axis):
     """Set the tick locator if it needs to vary from the default"""
+    # Works for quantitative and temporal
     if 'values' in axis:
         if channel['axis'] == 'x':
             channel['ax'].xaxis.set_major_locator(ticker.FixedLocator(axis.get('values')))
@@ -115,21 +128,23 @@ def _set_tick_locator(channel, axis):
         else:  # y-axis
             channel['ax'].yaxis.set_major_locator(ticker.MaxNLocator(steps=[2, 5, 10], nbins=axis.get('tickCount')+1,
                                                                      min_n_ticks=axis.get('tickCount')))
-    elif channel['dtype'] == 'temporal':
-        locator = mdates.AutoDateLocator()
+    else:
+        pass  # Use the auto locator (it has similar, if not the same settings as Altair)
+
+
+def _set_tick_formatter(channel, axis):
+    if channel['dtype'] == 'temporal':
+        formatter = mdates.DateFormatter('%b %d, %Y')
         if channel['axis'] == 'x':
-            channel['ax'].xaxis.set_major_locator(locator)
-            channel['ax'].xaxis.set_major_formatter(mdates.AutoDateFormatter(locator))
+            channel['ax'].xaxis.set_major_formatter(formatter)
             for label in channel['ax'].get_xticklabels():
                 # Rotate the labels on the x-axis so they don't run into each other.
                 label.set_rotation(30)
                 label.set_ha('right')
         else:  # y-axis
-            channel['ax'].yaxis.set_major_locator(locator)
-            channel['ax'].yaxis.set_major_formatter(mdates.AutoDateFormatter(locator))
-        channel['ax'].autoscale_view()
+            channel['ax'].yaxis.set_major_formatter(formatter)
     else:
-        pass  # Use the auto locator (it has similar, if not the same settings as Altair)
+        pass  # Use the auto formatter for quantitative (it has similar, if not the same settings as Altair)
 
 
 def convert_axis(ax, chart):
@@ -149,18 +164,11 @@ def convert_axis(ax, chart):
                           'data': _locate_channel_data(chart, channel),
                           'dtype': _locate_channel_dtype(chart, channel)}
             if chart_info['dtype'] == 'temporal':
-                for i in range(len(chart_info['data'])):
-                    if isinstance(chart_info['data'][i], str):
-                        try:
-                            chart_info['data'][i] = np.datetime64(chart_info['data'][i])  # np or pandas?
-                        except ValueError:
-                            raise
-                # try:
-                #     chart_info['data'] = mdates.date2num(chart_info['data'])  # Convert dates to Matplotlib dates
-                # except AttributeError:
-                #     raise
+                chart_info['data'] = convert_to_mpl_date(chart_info['data'])
+
             scale_info = _locate_channel_scale(chart, channel)
             axis_info = _locate_channel_axis(chart, channel)
 
             _set_limits(chart_info, scale_info)
             _set_tick_locator(chart_info, axis_info)
+            _set_tick_formatter(chart_info, axis_info)
