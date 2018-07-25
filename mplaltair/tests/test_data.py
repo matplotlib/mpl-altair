@@ -1,5 +1,6 @@
 import altair as alt
 import pandas as pd
+import matplotlib.dates as mdates
 import mplaltair._data as _data
 import pytest
 
@@ -88,3 +89,19 @@ def test_data_dtype_fail():
 # TODO: _locate_channel_scale() tests
 
 # TODO: _locate channel_axis() tests
+
+
+# test date conversion:
+
+df_nonstandard = pd.DataFrame({
+    'a': [1, 2, 3],
+    'c': ['2015-03-07 12:32:17', '2015-03-08 12:32:17', '2015-03-09 12:32:17'],
+    'd': ['2015-03-15', '2015-03-16', '2015-03-17'],
+    'e': pd.to_datetime(['1/4/2016 10:00', '5/1/2016 10:10', '3/3/2016'])
+})
+
+def test_str():
+    assert list(_data._convert_to_mpl_date(df_nonstandard['c'].values)) == list(mdates.datestr2num(df_nonstandard['c']))
+
+def test_datetime64():
+    assert list(_data._convert_to_mpl_date(df_nonstandard['e'].values)) == list(mdates.date2num(df_nonstandard['e']))

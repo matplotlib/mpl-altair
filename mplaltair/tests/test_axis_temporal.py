@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import altair as alt
 import pandas as pd
 from mplaltair import convert
-from .._axis import convert_axis
+from .._axis import convert_axis, _set_limits, _set_tick_formatter, _set_tick_locator
+from .._data import _locate_channel_dtype, _locate_channel_data, _locate_channel_axis, _locate_channel_scale, _convert_to_mpl_date
 import pytest
 
 from vega_datasets import data
@@ -36,7 +37,7 @@ def test_nonstandard_date():
     ax.set_ylabel('yield')
     plt.show()
 
-@pytest.mark.xfail(raises=ValueError)
+@pytest.mark.xfail(raises=TypeError)
 def test_invalid_temporal():
     chart = alt.Chart(df).mark_point().encode(alt.X('a:T'))
     fig, ax = plt.subplots()
@@ -79,8 +80,29 @@ def test_axis_temporal_x(x):
 
 
 def test_axis_temporal_domain():
-    domain = [alt.DateTime(year=2015, date=1, month="Feb"), alt.DateTime(year=2015, date=30, month="April")]
-    pass
+    domain = ['2014-12-25', '2015-03-01']
+    chart = alt.Chart(df).mark_point().encode(alt.X('a'), alt.Y('days'))
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+
+    for channel in chart.to_dict()['encoding']:
+        if channel in ['x', 'y']:
+            chart_info = {'ax': ax, 'axis': channel,
+                          'data': _locate_channel_data(chart, channel),
+                          'dtype': _locate_channel_dtype(chart, channel)}
+            if chart_info['dtype'] == 'temporal':
+                chart_info['data'] = _convert_to_mpl_date(chart_info['data'])
+
+            scale_info = _locate_channel_scale(chart, channel)
+            if channel == 'y':
+                scale_info['domain'] = domain
+            axis_info = _locate_channel_axis(chart, channel)
+
+            _set_limits(chart_info, scale_info)
+            _set_tick_locator(chart_info, axis_info)
+            _set_tick_formatter(chart_info, axis_info)
+    plt.show()
 
 @pytest.mark.parametrize('x,tickCount', [
     ('years', 1), ('years', 3), ('years', 5), ('years', 9), ('years', 10),
@@ -97,6 +119,33 @@ def test_axis_temporal_tickCount(x, tickCount):
     convert_axis(ax, chart)
     ax.set_xlabel(x)
     ax.set_ylabel('a')
+    fig.tight_layout()
+    plt.show()
+
+def test_axis_temporal_values():
+    vals = ['1/12/2015', '3/1/2015', '4/18/2015', '5/3/2015']
+    chart = alt.Chart(df).mark_point().encode(alt.X('a'), alt.Y('months'))
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    for channel in chart.to_dict()['encoding']:
+        if channel in ['x', 'y']:
+            chart_info = {'ax': ax, 'axis': channel,
+                          'data': _locate_channel_data(chart, channel),
+                          'dtype': _locate_channel_dtype(chart, channel)}
+            if chart_info['dtype'] == 'temporal':
+                chart_info['data'] = _convert_to_mpl_date(chart_info['data'])
+
+            scale_info = _locate_channel_scale(chart, channel)
+            axis_info = _locate_channel_axis(chart, channel)
+            if channel == 'y':
+                axis_info['values'] = vals
+
+            _set_limits(chart_info, scale_info)
+            _set_tick_locator(chart_info, axis_info)
+            _set_tick_formatter(chart_info, axis_info)
+    ax.set_xlabel('a')
+    ax.set_ylabel('months')
     fig.tight_layout()
     plt.show()
 
