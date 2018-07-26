@@ -17,7 +17,7 @@ title: Matplotlib-Altair
 email: matplotlib@numfocus.org
 description: > # this means to ignore newlines until "baseurl:"
              Matplotlib Renderer for the Altair Visualization library
-baseurl: "" # the subpath of your site, e.g. /blog
+baseurl: "mpl-altair" # the subpath of your site, e.g. /blog
 url: https://matplotlib.org/mpl-altair/
 twitter_username: matplotlib
 github_username: matplotlib
