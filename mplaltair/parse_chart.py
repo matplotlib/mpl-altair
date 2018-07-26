@@ -11,6 +11,7 @@ class ChannelMetadata(object):
         The name of the encoding channel
     data : np.array
         The data linked to the channel (temporal data is converted)
+    aggregate : str or dict
     axis : dict
     bin : boolean, None
     field : str
@@ -25,6 +26,7 @@ class ChannelMetadata(object):
         chart_dict = alt_chart.to_dict()
         self.name = channel
         self.data = self._locate_channel_data(alt_chart)
+        self.aggregate = chart_dict['encoding'][self.name].get('aggregate', {})
         self.axis = chart_dict['encoding'][self.name].get('axis', {})
         self.bin = chart_dict['encoding'][self.name].get('bin', None)
         self.field = chart_dict['encoding'][self.name].get('field', None)

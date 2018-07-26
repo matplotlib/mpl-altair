@@ -209,6 +209,30 @@ def _set_label_angle(channel, ax):
             label.set_rotation(30)
             label.set_ha('right')
 
+def _set_axis_title(channel, ax):
+    '''Sets the axis label
+
+    Currently, does not support aggregated, binned or timeUnit specified channels
+
+    Parameters
+    ----------
+    channel: parse_chart.ChannelMetadata
+        The channel data and metadata
+    ax: maptlotlib.axes
+        The matplotlib axis to be modified
+    '''
+    if channel.title:
+        if channel.name == 'x':
+            ax.set_xlabel(title)
+        elif channel.name == 'y':
+            ax.set_ylabel(title)
+    elif channel.aggregate:
+        raise NotImplementedError
+    elif channel.bin:
+        raise NotImplementedError
+    elif channel.timeUnit:
+        raise NotImplementedError
+
 
 def convert_axis(ax, chart):
     """Convert elements of the altair chart to Matplotlib axis properties
@@ -226,3 +250,4 @@ def convert_axis(ax, chart):
         _set_tick_locator(channel, ax)
         _set_tick_formatter(channel, ax)
         _set_label_angle(channel, ax)
+        _set_axis_title(channel, ax)
