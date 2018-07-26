@@ -60,33 +60,23 @@ def test_axis(x, y):
 
 @pytest.mark.parametrize('domain', [
     (['2014-12-25', '2015-03-01']),
-    pytest.param([alt.DateTime(year=2014, month="Dec", date=25), alt.DateTime(year=2015, month="March", date=1)], marks=pytest.mark.xfail)
+    ([alt.DateTime(year=2014, month="Dec", date=25), alt.DateTime(year=2015, month="March", date=1)])
 ])
 def test_axis_temporal_domain(domain):
-    chart = alt.Chart(df).mark_point().encode(alt.X('a'), alt.Y('days'))
+    chart = alt.Chart(df).mark_point().encode(alt.X('a'), alt.Y('days', scale=alt.Scale(domain=domain)))
     mapping = convert(chart)
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
+    convert_axis(ax, chart)
 
-    for channel in chart.to_dict()['encoding']:
-        if channel in ['x', 'y']:
-            chart_info = {'ax': ax, 'axis': channel,
-                          'data': _locate_channel_data(chart, channel),
-                          'dtype': _locate_channel_dtype(chart, channel)}
-            if chart_info['dtype'] == 'temporal':
-                chart_info['data'] = _convert_to_mpl_date(chart_info['data'])
-
-            scale_info = _locate_channel_scale(chart, channel)
-            if channel == 'y':
-                scale_info['domain'] = domain
-            axis_info = _locate_channel_axis(chart, channel)
-
-            _set_limits(chart_info, scale_info)
-            _set_tick_locator(chart_info, axis_info)
-            _set_tick_formatter(chart_info, axis_info)
     yvmin, yvmax = ax.yaxis.get_view_interval()
-    assert yvmin == _convert_to_mpl_date(domain)[0]
-    assert yvmax == _convert_to_mpl_date(domain)[1]
+    try:
+        expected_domain = [domain[0].to_dict(), domain[1].to_dict()]
+    except:
+        expected_domain = domain
+    assert yvmin == _convert_to_mpl_date(expected_domain)[0]
+    assert yvmax == _convert_to_mpl_date(expected_domain)[1]
+    plt.show()
 
 @pytest.mark.parametrize('x,tickCount', [
     ('years', 1), ('years', 3), ('years', 5), ('years', 10),
@@ -131,8 +121,7 @@ def test_axis_temporal_values():
     assert list(ax.yaxis.get_major_locator().tick_values(1, 1)) == list(_convert_to_mpl_date(['1/12/2015', '3/1/2015', '4/18/2015', '5/3/2015']))
 
 
-@pytest.mark.xfail(raises=NotImplementedError)
-@pytest.mark.parametrize('type', ['time', 'utc'])
+@pytest.mark.parametrize('type', ['time', pytest.param('utc', marks=pytest.mark.xfail(raises=NotImplementedError))])
 def test_axis_scale_NotImplemented_temporal(type):
     chart = alt.Chart(df).mark_point().encode(
         alt.X('years:T', scale=alt.Scale(type=type)),

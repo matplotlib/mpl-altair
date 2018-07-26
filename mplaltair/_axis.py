@@ -45,18 +45,14 @@ def _set_limits(channel, scale):
                 pass  # use default
 
     elif channel['dtype'] == 'temporal':
-        if 'domain' in scale and scale['type'] != 'time':
-            """Work is currently being done in Altair to modify what date types are allowed for domain specification.
-            Right now, Altair can only date Altair DateTime objects for the domain.
-            At this point, mpl-altair's date converter cannot convert Altair DateTime objects.
-            """
+        if 'domain' in scale:
             try:
                 domain = _convert_to_mpl_date(scale['domain'])
             except NotImplementedError:
                 raise NotImplementedError
             lims[_axis_kwargs[channel['axis']].get('min')] = domain[0]
             lims[_axis_kwargs[channel['axis']].get('max')] = domain[1]
-        elif 'type' in scale:
+        elif 'type' in scale and scale['type'] != 'time':
             lims = _set_scale_type(channel, scale)
         else:
             pass  # use default
@@ -72,8 +68,8 @@ def _set_limits(channel, scale):
 
 def _set_scale_type(channel, scale):
     """If the scale is non-linear, change the scale and return appropriate axis limits.
-    Note: 'linear' and 'time' scale types are not included here because quantitative defaults to 'linear'
-    and temporal defaults to 'time'.
+    Note: The 'linear' and 'time' scale types are not included here because quantitative defaults to 'linear'
+    and temporal defaults to 'time'. The 'utc' and 'sequential' are currently not supported.
     """
     lims = {}
     if scale['type'] == 'log':
