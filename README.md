@@ -8,7 +8,7 @@ Matplotlib Backend for Altair Visualization Library
 
 Contributing
 =============
-Want to add features? Docs? Found a bug? Awesome! 
+Want to add docs? Feautures? Found a bug? Awesome! 
  
 Our style guide is [matplotlib](https://matplotlib.org/devel/index.html)'s and we use [pytest](https://docs.pytest.org/en/latest/) for testing. Chat with us on [gitter](https://gitter.im/matplotlib/mpl-altair)
  
