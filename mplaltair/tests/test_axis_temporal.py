@@ -6,7 +6,6 @@ from .._axis import convert_axis, _set_limits, _set_tick_formatter, _set_tick_lo
 from .._data import _locate_channel_dtype, _locate_channel_data, _locate_channel_axis, _locate_channel_scale, _convert_to_mpl_date
 import pytest
 
-from vega_datasets import data
 
 df = pd.DataFrame({
     "a": [1, 2, 3, 4, 5], "b": [1.2, 2.4, 3.8, 4.5, 5.2], "c": [7, 5, -3, 2, 0],
@@ -33,9 +32,10 @@ def test_nonstandard_date():
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
-    ax.set_xlabel('year')
-    ax.set_ylabel('yield')
-    plt.show()
+    xvmin, xvmax = ax.xaxis.get_data_interval()
+    assert round(xvmin) == round(min(_convert_to_mpl_date(df_nonstandard['e'].values)))
+    assert round(xvmax) == round(max(_convert_to_mpl_date(df_nonstandard['e'].values)))
+
 
 @pytest.mark.xfail(raises=TypeError)
 def test_invalid_temporal():
@@ -43,44 +43,26 @@ def test_invalid_temporal():
     fig, ax = plt.subplots()
     convert_axis(ax, chart)
 
-@pytest.mark.parametrize('x,y', [('months', 'a'), ('a', 'months'), ('a', 'combination')])
+@pytest.mark.parametrize('x,y', [('months', 'years'), ('years', 'months'), ('months', 'combination')])
 def test_axis(x, y):
     chart = alt.Chart(df).mark_point().encode(alt.X(x), alt.Y(y))
     mapping = convert(chart)
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
-    ax.set_xlabel(x)
-    ax.set_ylabel(y)
-    plt.show()
-
-@pytest.mark.parametrize('y', ['years', 'months', 'days', 'hrs', 'combination'])
-def test_axis_temporal_y(y):
-    chart = alt.Chart(df).mark_point().encode(alt.X('a'), alt.Y(y))
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    ax.set_xlabel('a')
-    ax.set_ylabel(y)
-    fig.tight_layout()
-    plt.show()
-
-@pytest.mark.parametrize('x', ['years', 'months', 'days', 'hrs', 'combination'])
-def test_axis_temporal_x(x):
-    chart = alt.Chart(df).mark_point().encode(alt.X(x), alt.Y('a'))
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    ax.set_xlabel(x)
-    ax.set_ylabel('a')
-    fig.tight_layout()
-    plt.show()
+    xvmin, xvmax = ax.xaxis.get_data_interval()
+    yvmin, yvmax = ax.yaxis.get_data_interval()
+    assert round(xvmin) == round(min(_convert_to_mpl_date(df[x].values)))
+    assert round(xvmax) == round(max(_convert_to_mpl_date(df[x].values)))
+    assert round(yvmin) == round(min(_convert_to_mpl_date(df[y].values)))
+    assert round(yvmax) == round(max(_convert_to_mpl_date(df[y].values)))
 
 
-def test_axis_temporal_domain():
-    domain = ['2014-12-25', '2015-03-01']
+@pytest.mark.parametrize('domain', [
+    (['2014-12-25', '2015-03-01']),
+    pytest.param([alt.DateTime(year=2014, month="Dec", date=25), alt.DateTime(year=2015, month="March", date=1)], marks=pytest.mark.xfail)
+])
+def test_axis_temporal_domain(domain):
     chart = alt.Chart(df).mark_point().encode(alt.X('a'), alt.Y('days'))
     mapping = convert(chart)
     fig, ax = plt.subplots()
@@ -102,14 +84,16 @@ def test_axis_temporal_domain():
             _set_limits(chart_info, scale_info)
             _set_tick_locator(chart_info, axis_info)
             _set_tick_formatter(chart_info, axis_info)
-    plt.show()
+    yvmin, yvmax = ax.yaxis.get_view_interval()
+    assert yvmin == _convert_to_mpl_date(domain)[0]
+    assert yvmax == _convert_to_mpl_date(domain)[1]
 
 @pytest.mark.parametrize('x,tickCount', [
-    ('years', 1), ('years', 3), ('years', 5), ('years', 9), ('years', 10),
+    ('years', 1), ('years', 3), ('years', 5), ('years', 10),
     # ('months', 1), ('months', 3), ('months', 5), ('months', 9), ('months', 10),
     # ('days', 1), ('days', 3), ('days', 5), ('days', 9), ('days', 10),
-    ('hrs', 1), ('hrs', 3), ('hrs', 5), ('hrs', 9), ('hrs', 10),
-    ('combination', 1), ('combination', 3), ('combination', 5), ('combination', 9), ('combination', 10)
+    ('hrs', 1), ('hrs', 3), ('hrs', 5), ('hrs', 10),
+    ('combination', 1), ('combination', 3), ('combination', 5), ('combination', 10)
 ])
 def test_axis_temporal_tickCount(x, tickCount):
     chart = alt.Chart(df).mark_point().encode(alt.X(x, axis=alt.Axis(tickCount=tickCount)), alt.Y('a'))
@@ -144,16 +128,20 @@ def test_axis_temporal_values():
             _set_limits(chart_info, scale_info)
             _set_tick_locator(chart_info, axis_info)
             _set_tick_formatter(chart_info, axis_info)
-    ax.set_xlabel('a')
-    ax.set_ylabel('months')
-    fig.tight_layout()
-    plt.show()
+    assert list(ax.yaxis.get_major_locator().tick_values(1, 1)) == list(_convert_to_mpl_date(['1/12/2015', '3/1/2015', '4/18/2015', '5/3/2015']))
 
-def test_axis_temporal_nice():
-    pass
 
-def test_axis_temporal_type():
-    pass
+@pytest.mark.xfail(raises=NotImplementedError)
+@pytest.mark.parametrize('type', ['time', 'utc'])
+def test_axis_scale_NotImplemented_temporal(type):
+    chart = alt.Chart(df).mark_point().encode(
+        alt.X('years:T', scale=alt.Scale(type=type)),
+        alt.Y('a')
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
 
 
 df_tz = pd.DataFrame({

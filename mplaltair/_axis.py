@@ -53,7 +53,7 @@ def _set_limits(channel, scale):
             try:
                 domain = _convert_to_mpl_date(scale['domain'])
             except NotImplementedError:
-                raise
+                raise NotImplementedError
             lims[_axis_kwargs[channel['axis']].get('min')] = domain[0]
             lims[_axis_kwargs[channel['axis']].get('max')] = domain[1]
         elif 'type' in scale:
@@ -120,8 +120,6 @@ def _set_tick_locator(channel, axis):
     # Works for quantitative and temporal
     current_axis = {'x': channel['ax'].xaxis, 'y': channel['ax'].yaxis}
     if 'values' in axis:
-        # vals = {'temporal': _convert_to_mpl_date(axis.get('values')), 'quantitative': axis.get('values')}
-        # current_axis[channel['axis']].set_major_locator(ticker.FixedLocator(vals[channel['dtype']]))
         if channel['dtype'] == 'temporal':
             current_axis[channel['axis']].set_major_locator(ticker.FixedLocator(_convert_to_mpl_date(axis.get('values'))))
         elif channel['dtype'] == 'quantitative':
