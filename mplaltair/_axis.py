@@ -45,7 +45,7 @@ def _set_limits(channel, scale):
                 pass  # use default
 
     elif channel['dtype'] == 'temporal':
-        if 'domain' in scale:
+        if 'domain' in scale and scale['type'] != 'time':
             """Work is currently being done in Altair to modify what date types are allowed for domain specification.
             Right now, Altair can only date Altair DateTime objects for the domain.
             At this point, mpl-altair's date converter cannot convert Altair DateTime objects.
@@ -71,7 +71,10 @@ def _set_limits(channel, scale):
 
 
 def _set_scale_type(channel, scale):
-    """If the scale is non-linear, change the scale and return appropriate axis limits."""
+    """If the scale is non-linear, change the scale and return appropriate axis limits.
+    Note: 'linear' and 'time' scale types are not included here because quantitative defaults to 'linear'
+    and temporal defaults to 'time'.
+    """
     lims = {}
     if scale['type'] == 'log':
 
@@ -89,9 +92,10 @@ def _set_scale_type(channel, scale):
             lims['ymin'] = base**np.floor(np.log10(channel['data'].min())/np.log10(base))
 
     elif scale['type'] == 'pow' or scale['type'] == 'sqrt':
-        """When Matplotlib gets a power scale, the following should work:
+        """The 'sqrt' scale is just the 'pow' scale with exponent = 0.5.
+        When Matplotlib gets a power scale, the following should work:
         
-        exponent = 2
+        exponent = 2  # default exponent value for 'pow' scale
         if scale['type'] == 'sqrt':
             exponent = 0.5
         elif 'exponent' in scale:
@@ -104,8 +108,6 @@ def _set_scale_type(channel, scale):
         """
         raise NotImplementedError
 
-    elif scale['type'] == 'time':
-        raise NotImplementedError
     elif scale['type'] == 'utc':
         raise NotImplementedError
     elif scale['type'] == 'sequential':
