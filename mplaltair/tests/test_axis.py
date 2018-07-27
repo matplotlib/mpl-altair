@@ -6,8 +6,6 @@ from mplaltair import convert
 from .._axis import convert_axis
 import pytest
 
-# from .._data import _locate_channel_dtype
-
 df_quant = pd.DataFrame({
     "a": [1, 2, 3], "b": [1.2, 2.4, 3.8], "c": [7, 5, -3],
     "s": [50, 100, 200.0], "alpha": [0, .5, .8], "shape": [1, 2, 3], "fill": [1, 2, 3],
@@ -23,14 +21,6 @@ df_temp = pd.DataFrame({
     "hrs": pd.to_datetime(['1/1/2015 01:00', '1/1/2015 02:00', '1/1/2015 03:00', '1/1/2015 04:00', '1/1/2015 05:00']),
     "combination": pd.to_datetime(['1/1/2015 00:00', '1/4/2016 10:00', '5/1/2016', '5/1/2016 10:10', '3/3/2016'])
 })
-
-# def test_axis_dtype():
-#     chart = alt.Chart(df_quant).mark_point().encode(alt.X('years'), alt.Y('a'))
-#     mapping = convert(chart)
-#     fig, ax = plt.subplots()
-#     ax.scatter(**mapping)
-#     convert_axis(ax, chart)
-#     assert _locate_channel_dtype(chart, 'x') == 'temporal'
 
 
 @pytest.mark.xfail(raises=TypeError)
@@ -190,7 +180,7 @@ def test_axis_scale_type_x_quantitative(column, type, base, exponent):
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
-@pytest.mark.parametrize('column,type,base,exponent', [('log','log',10,1), ('log2','log',5,1)])
+@pytest.mark.parametrize('column,type,base,exponent', [('log', 'log', 10, 1), ('log2', 'log', 5, 1)])
 def test_axis_scale_type_y_quantitative(column, type, base, exponent):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X('a'),

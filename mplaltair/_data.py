@@ -69,8 +69,7 @@ def _handle_timeUnit():
 
 
 def _locate_channel_scale(chart, channel):
-    """Locates the channel's scale information. Note that this implementation is a little
-    different (and a little cleaner) than the other locate functions in this module.
+    """Locates the channel's scale information.
 
     Parameters
     ----------
@@ -91,8 +90,7 @@ def _locate_channel_scale(chart, channel):
 
 
 def _locate_channel_axis(chart, channel):
-    """Locates the channel's scale information. Note that this implementation is a little
-    different (and a little cleaner) than the other locate functions in this module.
+    """Locates the channel's scale information.
 
     Parameters
     ----------
@@ -116,13 +114,13 @@ def _convert_to_mpl_date(data):
 
     Parameters
     ----------
-    data
-        The data to be converted to a Matplotlib date.
+    data : datetime.datetime, numpy.datetime64, str, Altair DateTime, or sequences of any of these
+        The data to be converted to a Matplotlib date
 
     Returns
     -------
     new_data : list
-        A list containing the converted date(s).
+        A list containing the converted date(s)
     """
 
     if cbook.iterable(data) and not isinstance(data, str) and not isinstance(data, dict):
@@ -143,7 +141,8 @@ def _convert_to_mpl_date(data):
 
 
 def _altair_DateTime_to_datetime(dt):
-    """Convert dictionary representation of an Altair DateTime to datetime object.
+    """Convert dictionary representation of an Altair DateTime to datetime object
+
     Parameters
     ----------
     dt : dict

@@ -9,9 +9,10 @@ def _set_limits(channel, scale):
 
     Parameters
     ----------
+    channel : dict
+        The mapping of the channel data and metadata
     scale : dict
         The mapping of the scale metadata and the scale data
-
     """
 
     _axis_kwargs = {
@@ -61,8 +62,20 @@ def _set_limits(channel, scale):
 
 def _set_scale_type(channel, scale):
     """If the scale is non-linear, change the scale and return appropriate axis limits.
-    Note: The 'linear' and 'time' scale types are not included here because quantitative defaults to 'linear'
-    and temporal defaults to 'time'. The 'utc' and 'sequential' are currently not supported.
+    The 'linear' and 'time' scale types are not included here because quantitative defaults to 'linear'
+    and temporal defaults to 'time'. The 'utc' and 'sequential' scales are currently not supported.
+
+    Parameters
+    ----------
+    channel : dict
+        The mapping of the channel data and metadata
+    scale : dict
+        The mapping of the scale metadata and the scale data
+
+    Returns
+    -------
+    lims : dict
+        The axis limit mapped to the appropriate axis parameter for scales that change axis limit behavior
     """
     lims = {}
     if scale['type'] == 'log':
@@ -107,9 +120,15 @@ def _set_scale_type(channel, scale):
 
 
 def _set_tick_locator(channel, axis):
-    """Set the tick locator if it needs to vary from the default"""
-    # Works for quantitative and temporal
-    # The auto locator has similar (if not the same) defaults as Altair
+    """Set the tick locator if it needs to vary from the default locator
+
+    Parameters
+    ----------
+    channel : dict
+        The mapping of the channel data and metadata
+    axis : dict
+        The mapping of the axis metadata and the scale data
+    """
     current_axis = {'x': channel['ax'].xaxis, 'y': channel['ax'].yaxis}
     if 'values' in axis:
         if channel['dtype'] == 'temporal':
@@ -125,6 +144,15 @@ def _set_tick_locator(channel, axis):
 
 
 def _set_tick_formatter(channel, axis):
+    """Set the tick formatter
+
+    Parameters
+    ----------
+    channel : dict
+        The mapping of the channel data and metadata
+    axis : dict
+        The mapping of the axis metadata and the scale data
+    """
     current_axis = {'x': channel['ax'].xaxis, 'y': channel['ax'].yaxis}
     format_str = ''
 
