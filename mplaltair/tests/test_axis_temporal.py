@@ -129,3 +129,28 @@ def test_axis_temporal_timezone(x):
     convert_axis(ax, chart)
     fig.tight_layout()
     return fig
+
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis_temporal')
+def test_axis_temporal_formatter():
+    chart = alt.Chart(df).mark_point().encode(
+        alt.X('months:T', axis=alt.Axis(format='%b %Y')),
+        alt.Y('hrs:T', axis=alt.Axis(format='%H:%M:%S'))
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    fig.tight_layout()
+    return fig
+
+@pytest.mark.xfail(raises=ValueError)
+def test_axis_formatter_temporal_fail():
+    chart = alt.Chart(df).mark_point().encode(
+        alt.X('months:T', axis=alt.Axis(format='%L')),
+        alt.Y('months:T', axis=alt.Axis(format='%s'))
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    plt.show()

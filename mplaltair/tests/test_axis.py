@@ -180,3 +180,29 @@ def test_axis_scale_NotImplemented_quantitative(type):
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
+
+
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
+def test_axis_formatter_quantitative():
+    chart = alt.Chart(df_quant).mark_point().encode(
+        alt.X('c', axis=alt.Axis(format='-.2g')),
+        alt.Y('b', axis=alt.Axis(format='+.3g'))
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    fig.tight_layout()
+    return fig
+
+
+@pytest.mark.xfail(raises=ValueError)
+def test_axis_formatter_quantitative_fail():
+    chart = alt.Chart(df_quant).mark_point().encode(
+        alt.X('c', axis=alt.Axis(format='-$.2g')),
+        alt.Y('b', axis=alt.Axis(format='+.3r'))
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)

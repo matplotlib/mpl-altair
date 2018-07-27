@@ -107,7 +107,7 @@ def _set_scale_type(channel, scale):
     elif scale['type'] == 'utc':
         raise NotImplementedError
     elif scale['type'] == 'sequential':
-        raise NotImplementedError
+        raise NotImplementedError("sequential scales used primarily for continuous colors")
     else:
         raise NotImplementedError
     return lims
@@ -133,19 +133,49 @@ def _set_tick_locator(channel, axis):
 
 
 def _set_tick_formatter(channel, axis):
+    current_axis = {'x': channel['ax'].xaxis, 'y': channel['ax'].yaxis}
+    format_str = ''
+
+    if 'format' in axis:
+        format_str = axis['format']
+
     if channel['dtype'] == 'temporal':
-        formatter = mdates.DateFormatter('%b %d, %Y')
+        if not format_str:
+            format_str = '%b %d, %Y'
 
-        current_axis = {'x': channel['ax'].xaxis, 'y': channel['ax'].yaxis}
-        current_axis[channel['axis']].set_major_formatter(formatter)
+        current_axis[channel['axis']].set_major_formatter(mdates.DateFormatter(format_str))
 
+        try:
+            current_axis[channel['axis']].get_major_formatter().__call__(1)
+        except ValueError:
+            raise ValueError("Matplotlib only supports `strftime` formatting for dates."
+                             "Currently, %L, %Q, and %s are allowed in Altair, but not allowed in Matplotlib."
+                             "Please use a :func:`strftime` compliant format string.")
+
+
+        # TODO: move rotation to another function?
         if channel['axis'] == 'x':
             for label in channel['ax'].get_xticklabels():
                 # Rotate the labels on the x-axis so they don't run into each other.
                 label.set_rotation(30)
                 label.set_ha('right')
+
+    elif channel['dtype'] == 'quantitative':
+        if format_str:
+            current_axis[channel['axis']].set_major_formatter(ticker.StrMethodFormatter('{x:' + format_str + '}'))
+
+            # Verify that the format string is valid for Matplotlib and exit nicely if not.
+            try:
+                current_axis[channel['axis']].get_major_formatter().__call__(1)
+            except ValueError:
+                raise ValueError("Matplotlib only supports format strings as used by `str.format()`."
+                                 "Some format strings that work in Altair may not work in Matplotlib."
+                                 "Please use a different format string.")
+        else:
+            # Use the default formatter for quantitative (it has similar, if not the same settings as Altair)
+            pass
     else:
-        pass  # Use the auto formatter for quantitative (it has similar, if not the same settings as Altair)
+        pass
 
 
 def convert_axis(ax, chart):
