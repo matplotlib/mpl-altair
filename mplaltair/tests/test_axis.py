@@ -6,7 +6,7 @@ from mplaltair import convert
 from .._axis import convert_axis
 import pytest
 
-from .._data import _locate_channel_dtype
+# from .._data import _locate_channel_dtype
 
 df_quant = pd.DataFrame({
     "a": [1, 2, 3], "b": [1.2, 2.4, 3.8], "c": [7, 5, -3],
@@ -15,14 +15,29 @@ df_quant = pd.DataFrame({
     "years": pd.to_datetime(['1/1/2015', '1/1/2016', '1/1/2017'])
 })
 
+df_temp = pd.DataFrame({
+    "a": [1, 2, 3, 4, 5],
+    "years": pd.to_datetime(['1/1/2015', '1/1/2016', '1/1/2017', '1/1/2018', '1/1/2019']),
+    "months": pd.to_datetime(['1/1/2015', '2/1/2015', '3/1/2015', '4/1/2015', '5/1/2015']),
+    "days": pd.to_datetime(['1/1/2015', '1/2/2015', '1/3/2015', '1/4/2015', '1/5/2015']),
+    "hrs": pd.to_datetime(['1/1/2015 01:00', '1/1/2015 02:00', '1/1/2015 03:00', '1/1/2015 04:00', '1/1/2015 05:00']),
+    "combination": pd.to_datetime(['1/1/2015 00:00', '1/4/2016 10:00', '5/1/2016', '5/1/2016 10:10', '3/3/2016'])
+})
 
-def test_axis_dtype():
-    chart = alt.Chart(df_quant).mark_point().encode(alt.X('years'), alt.Y('a'))
-    mapping = convert(chart)
+# def test_axis_dtype():
+#     chart = alt.Chart(df_quant).mark_point().encode(alt.X('years'), alt.Y('a'))
+#     mapping = convert(chart)
+#     fig, ax = plt.subplots()
+#     ax.scatter(**mapping)
+#     convert_axis(ax, chart)
+#     assert _locate_channel_dtype(chart, 'x') == 'temporal'
+
+
+@pytest.mark.xfail(raises=TypeError)
+def test_invalid_temporal():
+    chart = alt.Chart(df_temp).mark_point().encode(alt.X('a:T'))
     fig, ax = plt.subplots()
-    ax.scatter(**mapping)
     convert_axis(ax, chart)
-    assert _locate_channel_dtype(chart, 'x') == 'temporal'
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
@@ -32,21 +47,22 @@ def test_axis_more_than_x_and_y():
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
-    # plt.show()
     fig.tight_layout()
     return fig
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
-@pytest.mark.parametrize('x,y', [('a', 'c'), ('neg', 'alpha')])
-def test_axis(x, y):
-    chart = alt.Chart(df_quant).mark_point().encode(alt.X(x), alt.Y(y))
+@pytest.mark.parametrize('df,x,y', [(df_quant, 'a', 'c'), (df_quant, 'neg', 'alpha'),
+                                    (df_temp, 'months', 'years'), (df_temp, 'years', 'months'), (df_temp, 'months', 'combination')])
+def test_axis(df, x, y):
+    chart = alt.Chart(df).mark_point().encode(alt.X(x), alt.Y(y))
     mapping = convert(chart)
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
     fig.tight_layout()
     return fig
+
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
 @pytest.mark.parametrize('x,y,zero', [('a', 'c', False), ('neg', 'alpha', False),
@@ -64,11 +80,16 @@ def test_axis_zero_quantitative(x, y, zero):
     return fig
 
 
-
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
-@pytest.mark.parametrize('x,y,x_dom,y_dom', [('a', 'c', [0.5, 4], [-5, 10]), ('neg', 'alpha', [-6, -2], [0, 1])])
-def test_axis_domain_quantitative(x, y, x_dom, y_dom):
-    chart = alt.Chart(df_quant).mark_point().encode(
+@pytest.mark.parametrize(
+    'df, x,y,x_dom,y_dom',
+    [(df_quant, 'a', 'c', [0.5, 4], [-5, 10]), (df_quant, 'neg', 'alpha', [-6, -2], [0, 1]),
+     (df_temp, 'days', 'hrs', ['2014-12-25', '2015-03-01'], ['2015-01-01', '2015-01-03']),
+     (df_temp, 'a', 'days', [0.5, 4], [alt.DateTime(year=2014, month="Dec", date=25),
+                                       alt.DateTime(year=2015, month="March", date=1)])]
+)
+def test_axis_domain(df, x, y, x_dom, y_dom):
+    chart = alt.Chart(df).mark_point().encode(
         alt.X(x, scale=alt.Scale(domain=x_dom)),
         alt.Y(y, scale=alt.Scale(domain=y_dom))
     )
@@ -94,10 +115,15 @@ def test_axis_unaggregated_quantitative():
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
-def test_axis_fixed_ticks_quantitative():
-    chart = alt.Chart(df_quant).mark_point().encode(
+@pytest.mark.parametrize('df,y,vals', [
+    (df_quant, 'b', [-1, 1, 1.5, 2.125, 3]),
+    (df_temp, 'months', [alt.DateTime(year=2015, month=1, date=12), alt.DateTime(year=2015, month=4, date=18),
+                         alt.DateTime(year=2015, month=5, date=3)])
+])
+def test_axis_values(df, y, vals):
+    chart = alt.Chart(df).mark_point().encode(
         alt.X('a', axis=alt.Axis(values=[-1, 1, 1.5, 2.125, 3])),
-        alt.Y('b', axis=alt.Axis(values=[-1, 1, 1.5, 2.125, 3]))
+        alt.Y(y, axis=alt.Axis(values=vals))
     )
     mapping = convert(chart)
     fig, ax = plt.subplots()
@@ -108,10 +134,13 @@ def test_axis_fixed_ticks_quantitative():
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
-@pytest.mark.parametrize('x,y', [(1, 1), (4, 4), (9, 9)])
-def test_axis_tickCount_quantitative(x, y):
-    chart = alt.Chart(df_quant).mark_point().encode(
-        alt.X('log', axis=alt.Axis(tickCount=x)), alt.Y('a', axis=alt.Axis(tickCount=y))
+@pytest.mark.parametrize('df,x,tickCount', [(df_quant, 'log', 1), (df_quant, 'log', 4), (df_quant, 'log', 9),
+                                            (df_temp, 'years', 1), (df_temp, 'years', 4), (df_temp, 'years', 9),
+                                            (df_temp, 'hrs', 1), (df_temp, 'hrs', 4), (df_temp, 'hrs', 9),
+                                            (df_temp, 'combination', 1), (df_temp, 'combination', 4), (df_temp, 'combination', 9)])
+def test_axis_tickCount(df, x, tickCount):
+    chart = alt.Chart(df).mark_point().encode(
+        alt.X(x, axis=alt.Axis(tickCount=tickCount)), alt.Y('a', axis=alt.Axis(tickCount=tickCount))
     )
     mapping = convert(chart)
     fig, ax = plt.subplots()
@@ -121,13 +150,10 @@ def test_axis_tickCount_quantitative(x, y):
     return fig
 
 
-
-# Scale type tests
-
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
-@pytest.mark.parametrize('column,type', [('log', 'log')])
-def test_axis_scale_basic(column, type):
-    chart = alt.Chart(df_quant).mark_point().encode(
+@pytest.mark.parametrize('df,column,type', [(df_quant, 'log', 'log'), (df_temp, 'years:T', 'time')])
+def test_axis_scale_basic(df, column, type):
+    chart = alt.Chart(df).mark_point().encode(
         alt.X(column, scale=alt.Scale(type=type)),
         alt.Y('a')
     )
@@ -168,9 +194,10 @@ def test_axis_scale_type_y_quantitative(column, type, base, exponent):
     fig.tight_layout()
     return fig
 
-@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
+
+# @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
 @pytest.mark.xfail(raises=NotImplementedError)
-@pytest.mark.parametrize('type', ['pow', 'sqrt', 'sequential', 'ordinal'])
+@pytest.mark.parametrize('type', ['pow', 'sqrt', 'utc', 'sequential', 'ordinal'])
 def test_axis_scale_NotImplemented_quantitative(type):
     chart = alt.Chart(df_quant).mark_point().encode(
         alt.X('a', scale=alt.Scale(type=type)),
@@ -183,10 +210,29 @@ def test_axis_scale_NotImplemented_quantitative(type):
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
-def test_axis_formatter_quantitative():
-    chart = alt.Chart(df_quant).mark_point().encode(
-        alt.X('c', axis=alt.Axis(format='-.2g')),
-        alt.Y('b', axis=alt.Axis(format='+.3g'))
+@pytest.mark.parametrize('df,x,y,format_x,format_y', [
+    (df_quant, 'c', 'b', '-.2g', '+.3g'),
+])
+def test_axis_formatter(df, x, y, format_x, format_y):
+    chart = alt.Chart(df).mark_point().encode(
+        alt.X(x, axis=alt.Axis(format=format_x)),
+        alt.Y(y, axis=alt.Axis(format=format_y))
+    )
+    mapping = convert(chart)
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    convert_axis(ax, chart)
+    fig.tight_layout()
+    return fig
+
+
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
+def test_axis_formatter_temporal():
+    """Note: this test is separate from the other test_axis_formatter test because the parametrization created issues
+    with the filename for the image comparison test."""
+    chart = alt.Chart(df_temp).mark_point().encode(
+        alt.X('months:T', axis=alt.Axis(format='%b %Y')),
+        alt.Y('hrs:T', axis=alt.Axis(format='%H:%M:%S'))
     )
     mapping = convert(chart)
     fig, ax = plt.subplots()
@@ -197,10 +243,14 @@ def test_axis_formatter_quantitative():
 
 
 @pytest.mark.xfail(raises=ValueError)
-def test_axis_formatter_quantitative_fail():
-    chart = alt.Chart(df_quant).mark_point().encode(
-        alt.X('c', axis=alt.Axis(format='-$.2g')),
-        alt.Y('b', axis=alt.Axis(format='+.3r'))
+@pytest.mark.parametrize('df,x,y,x_format,y_format', [
+    (df_quant, 'c', 'b', '-$.2g', '+.3r'),
+    (df_temp, 'months:T', 'months:T', '%L', '%s')
+])
+def test_axis_formatter_fail(df, x, y, x_format, y_format):
+    chart = alt.Chart(df).mark_point().encode(
+        alt.X(x, axis=alt.Axis(format=x_format)),
+        alt.Y(y, axis=alt.Axis(format=y_format))
     )
     mapping = convert(chart)
     fig, ax = plt.subplots()
