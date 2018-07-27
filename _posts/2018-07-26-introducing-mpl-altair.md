@@ -2,7 +2,9 @@
 layout: post
 title:  "Why Matplotlib Altair?"
 date:   2018-07-26 11:30:00 -0400
-categories: intro
+author: "Hannah Aizenman"
+categories: about
+tags: "intro about"
 excerpt_separator: <!--read more-->
 ---
 
