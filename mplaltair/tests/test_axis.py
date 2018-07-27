@@ -64,6 +64,15 @@ def test_axis(df, x, y):
     return fig
 
 
+@pytest.mark.xfail(raises=NotImplementedError)
+def test_axis_set_tick_formatter_fail():
+    """TODO: Remove this test after merge with ordinal/nominal axis conversion.
+     This test is just for temporary coverage purposes."""
+    from .._axis import _set_tick_formatter
+    _, ax = plt.subplots()
+    _set_tick_formatter({'ax': ax, 'dtype': 'ordinal'}, {})
+
+
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
 @pytest.mark.parametrize('x,y,zero', [('a', 'c', False), ('neg', 'alpha', False),
                                       ('a', 'c', True), ('neg', 'alpha', True)])
@@ -195,12 +204,12 @@ def test_axis_scale_type_y_quantitative(column, type, base, exponent):
     return fig
 
 
-# @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
 @pytest.mark.xfail(raises=NotImplementedError)
-@pytest.mark.parametrize('type', ['pow', 'sqrt', 'utc', 'sequential', 'ordinal'])
-def test_axis_scale_NotImplemented_quantitative(type):
-    chart = alt.Chart(df_quant).mark_point().encode(
-        alt.X('a', scale=alt.Scale(type=type)),
+@pytest.mark.parametrize('df, x, type', [(df_quant, 'a', 'pow'), (df_quant, 'a', 'sqrt'), (df_temp, 'months', 'utc'),
+                                         (df_quant, 'a', 'sequential'), (df_quant, 'a', 'ordinal')])
+def test_axis_scale_NotImplemented_quantitative(df, x, type):
+    chart = alt.Chart(df).mark_point().encode(
+        alt.X(x, scale=alt.Scale(type=type)),
         alt.Y('a')
     )
     mapping = convert(chart)

@@ -110,6 +110,8 @@ def test_convert_to_mpl_altair_datetime():
     dates = [alt.DateTime(year=2015, date=7).to_dict(), alt.DateTime(year=2015, month="March", date=20).to_dict()]
     assert list(_data._convert_to_mpl_date(dates)) == list(mdates.datestr2num(['2015-01-07', '2015-03-20']))
 
+def test_convert_to_mpl_empty():
+    assert _data._convert_to_mpl_date([]) == []
 
 @pytest.mark.parametrize('date,expected', [
     (df_nonstandard['c'].values[0], mdates.datestr2num(df_nonstandard['c'].values[0])),

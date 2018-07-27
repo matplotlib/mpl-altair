@@ -35,29 +35,22 @@ def _set_limits(channel, scale):
             # Check that a positive minimum is zero if zero is True:
             if ('zero' not in scale or scale['zero'] == True) and min(channel['data']) > 0:
                 lims[_axis_kwargs[channel['axis']].get('min')] = 0  # quantitative sets min to be 0 by default
-            else:
-                pass  # use default
 
             # Check that a negative maximum is zero if zero is True:
             if ('zero' not in scale or scale['zero'] == True) and max(channel['data']) < 0:
                 lims[_axis_kwargs[channel['axis']].get('max')] = 0
-            else:
-                pass  # use default
 
     elif channel['dtype'] == 'temporal':
+        # determine limits
         if 'domain' in scale:
-            try:
-                domain = _convert_to_mpl_date(scale['domain'])
-            except NotImplementedError:
-                raise NotImplementedError
+            domain = _convert_to_mpl_date(scale['domain'])
             lims[_axis_kwargs[channel['axis']].get('min')] = domain[0]
             lims[_axis_kwargs[channel['axis']].get('max')] = domain[1]
         elif 'type' in scale and scale['type'] != 'time':
             lims = _set_scale_type(channel, scale)
-        else:
-            pass  # use default
+
     else:
-        raise NotImplementedError
+        raise NotImplementedError  # Ordinal and Nominal go here?
 
     # set the limits
     if channel['axis'] == 'x':
@@ -116,6 +109,7 @@ def _set_scale_type(channel, scale):
 def _set_tick_locator(channel, axis):
     """Set the tick locator if it needs to vary from the default"""
     # Works for quantitative and temporal
+    # The auto locator has similar (if not the same) defaults as Altair
     current_axis = {'x': channel['ax'].xaxis, 'y': channel['ax'].yaxis}
     if 'values' in axis:
         if channel['dtype'] == 'temporal':
@@ -128,8 +122,6 @@ def _set_tick_locator(channel, axis):
         current_axis[channel['axis']].set_major_locator(
             ticker.MaxNLocator(steps=[2, 5, 10], nbins=axis.get('tickCount')+1, min_n_ticks=axis.get('tickCount'))
         )
-    else:
-        pass  # Use the auto locator (it has similar, if not the same settings as Altair)
 
 
 def _set_tick_formatter(channel, axis):
@@ -150,7 +142,7 @@ def _set_tick_formatter(channel, axis):
         except ValueError:
             raise ValueError("Matplotlib only supports `strftime` formatting for dates."
                              "Currently, %L, %Q, and %s are allowed in Altair, but not allowed in Matplotlib."
-                             "Please use a :func:`strftime` compliant format string.")
+                             "Please use a `strftime` compliant format string.")
 
 
         # TODO: move rotation to another function?
@@ -171,11 +163,8 @@ def _set_tick_formatter(channel, axis):
                 raise ValueError("Matplotlib only supports format strings as used by `str.format()`."
                                  "Some format strings that work in Altair may not work in Matplotlib."
                                  "Please use a different format string.")
-        else:
-            # Use the default formatter for quantitative (it has similar, if not the same settings as Altair)
-            pass
     else:
-        pass
+        raise NotImplementedError  # Nominal and Ordinal go here
 
 
 def convert_axis(ax, chart):
