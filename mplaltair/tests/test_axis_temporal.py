@@ -2,8 +2,7 @@ import matplotlib.pyplot as plt
 import altair as alt
 import pandas as pd
 from mplaltair import convert
-from .._axis import convert_axis, _set_limits, _set_tick_formatter, _set_tick_locator
-from .._data import _locate_channel_dtype, _locate_channel_data, _locate_channel_axis, _locate_channel_scale, _convert_to_mpl_date
+from .._axis import convert_axis
 import pytest
 
 
@@ -15,8 +14,6 @@ df = pd.DataFrame({
     "months": pd.to_datetime(['1/1/2015', '2/1/2015', '3/1/2015', '4/1/2015', '5/1/2015']),
     "days": pd.to_datetime(['1/1/2015', '1/2/2015', '1/3/2015', '1/4/2015', '1/5/2015']),
     "hrs": pd.to_datetime(['1/1/2015 01:00', '1/1/2015 02:00', '1/1/2015 03:00', '1/1/2015 04:00', '1/1/2015 05:00']),
-    # "years": pd.date_range('01/01/2015', periods=5, freq='Y'), "months": pd.date_range('1/1/2015', periods=5, freq='M'),
-    # "days": pd.date_range('1/1/2015', periods=5, freq='D'), "hrs": pd.date_range('1/1/2015', periods=5, freq='H'),
     "combination": pd.to_datetime(['1/1/2015 00:00', '1/4/2016 10:00', '5/1/2016', '5/1/2016 10:10', '3/3/2016'])
 })
 
@@ -26,15 +23,17 @@ df_nonstandard = pd.DataFrame({
     'd': ['2015-03-15', '2015-03-16', '2015-03-17'],
     'e': pd.to_datetime(['1/4/2016 10:00', '5/1/2016 10:10', '3/3/2016'])
 })
+
+
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis_temporal')
 def test_nonstandard_date():
     chart = alt.Chart(df_nonstandard).mark_point().encode(alt.X('e:T'), alt.Y('a'))
     mapping = convert(chart)
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
-    xvmin, xvmax = ax.xaxis.get_data_interval()
-    assert round(xvmin) == round(min(_convert_to_mpl_date(df_nonstandard['e'].values)))
-    assert round(xvmax) == round(max(_convert_to_mpl_date(df_nonstandard['e'].values)))
+    fig.tight_layout()
+    return fig
 
 
 @pytest.mark.xfail(raises=TypeError)
@@ -43,6 +42,8 @@ def test_invalid_temporal():
     fig, ax = plt.subplots()
     convert_axis(ax, chart)
 
+
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis_temporal')
 @pytest.mark.parametrize('x,y', [('months', 'years'), ('years', 'months'), ('months', 'combination')])
 def test_axis(x, y):
     chart = alt.Chart(df).mark_point().encode(alt.X(x), alt.Y(y))
@@ -50,14 +51,11 @@ def test_axis(x, y):
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
-    xvmin, xvmax = ax.xaxis.get_data_interval()
-    yvmin, yvmax = ax.yaxis.get_data_interval()
-    assert round(xvmin) == round(min(_convert_to_mpl_date(df[x].values)))
-    assert round(xvmax) == round(max(_convert_to_mpl_date(df[x].values)))
-    assert round(yvmin) == round(min(_convert_to_mpl_date(df[y].values)))
-    assert round(yvmax) == round(max(_convert_to_mpl_date(df[y].values)))
+    fig.tight_layout()
+    return fig
 
 
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis_temporal')
 @pytest.mark.parametrize('domain', [
     (['2014-12-25', '2015-03-01']),
     ([alt.DateTime(year=2014, month="Dec", date=25), alt.DateTime(year=2015, month="March", date=1)])
@@ -68,20 +66,13 @@ def test_axis_temporal_domain(domain):
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
+    fig.tight_layout()
+    return fig
 
-    yvmin, yvmax = ax.yaxis.get_view_interval()
-    try:
-        expected_domain = [domain[0].to_dict(), domain[1].to_dict()]
-    except:
-        expected_domain = domain
-    assert yvmin == _convert_to_mpl_date(expected_domain)[0]
-    assert yvmax == _convert_to_mpl_date(expected_domain)[1]
-    plt.show()
 
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis_temporal')
 @pytest.mark.parametrize('x,tickCount', [
     ('years', 1), ('years', 3), ('years', 5), ('years', 10),
-    # ('months', 1), ('months', 3), ('months', 5), ('months', 9), ('months', 10),
-    # ('days', 1), ('days', 3), ('days', 5), ('days', 9), ('days', 10),
     ('hrs', 1), ('hrs', 3), ('hrs', 5), ('hrs', 10),
     ('combination', 1), ('combination', 3), ('combination', 5), ('combination', 10)
 ])
@@ -91,34 +82,20 @@ def test_axis_temporal_tickCount(x, tickCount):
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
-    ax.set_xlabel(x)
-    ax.set_ylabel('a')
     fig.tight_layout()
-    plt.show()
+    return fig
 
+
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis_temporal')
 def test_axis_temporal_values():
-    vals = ['1/12/2015', '3/1/2015', '4/18/2015', '5/3/2015']
-    chart = alt.Chart(df).mark_point().encode(alt.X('a'), alt.Y('months'))
+    vals = [alt.DateTime(year=2015, month=1, date=12), alt.DateTime(year=2015, month=4, date=18), alt.DateTime(year=2015, month=5, date=3)]
+    chart = alt.Chart(df).mark_point().encode(alt.X('a'), alt.Y('months', axis=alt.Axis(values=vals)))
     mapping = convert(chart)
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
-    for channel in chart.to_dict()['encoding']:
-        if channel in ['x', 'y']:
-            chart_info = {'ax': ax, 'axis': channel,
-                          'data': _locate_channel_data(chart, channel),
-                          'dtype': _locate_channel_dtype(chart, channel)}
-            if chart_info['dtype'] == 'temporal':
-                chart_info['data'] = _convert_to_mpl_date(chart_info['data'])
-
-            scale_info = _locate_channel_scale(chart, channel)
-            axis_info = _locate_channel_axis(chart, channel)
-            if channel == 'y':
-                axis_info['values'] = vals
-
-            _set_limits(chart_info, scale_info)
-            _set_tick_locator(chart_info, axis_info)
-            _set_tick_formatter(chart_info, axis_info)
-    assert list(ax.yaxis.get_major_locator().tick_values(1, 1)) == list(_convert_to_mpl_date(['1/12/2015', '3/1/2015', '4/18/2015', '5/3/2015']))
+    convert_axis(ax, chart)
+    fig.tight_layout()
+    return fig
 
 
 @pytest.mark.parametrize('type', ['time', pytest.param('utc', marks=pytest.mark.xfail(raises=NotImplementedError))])
@@ -141,6 +118,8 @@ df_tz = pd.DataFrame({
     'no_tz': pd.date_range('1/1/2015', periods=5, freq='H')
 })
 
+
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis_temporal')
 @pytest.mark.parametrize('x', ['utc:T', 'no_utc:T', 'tz:T', 'no_tz:T'])
 def test_axis_temporal_timezone(x):
     chart = alt.Chart(df_tz).mark_point().encode(alt.X(x), alt.Y('a'))
@@ -148,7 +127,5 @@ def test_axis_temporal_timezone(x):
     fig, ax = plt.subplots()
     ax.scatter(**mapping)
     convert_axis(ax, chart)
-    ax.set_xlabel(x)
-    ax.set_ylabel('a')
     fig.tight_layout()
-    plt.show()
+    return fig

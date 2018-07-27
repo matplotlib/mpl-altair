@@ -215,16 +215,20 @@ chart_fill_quant = alt.Chart(df_quant).mark_point().encode(
     alt.X(field='a', type='quantitative'), alt.Y('b'), alt.Fill('fill:Q')
 )
 
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
 @pytest.mark.parametrize("chart", [chart_quant, chart_fill_quant])
 def test_quantitative_scatter(chart):
     mapping = convert(chart)
-    plt.scatter(**mapping)
-    plt.show()
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    return fig
 
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
 @pytest.mark.parametrize("channel", [alt.Color("years"), alt.Fill("years")])
 def test_scatter_temporal(channel):
     chart = alt.Chart(df).mark_point().encode(alt.X("years"), channel)
     mapping = convert(chart)
     mapping['y'] = df['quantitative'].values
-    plt.scatter(**mapping)
-    plt.show()
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    return fig
