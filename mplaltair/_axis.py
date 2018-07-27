@@ -172,14 +172,6 @@ def _set_tick_formatter(channel, axis):
                              "Currently, %L, %Q, and %s are allowed in Altair, but not allowed in Matplotlib."
                              "Please use a `strftime` compliant format string.")
 
-
-        # TODO: move rotation to another function?
-        if channel['axis'] == 'x':
-            for label in channel['ax'].get_xticklabels():
-                # Rotate the labels on the x-axis so they don't run into each other.
-                label.set_rotation(30)
-                label.set_ha('right')
-
     elif channel['dtype'] == 'quantitative':
         if format_str:
             current_axis[channel['axis']].set_major_formatter(ticker.StrMethodFormatter('{x:' + format_str + '}'))
@@ -193,6 +185,23 @@ def _set_tick_formatter(channel, axis):
                                  "Please use a different format string.")
     else:
         raise NotImplementedError  # Nominal and Ordinal go here
+
+
+def _set_label_angle(channel, axis):
+    """Set the label angle. TODO: handle axis.labelAngle from Altair
+
+        Parameters
+        ----------
+        channel : dict
+            The mapping of the channel data and metadata
+        axis : dict
+            The mapping of the axis metadata and the scale data
+        """
+    if channel['dtype'] == 'temporal' and channel['axis'] == 'x':
+        for label in channel['ax'].get_xticklabels():
+            # Rotate the labels on the x-axis so they don't run into each other.
+            label.set_rotation(30)
+            label.set_ha('right')
 
 
 def convert_axis(ax, chart):
@@ -220,3 +229,4 @@ def convert_axis(ax, chart):
             _set_limits(chart_info, scale_info)
             _set_tick_locator(chart_info, axis_info)
             _set_tick_formatter(chart_info, axis_info)
+            _set_label_angle(chart_info, axis_info)
