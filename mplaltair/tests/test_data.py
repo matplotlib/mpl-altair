@@ -83,13 +83,6 @@ def test_data_dtype_fail():
     for channel in chart.to_dict()['encoding']:
         with pytest.raises(NotImplementedError):
             dtype = _data._locate_channel_dtype(chart, channel)
-    assert dtype == 'quantitative'
-
-
-# TODO: _locate_channel_scale() tests
-
-# TODO: _locate channel_axis() tests
-
 
 # test date conversion:
 

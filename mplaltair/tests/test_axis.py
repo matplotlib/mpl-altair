@@ -150,10 +150,10 @@ def test_axis_tickCount(df, x, tickCount):
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
-@pytest.mark.parametrize('df,column,type', [(df_quant, 'log', 'log'), (df_temp, 'years:T', 'time')])
-def test_axis_scale_basic(df, column, type):
+@pytest.mark.parametrize('df,column,scale_type', [(df_quant, 'log', 'log'), (df_temp, 'years', 'time')])
+def test_axis_scale_basic(df, column, scale_type):
     chart = alt.Chart(df).mark_point().encode(
-        alt.X(column, scale=alt.Scale(type=type)),
+        alt.X(column, scale=alt.Scale(type=scale_type)),
         alt.Y('a')
     )
     mapping = convert(chart)
