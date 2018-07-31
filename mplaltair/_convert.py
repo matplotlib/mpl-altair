@@ -93,6 +93,30 @@ _mappings = {
     'stroke': _process_stroke,
 }
 
+scatter_mapping = {
+    'x': lambda d: ('x', d),
+    'y': lambda d: ('y', d),
+    'color': lambda data, dtype: ('c', data) if dtype != 'nominal' else (),
+    'fill': lambda data, dtype: ('c', data) if dtype != 'nominal' else (),
+    'shape': lambda d: ('y', d),
+    # 'opacity': lambda d: ('y', d),
+    'size': lambda data, dtype: ('s', data) if dtype == 'quantitative' or dtype == "ordinal" else (),
+    # 'stroke': lambda d: ('y', d),
+}
+
+_line_mapping = {
+    'x': lambda d: ('x', d),
+    'y': lambda d: ('y', d),
+    # 'x2': (),
+    # 'y2': (),
+    # 'color': lambda d: ('c', d),  # everything color  # Taken care of before here
+    # 'fill': (),  # marker color
+    # 'shape': (),  # marker, but data parsing is going to be wrong
+    # 'opacity': (lambda d: ('alpha', d)),
+    # 'size': (),  # not supported for line
+    # 'stroke': ()  # line color
+}
+
 def _convert(chart):
     """Convert an altair encoding to a Matplotlib figure
 
@@ -123,6 +147,9 @@ def _convert(chart):
         if dtype == 'temporal':
             data = _convert_to_mpl_date(data)
 
-        mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
+        if chart.mark in ['point', 'circle', 'square']:
+            mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
+        elif chart.mark == 'line' and channel != 'color':
+            mapping[_line_mapping[channel](data)[0]] = _line_mapping[channel](data)[1]
     
     return mapping

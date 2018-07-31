@@ -1,6 +1,8 @@
 import matplotlib
 import altair
+import matplotlib.pyplot as plt
 from ._convert import _convert
+from ._data import _normalize_data
 
 
 def convert(chart):
@@ -20,4 +22,26 @@ def convert(chart):
 
 
     """
-    return _convert(chart)
+
+    fig, ax = plt.subplots()
+    # chart.to_dict()
+    if chart.mark in ['point', 'circle', 'square']:  # scatter
+        _normalize_data(chart)
+        mapping = _convert(chart)
+        ax.scatter(**mapping)
+    elif chart.mark == 'line':  # line
+        _normalize_data(chart)
+        _line_division(chart, ax)
+    plt.show()
+    # return fig, ax
+    # return _convert(chart)
+
+
+def _line_division(chart, ax):
+    if chart.to_dict()['encoding'].get('color'):  # or stroke?
+        for _, subset in chart.data.groupby(chart.to_dict()['encoding']['color']['field']):
+            tmp_chart = chart
+            tmp_chart.data = subset
+            mapping = _convert(tmp_chart)
+            ax.plot(**mapping)
+            # convert_axis(chart, enc)
