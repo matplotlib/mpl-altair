@@ -114,6 +114,13 @@ class ChartMetadata(object):
         self.data = alt_chart.data
         self.mark = alt_chart.mark
 
+        if alt_chart.to_dict().get('config').get('axis'):
+            raise NotImplementedError
+
+        if alt_chart.to_dict().get('config').get('scale'):
+            raise NotImplementedError
+
+
         self.encoding = {}
         for k, v in alt_chart.to_dict()['encoding'].items():
             self.encoding[k] = ChannelMetadata(k, alt_chart)
