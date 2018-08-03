@@ -226,7 +226,6 @@ def _set_label_angle(channel, ax):
             # Rotate the labels on the x-axis so they don't run into each other.
             label.set_rotation(30)
             label.set_ha('right')
-    
 
 def _set_axis_title(channel, ax):
     '''Sets the axis label
@@ -269,6 +268,37 @@ def _set_axis_label_visibility(channel, ax):
     elif channel.name == 'y':
         ax.tick_param(labelleft=labels, labelright=labels)
 
+def _set_axis_orientation(channel, ax):
+    '''Set the axis orientation
+
+    Parameters
+    ----------
+    channel: parse_chart.ChannelMetadata
+        The channel data and metadata
+    ax: maptlotlib.axes
+        The matplotlib axis to be modified
+    '''
+    orient = channel.axis.get('orient')
+
+    if orient is None:
+        if channel.name == 'x':
+            orient = 'bottom'
+        elif channel.name == 'y':
+            orient = 'left'
+
+    ACTIONS = {
+        'x': {
+            'top': ax.xaxis.tick_top,
+            'bottom': ax.xaxis.tick_bottom
+        },
+        'y': {
+            'left': ax.xaxis.tick_left,
+            'right': ax.xaxis.tick_right
+        }
+    }
+
+    ACTIONS[enc][orient]()
+
 def convert_axis(ax, chart):
     """Convert elements of the altair chart to Matplotlib axis properties
 
@@ -287,3 +317,4 @@ def convert_axis(ax, chart):
         _set_label_angle(channel, ax)
         _set_axis_title(channel, ax)
         _set_axis_label_visibility(channel, ax)
+        _set_axis_orientation(channel, ax)
