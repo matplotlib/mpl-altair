@@ -203,11 +203,30 @@ def _set_label_angle(channel, ax):
         ax : matplotlib.axes
             The mapping of the axis metadata and the scale data
         """
+    
+    label_angle = channel.axis.get('labelAngle')
+
+    # Sets the defaults used by altair if axis.labelAngle is not specified
+    if label_angle is None:
+        if channel.type in ['ordinal', 'nominal']:
+            label_angle = -90
+        elif channel_type in ['quantitative', 'temporal']:
+            label_angle = 0
+    
+    if channel.name == 'x':
+        for label in ax.get_xticklabels():
+            label.set_rotation(-1*label_angle)
+    elif channel.name == 'y':
+        for label in ax.get_yticklabels():
+            label.set_rotation(-1*label_angle)
+
+    # Special case for temporal encoding type to improve visual appeal
     if channel.type == 'temporal' and channel.name == 'x':
         for label in ax.get_xticklabels():
             # Rotate the labels on the x-axis so they don't run into each other.
             label.set_rotation(30)
             label.set_ha('right')
+    
 
 def _set_axis_title(channel, ax):
     '''Sets the axis label
