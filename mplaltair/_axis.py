@@ -233,6 +233,22 @@ def _set_axis_title(channel, ax):
     elif channel.timeUnit:
         raise NotImplementedError
 
+def _set_axis_label_visibility(channel, ax):
+    '''Set the axis label visibility
+
+    Parameters
+    ----------
+    channel: parse_chart.ChannelMetadata
+        The channel data and metadata
+    ax: maptlotlib.axes
+        The matplotlib axis to be modified
+    '''
+    labels = channel.axis.get('labels', True)
+
+    if channel.name == 'x':
+        ax.tick_param(labelbottom=labels, labeltop=labels)
+    elif channel.name == 'y':
+        ax.tick_param(labelleft=labels, labelright=labels)
 
 def convert_axis(ax, chart):
     """Convert elements of the altair chart to Matplotlib axis properties
@@ -251,3 +267,4 @@ def convert_axis(ax, chart):
         _set_tick_formatter(channel, ax)
         _set_label_angle(channel, ax)
         _set_axis_title(channel, ax)
+        _set_axis_label_visibility(channel, ax)
