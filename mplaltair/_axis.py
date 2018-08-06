@@ -16,8 +16,8 @@ def _set_limits(channel, scale):
     """
 
     _axis_kwargs = {
-        'x': {'min': 'xmin', 'max': 'xmax'},
-        'y': {'min': 'ymin', 'max': 'ymax'},
+        'x': {'min': 'left', 'max': 'right'},
+        'y': {'min': 'bottom', 'max': 'top'},
     }
 
     lims = {}
@@ -87,11 +87,11 @@ def _set_scale_type(channel, scale):
         if channel['axis'] == 'x':
             channel['ax'].set_xscale('log', basex=base)
             # lower limit: round down to nearest major tick (using log base change rule)
-            lims['xmin'] = base**np.floor(np.log10(channel['data'].min())/np.log10(base))
+            lims['left'] = base**np.floor(np.log10(channel['data'].min())/np.log10(base))
         else:  # y-axis
             channel['ax'].set_yscale('log', basey=base)
             # lower limit: round down to nearest major tick (using log base change rule)
-            lims['ymin'] = base**np.floor(np.log10(channel['data'].min())/np.log10(base))
+            lims['bottom'] = base**np.floor(np.log10(channel['data'].min())/np.log10(base))
 
     elif scale['type'] == 'pow' or scale['type'] == 'sqrt':
         """The 'sqrt' scale is just the 'pow' scale with exponent = 0.5.
@@ -144,7 +144,8 @@ def _set_tick_locator(channel, axis):
 
 
 def _set_tick_formatter(channel, axis):
-    """Set the tick formatter
+    """Set the tick formatter.
+
 
     Parameters
     ----------
@@ -152,6 +153,14 @@ def _set_tick_formatter(channel, axis):
         The mapping of the channel data and metadata
     axis : dict
         The mapping of the axis metadata and the scale data
+
+    Notes
+    -----
+    For quantitative formatting, Matplotlib does not support some format strings that Altair supports.
+    Matplotlib only supports format strings as used by str.format().
+
+    For formatting of temporal data, Matplotlib does not support some format strings that Altair supports (%L, %Q, %s).
+    Matplotlib only supports datetime.strftime formatting for dates.
     """
     current_axis = {'x': channel['ax'].xaxis, 'y': channel['ax'].yaxis}
     format_str = ''
@@ -163,14 +172,7 @@ def _set_tick_formatter(channel, axis):
         if not format_str:
             format_str = '%b %d, %Y'
 
-        current_axis[channel['axis']].set_major_formatter(mdates.DateFormatter(format_str))
-
-        try:
-            current_axis[channel['axis']].get_major_formatter().__call__(1)
-        except ValueError:
-            raise ValueError("Matplotlib only supports `strftime` formatting for dates."
-                             "Currently, %L, %Q, and %s are allowed in Altair, but not allowed in Matplotlib."
-                             "Please use a `strftime` compliant format string.")
+        current_axis[channel['axis']].set_major_formatter(mdates.DateFormatter(format_str))  # May fail silently
 
     elif channel['dtype'] == 'quantitative':
         if format_str:

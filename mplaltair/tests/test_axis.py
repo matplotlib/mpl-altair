@@ -242,14 +242,10 @@ def test_axis_formatter_temporal():
 
 
 @pytest.mark.xfail(raises=ValueError)
-@pytest.mark.parametrize('df,x,y,x_format,y_format', [
-    (df_quant, 'c', 'b', '-$.2g', '+.3r'),
-    (df_temp, 'months:T', 'months:T', '%L', '%s')
-])
-def test_axis_formatter_fail(df, x, y, x_format, y_format):
-    chart = alt.Chart(df).mark_point().encode(
-        alt.X(x, axis=alt.Axis(format=x_format)),
-        alt.Y(y, axis=alt.Axis(format=y_format))
+def test_axis_formatter_fail():
+    chart = alt.Chart(df_quant).mark_point().encode(
+        alt.X('c', axis=alt.Axis(format='-$.2g')),
+        alt.Y('b', axis=alt.Axis(format='+.3r'))
     )
     mapping = convert(chart)
     fig, ax = plt.subplots()
