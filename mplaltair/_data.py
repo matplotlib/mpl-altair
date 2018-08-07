@@ -111,6 +111,7 @@ def _locate_channel_axis(chart, channel):
     else:
         return {}
 
+# FROM ENCODINGS=======================================================================================================
 def _normalize_data(chart):
     """Converts the data to a Pandas dataframe. Originally Nabarun's code (PR #5).
 
@@ -126,12 +127,12 @@ def _normalize_data(chart):
     if spec['data'].get('url'):
         df = pd.DataFrame(_fetch(spec['data']['url']))
     elif spec['data'].get('values'):
-        df = pd.DataFrame(spec['data']['values'])
+        return
     else:
         raise NotImplementedError('Given data specification is unsupported at the moment.')
 
-
     chart.data = df
+# END STUFF FROM ENCODINGS=============================================================================================
 
 
 def _convert_to_mpl_date(data):

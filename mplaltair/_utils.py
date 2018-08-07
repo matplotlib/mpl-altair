@@ -1,3 +1,4 @@
+# FROM ENCODINGS=======================================================================================================
 from urllib.request import urlopen
 from urllib.error import HTTPError
 
@@ -40,3 +41,4 @@ def _fetch(url):
     except KeyError:
         raise NotImplementedError('File format not implemented')
     return df
+# END OF STUFF FROM ENCODINGS==========================================================================================
