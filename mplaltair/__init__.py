@@ -24,7 +24,6 @@ def convert(chart):
     """
 
     fig, ax = plt.subplots()
-    # chart.to_dict()
     if chart.mark in ['point', 'circle', 'square']:  # scatter
         _normalize_data(chart)
         mapping = _convert(chart)
@@ -32,16 +31,19 @@ def convert(chart):
     elif chart.mark == 'line':  # line
         _normalize_data(chart)
         _line_division(chart, ax)
-    plt.show()
-    # return fig, ax
-    # return _convert(chart)
+    else:
+        raise NotImplementedError
+    return fig, ax
 
 
 def _line_division(chart, ax):
     if chart.to_dict()['encoding'].get('color'):  # or stroke?
-        for _, subset in chart.data.groupby(chart.to_dict()['encoding']['color']['field']):
+        for lab, subset in chart.data.groupby(chart.to_dict()['encoding']['color']['field']):
             tmp_chart = chart
             tmp_chart.data = subset
             mapping = _convert(tmp_chart)
-            ax.plot(**mapping)
-            # convert_axis(chart, enc)
+            mapping['kwargs'] = {'label': lab}  # for legend purposes later on
+            ax.plot(*mapping['args'], **mapping['kwargs'])
+    else:
+        mapping = _convert(chart)
+        ax.plot(*mapping['args'],)

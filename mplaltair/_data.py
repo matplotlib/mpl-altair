@@ -6,10 +6,6 @@ import matplotlib.cbook as cbook
 from datetime import datetime
 import numpy as np
 
-import pandas as pd
-
-from ._utils import _fetch
-
 def _normalize_data(chart):
     """Converts the data to a Pandas dataframe
 
@@ -146,28 +142,6 @@ def _locate_channel_axis(chart, channel):
         return channel_val.get('axis')
     else:
         return {}
-
-def _normalize_data(chart):
-    """Converts the data to a Pandas dataframe. Originally Nabarun's code (PR #5).
-
-    Parameters
-    ----------
-    chart : altair.Chart
-        The Altair chart object
-    """
-    spec = chart.to_dict()
-    if not spec['data']:
-        raise ValidationError('Please specify a data source.')
-
-    if spec['data'].get('url'):
-        df = pd.DataFrame(_fetch(spec['data']['url']))
-    elif spec['data'].get('values'):
-        df = pd.DataFrame(spec['data']['values'])
-    else:
-        raise NotImplementedError('Given data specification is unsupported at the moment.')
-
-
-    chart.data = df
 
 
 def _convert_to_mpl_date(data):
