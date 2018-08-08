@@ -255,6 +255,17 @@ class TestLines(object):
 
 
     @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
+    def test_line_stroke(self):
+        chart = alt.Chart(df_line).mark_line().encode(
+            alt.X('a'),
+            alt.Y('b'),
+            alt.Stroke('d')
+        )
+        fig, _ = convert(chart)
+        return fig
+
+
+    @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
     def test_line_color(self):
         chart = alt.Chart(df_line).mark_line().encode(
             alt.X('a'),
@@ -263,6 +274,16 @@ class TestLines(object):
         )
         fig, _ = convert(chart)
         return fig
+
+
+    @pytest.mark.xfail(raises=NotImplementedError)
+    def test_line_opacity_fail(self):
+        chart = alt.Chart(df_line).mark_line().encode(
+            alt.X('a'),
+            alt.Y('b'),
+            alt.Opacity('d')
+        )
+        fig, _ = convert(chart)
 
 
 class TestBars(object):
