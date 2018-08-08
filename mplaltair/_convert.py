@@ -132,7 +132,7 @@ def _convert(chart):
 
         if chart.mark in ['point', 'circle', 'square']:
             mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
-        elif chart.mark == 'line' and channel != 'color':
+        elif chart.mark == 'line' and channel in ['x', 'y']:
             mapping[_line_mapping[channel](data)[0]] = _line_mapping[channel](data)[1]
 
     if chart.mark == 'line':
