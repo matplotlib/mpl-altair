@@ -255,11 +255,16 @@ class TestLines(object):
 
 
     @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
-    def test_line_stroke(self):
+    @pytest.mark.parametrize('x,y,s', [
+        ('a:Q', 'b:Q', 'd:Q'),
+        pytest.param('a:N', 'b:N', 'c:N', marks=pytest.mark.xfail(raises=NotImplementedError)),
+        pytest.param('a:O', 'b:O', 'c:O', marks=pytest.mark.xfail(raises=NotImplementedError))
+    ])
+    def test_line_stroke(self, x, y, s):
         chart = alt.Chart(df_line).mark_line().encode(
-            alt.X('a'),
-            alt.Y('b'),
-            alt.Stroke('d')
+            alt.X(x),
+            alt.Y(y),
+            alt.Stroke(s)
         )
         fig, _ = convert(chart)
         return fig
