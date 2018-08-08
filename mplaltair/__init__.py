@@ -3,6 +3,7 @@ import altair
 import matplotlib.pyplot as plt
 from ._convert import _convert
 from ._data import _normalize_data
+from ._axis import convert_axis
 
 
 def convert(chart):
@@ -28,11 +29,14 @@ def convert(chart):
         _normalize_data(chart)
         mapping = _convert(chart)
         ax.scatter(**mapping)
+        # convert_axis(ax, chart)
     elif chart.mark == 'line':  # line
         _normalize_data(chart)
         _line_division(chart, ax)
     else:
         raise NotImplementedError
+    convert_axis(ax, chart)
+    fig.tight_layout()
     return fig, ax
 
 
@@ -68,6 +72,7 @@ def _line_division(chart, ax):
     else:
         mapping = _convert(chart)
         ax.plot(*mapping['args'])
+        # convert_axis(ax, chart)
         return
 
     for lab, subset in chart.data.groupby(grouping):
@@ -76,3 +81,4 @@ def _line_division(chart, ax):
         mapping = _convert(tmp_chart)
         mapping['kwargs'] = {'label': lab}  # for legend purposes later on
         ax.plot(*mapping['args'], **mapping['kwargs'])
+        # convert_axis(ax, chart)
