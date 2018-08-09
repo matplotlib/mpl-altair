@@ -31,9 +31,6 @@ def _normalize_data(chart):
 
     spec = chart.to_dict()
 
-    if not spec.get('data'):
-        raise ValidationError('Please specify a data source.')
-    
     if spec['data'].get('url'):
         df = pd.DataFrame(_fetch(spec['data']['url']))
     elif spec['data'].get('values'):
