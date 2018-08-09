@@ -17,35 +17,14 @@ df = pd.DataFrame({
 })
 
 def test_data_list():
-    spec = {
-        "data": {
-            "values": [{"a": 1, "b": 2}, {"c": 3, "d": 4}]
-
-        }
-    }
-    assert type(_normalize_data(spec)["data"]) == pd.DataFrame
+    chart = alt.Chart(pd.DataFrame({'a': [1], 'b': [2], 'c': [3]})).mark_point()
+    _normalize_data(chart)
+    assert type(chart.data) == pd.DataFrame
 
 def test_data_url():
-    spec = {
-        "data": {
-            "url": data.cars.url
-        }
-    }
-    assert type(_normalize_data(spec)["data"]) == pd.DataFrame
-
-def test_data_no_pass():
-    spec = {}
-    with pytest.raises(ValidationError):
-        _normalize_data(spec)
-
-def test_data_invalid():
-    spec = {
-        "data": {
-            "source": "path"
-        }
-    }
-    with pytest.raises(NotImplementedError):
-        _normalize_data(spec)
+    chart = alt.Chart(data.cars.url).mark_point()
+    _normalize_data(chart)
+    assert type(chart.data) == pd.DataFrame
 
 # _locate_channel_data() tests
 

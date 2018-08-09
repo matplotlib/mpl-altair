@@ -1,5 +1,5 @@
 import matplotlib.dates as mdates
-from ._data import _locate_channel_data, _locate_channel_dtype
+from ._data import _locate_channel_data, _locate_channel_dtype, _normalize_data
 
 def _allowed_ranged_marks(enc_channel, mark):
     """TODO: DOCS
@@ -108,6 +108,8 @@ def _convert(chart):
         for later customization.
     """
     mapping = {}
+
+    _normalize_data(chart)
 
     if not chart.to_dict().get('encoding'):
         raise ValueError("Encoding not provided with the chart specification")

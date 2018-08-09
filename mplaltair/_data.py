@@ -4,18 +4,17 @@ import pandas as pd
 
 from ._utils import _fetch
 
-def _normalize_data(spec):
+def _normalize_data(chart):
     """Converts the data to a Pandas dataframe
 
     Parameters
     ----------
-    spec : dict
+    chart : altair.Chart
     The vega-lite specification in json format
 
     Returns
     -------
-    dict
-    The vega-lite specification with the data format fixed to a Pandas dataframe
+    None
 
     Raises
     ------
@@ -26,20 +25,19 @@ def _normalize_data(spec):
     Raised when the data specification has an unsupported data source
     """
 
+    spec = chart.to_dict()
+
     if not spec.get('data'):
         raise ValidationError('Please specify a data source.')
     
     if spec['data'].get('url'):
         df = pd.DataFrame(_fetch(spec['data']['url']))
     elif spec['data'].get('values'):
-        df = pd.DataFrame(spec['data']['values'])
+        return
     else:
         raise NotImplementedError('Given data specification is unsupported at the moment.')
 
-    del spec['data']
-    spec['data'] = df
-
-    return spec
+    chart.data = df
 
 def _locate_channel_dtype(chart, channel):
     """Locates dtype used for each channel
