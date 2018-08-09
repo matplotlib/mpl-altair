@@ -1,7 +1,7 @@
 import matplotlib
 import altair
-
 from ._convert import _convert
+
 
 def convert(chart):
     """Convert an altair encoding to a Matplotlib figure

@@ -32,7 +32,7 @@ def test_invalid_encodings():
     with pytest.raises(ValueError):
         convert(chart_spec)
 
-@pytest.mark.xfail(raises=AttributeError)
+@pytest.mark.xfail(raises=TypeError)
 def test_invalid_temporal():
     chart = alt.Chart(df).mark_point().encode(alt.X('quant:T'))
     convert(chart)
@@ -48,6 +48,7 @@ def test_convert_x_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.X(column))
     mapping = convert(chart)
     assert list(mapping['x']) == list(mdates.date2num(df[column].values))
+    # assert list(mapping['x']) == list(df[column].values)
 
 def test_convert_x_fail():
     chart_spec = alt.Chart(df).encode(x='b:N').mark_point()
@@ -65,6 +66,7 @@ def test_convert_y_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.Y(column))
     mapping = convert(chart)
     assert list(mapping['y']) == list(mdates.date2num(df[column].values))
+    # assert list(mapping['y']) == list(df[column].values)
 
 def test_convert_y_fail():
     chart_spec = alt.Chart(df).encode(y='b:N').mark_point()
@@ -98,6 +100,7 @@ def test_convert_color_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.Color(column))
     mapping = convert(chart)
     assert list(mapping['c']) == list(mdates.date2num(df[column].values))
+    # assert list(mapping['c']) == list(df[column].values)
 
 def test_convert_color_fail():
     chart_spec = alt.Chart(df).encode(color='b:N').mark_point()
@@ -120,6 +123,7 @@ def test_convert_fill_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.Fill(column))
     mapping = convert(chart)
     assert list(mapping['c']) == list(mdates.date2num(df[column].values))
+    # assert list(mapping['c']) == list(df[column].values)
 
 
 def test_convert_fill_fail():
@@ -211,16 +215,20 @@ chart_fill_quant = alt.Chart(df_quant).mark_point().encode(
     alt.X(field='a', type='quantitative'), alt.Y('b'), alt.Fill('fill:Q')
 )
 
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
 @pytest.mark.parametrize("chart", [chart_quant, chart_fill_quant])
 def test_quantitative_scatter(chart):
     mapping = convert(chart)
-    plt.scatter(**mapping)
-    plt.show()
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    return fig
 
+@pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
 @pytest.mark.parametrize("channel", [alt.Color("years"), alt.Fill("years")])
 def test_scatter_temporal(channel):
     chart = alt.Chart(df).mark_point().encode(alt.X("years"), channel)
     mapping = convert(chart)
     mapping['y'] = df['quantitative'].values
-    plt.scatter(**mapping)
-    plt.show()
+    fig, ax = plt.subplots()
+    ax.scatter(**mapping)
+    return fig

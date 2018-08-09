@@ -1,5 +1,5 @@
 import matplotlib.dates as mdates
-from ._data import _locate_channel_data, _locate_channel_dtype, _normalize_data
+from ._data import _locate_channel_data, _locate_channel_dtype, _convert_to_mpl_date, _normalize_data
 
 def _allowed_ranged_marks(enc_channel, mark):
     """TODO: DOCS
@@ -122,10 +122,8 @@ def _convert(chart):
         data = _locate_channel_data(chart, channel)
         dtype = _locate_channel_dtype(chart, channel)
         if dtype == 'temporal':
-            try:
-                data = mdates.date2num(data)  # Convert dates to Matplotlib dates
-            except AttributeError:
-                raise
+            data = _convert_to_mpl_date(data)
+
         mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
     
     return mapping
