@@ -1,5 +1,4 @@
 import matplotlib.dates as mdates
-import numpy as np
 from ._data import _locate_channel_data, _locate_channel_dtype, _convert_to_mpl_date, _normalize_data
 
 def _allowed_ranged_marks(enc_channel, mark):
