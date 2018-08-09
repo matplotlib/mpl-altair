@@ -1,6 +1,7 @@
 import matplotlib
 import altair
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 from ._convert import _convert
 from ._data import _normalize_data
 from ._axis import convert_axis
@@ -59,24 +60,35 @@ def _handle_line(chart, ax):
     Shape is unsupported in line graphs unless another plot type is plotted at the same time.
     Opacity still needs to be implemented.
     """
+    grouping = {}
     if chart.to_dict()['encoding'].get('opacity'):
-        raise NotImplementedError("Still need to implement.")
-        # dtype = _locate_channel_dtype(chart, 'opacity')
-        # normalize opacity values to (0,1)
-        # mapping['kwargs'] = {'alpha': normalized_vals}  # ish (not really going to work)
+        grouping['opacity'] = chart.to_dict()['encoding']['opacity']['field']
+        opacity_field = chart.to_dict()['encoding']['opacity']['field']
+        opacity_norm = mcolors.Normalize(chart.data[opacity_field].min(), chart.data[opacity_field].max())
 
     if chart.to_dict()['encoding'].get('stroke'):
-        grouping = chart.to_dict()['encoding']['stroke']['field']
+        grouping['stroke_color'] = chart.to_dict()['encoding']['stroke']['field']
     elif chart.to_dict()['encoding'].get('color'):  # If both color and stroke are encoded, color is ignored.
-        grouping = chart.to_dict()['encoding']['color']['field']
-    else:
+        grouping['stroke_color'] = chart.to_dict()['encoding']['color']['field']
+    elif 'opacity' not in grouping.keys():
         mapping = _convert(chart)
         ax.plot(*mapping['args'])
         return
 
-    for lab, subset in chart.data.groupby(grouping):
-        tmp_chart = chart
-        tmp_chart.data = subset
-        mapping = _convert(tmp_chart)
-        mapping['kwargs'] = {'label': lab}  # for legend purposes later on
-        ax.plot(*mapping['args'], **mapping['kwargs'])
+    try:
+        for lab, subset in chart.data.groupby(grouping['stroke_color']):
+            tmp_chart = chart
+            tmp_chart.data = subset
+            mapping = _convert(tmp_chart)
+            mapping['kwargs'] = {'label': lab}  # for legend purposes later on
+            if 'opacity' in grouping.keys():
+                mapping['kwargs']['alpha'] = opacity_norm(subset[grouping['opacity']].iloc[0])
+            ax.plot(*mapping['args'], **mapping['kwargs'])
+    except KeyError:
+        for lab, subset in chart.data.groupby(grouping['opacity']):
+            tmp_chart = chart
+            tmp_chart.data = subset
+            mapping = _convert(tmp_chart)
+            mapping['kwargs'] = {'label': lab, 'alpha': opacity_norm(subset[grouping['opacity']].iloc[0]),
+                                 'color': matplotlib.rcParams['lines.color']}
+            ax.plot(*mapping['args'], **mapping['kwargs'])
