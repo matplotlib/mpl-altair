@@ -3,7 +3,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 from mplaltair import convert
-from .._axis import convert_axis
 import pytest
 
 df_quant = pd.DataFrame({
