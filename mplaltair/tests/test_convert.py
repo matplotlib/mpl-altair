@@ -49,7 +49,6 @@ def test_convert_x_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.X(column))
     mapping = _convert(chart)
     assert list(mapping['x']) == list(mdates.date2num(df[column].values))
-    # assert list(mapping['x']) == list(df[column].values)
 
 def test_convert_x_fail():
     chart_spec = alt.Chart(df).encode(x='b:N').mark_point()
@@ -67,7 +66,6 @@ def test_convert_y_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.Y(column))
     mapping = _convert(chart)
     assert list(mapping['y']) == list(mdates.date2num(df[column].values))
-    # assert list(mapping['y']) == list(df[column].values)
 
 def test_convert_y_fail():
     chart_spec = alt.Chart(df).encode(y='b:N').mark_point()
@@ -101,7 +99,6 @@ def test_convert_color_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.Color(column))
     mapping = _convert(chart)
     assert list(mapping['c']) == list(mdates.date2num(df[column].values))
-    # assert list(mapping['c']) == list(df[column].values)
 
 def test_convert_color_fail():
     chart_spec = alt.Chart(df).encode(color='b:N').mark_point()
@@ -124,7 +121,6 @@ def test_convert_fill_success_temporal(column):
     chart = alt.Chart(df).mark_point().encode(alt.Fill(column))
     mapping = _convert(chart)
     assert list(mapping['c']) == list(mdates.date2num(df[column].values))
-    # assert list(mapping['c']) == list(df[column].values)
 
 
 def test_convert_fill_fail():
@@ -239,7 +235,8 @@ df_line = pd.DataFrame({
         'a': [1, 2, 3, 1, 2, 3, 1, 2, 3],
         'b': [3, 2, 1, 7, 8, 9, 4, 5, 6],
         'c': ['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'c'],
-        'd': [1, 1, 1, 2, 2, 2, 3, 3, 3]
+        'd': [1, 1, 1, 2, 2, 2, 3, 3, 3],
+        'dates': ['1968-08-01', '1968-08-01', '1968-08-01', '2010-08-08', '2010-08-08', '2010-08-08', '2015-03-14', '2015-03-14', '2015-03-14']
     })
 
 
@@ -252,7 +249,6 @@ class TestLines(object):
         )
         fig, _ = convert(chart)
         return fig
-
 
     @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
     @pytest.mark.parametrize('x,y,s', [
@@ -269,7 +265,6 @@ class TestLines(object):
         fig, _ = convert(chart)
         return fig
 
-
     @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
     def test_line_color(self):
         chart = alt.Chart(df_line).mark_line().encode(
@@ -280,15 +275,28 @@ class TestLines(object):
         fig, _ = convert(chart)
         return fig
 
-
-    @pytest.mark.xfail(raises=NotImplementedError)
-    def test_line_opacity_fail(self):
+    @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
+    @pytest.mark.parametrize('o', ['d:Q', 'c:O', 'dates:T'])
+    def test_line_opacity(self, o):
         chart = alt.Chart(df_line).mark_line().encode(
             alt.X('a'),
             alt.Y('b'),
-            alt.Opacity('d')
+            alt.Opacity(o)
         )
-        fig, _ = convert(chart)
+        fig, ax = convert(chart)
+        return fig
+
+    @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
+    @pytest.mark.parametrize('c,o', [('d:Q', 'd:Q'), ('c:N', 'c:O'), ('dates:T', 'dates:T')])
+    def test_line_opacity_color(self, c, o):
+        chart = alt.Chart(df_line).mark_line().encode(
+            alt.X('a'),
+            alt.Y('b'),
+            alt.Color(c),
+            alt.Opacity(o)
+        )
+        fig, ax = convert(chart)
+        return fig
 
 
 class TestBars(object):

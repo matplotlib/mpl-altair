@@ -229,8 +229,6 @@ def convert_axis(ax, chart):
                           'data': _locate_channel_data(chart, channel),
                           'dtype': _locate_channel_dtype(chart, channel),
                           'mark': chart.mark}
-            if chart_info['dtype'] == 'temporal':
-                chart_info['data'] = _convert_to_mpl_date(chart_info['data'])
 
             scale_info = _locate_channel_scale(chart, channel)
             axis_info = _locate_channel_axis(chart, channel)

@@ -85,13 +85,19 @@ def _locate_channel_data(chart, channel):
 
     channel_val = chart.to_dict()['encoding'][channel]
     if channel_val.get('value'):
-        return channel_val.get('value')
+        data = channel_val.get('value')
     elif channel_val.get('aggregate'):
-        return _aggregate_channel()
+        data = _aggregate_channel()
     elif channel_val.get('timeUnit'):
-        return _handle_timeUnit()
+        data = _handle_timeUnit()
     else:  # field is required if the above are not present.
-        return chart.data[channel_val.get('field')].values
+        data = chart.data[channel_val.get('field')].values
+
+    # Take care of temporal conversion immediately
+    if _locate_channel_dtype(chart, channel) == 'temporal':
+        return _convert_to_mpl_date(data)
+    else:
+        return data
 
 
 def _aggregate_channel():
@@ -144,6 +150,10 @@ def _locate_channel_axis(chart, channel):
         return {}
 
 
+def _locate_channel_field(chart, channel):
+    return chart.to_dict()['encoding'][channel]['field']
+
+
 def _convert_to_mpl_date(data):
     """Converts datetime, datetime64, strings, and Altair DateTime objects to Matplotlib dates.
 
@@ -162,7 +172,7 @@ def _convert_to_mpl_date(data):
         if len(data) == 0:
             return []
         else:
-            return [_convert_to_mpl_date(i) for i in data]
+            return np.asarray([_convert_to_mpl_date(i) for i in data])
     else:
         if isinstance(data, str):  # string format for dates
             data = mdates.datestr2num(data)
