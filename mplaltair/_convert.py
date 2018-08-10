@@ -94,11 +94,11 @@ _mappings = {
     'stroke': _process_stroke,
 }
 
-_line_mapping = {
-    'x': lambda d: ('x', d),
-    'y': lambda d: ('y', d),
-    'args': lambda x, y: [x, y]
-}
+# _line_mapping = {
+#     'x': lambda d: ('x', d),
+#     'y': lambda d: ('y', d),
+#     'args': lambda x, y: [x, y]
+# }
 
 def _convert(chart):
     """Convert an altair encoding to a Matplotlib figure
@@ -127,15 +127,15 @@ def _convert(chart):
     for channel in chart.to_dict()['encoding']:
         data = _locate_channel_data(chart, channel)
         dtype = _locate_channel_dtype(chart, channel)
-        if dtype == 'temporal':
-            data = _convert_to_mpl_date(data)
 
-        if chart.mark in ['point', 'circle', 'square']:
-            mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
-        elif chart.mark == 'line' and channel in ['x', 'y']:
-            mapping[_line_mapping[channel](data)[0]] = _line_mapping[channel](data)[1]
+        mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
 
-    if chart.mark == 'line':
-        mapping['args'] = _line_mapping['args'](mapping['x'], mapping['y'])  # plot() doesn't take kwargs for x and y
+    #     if chart.mark in ['point', 'circle', 'square']:
+    #         mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
+    #     elif chart.mark == 'line' and channel in ['x', 'y']:
+    #         mapping[_line_mapping[channel](data)[0]] = _line_mapping[channel](data)[1]
+    #
+    # if chart.mark == 'line':
+    #     mapping['args'] = _line_mapping['args'](mapping['x'], mapping['y'])  # plot() doesn't take kwargs for x and y
     
     return mapping
