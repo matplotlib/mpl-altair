@@ -3,7 +3,7 @@ import pytest
 import altair as alt
 import pandas as pd
 import matplotlib.dates as mdates
-
+import matplotlib.pyplot as plt
 from mplaltair import convert
 from mplaltair._convert import _convert
 
