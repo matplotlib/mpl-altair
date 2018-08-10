@@ -1,6 +1,4 @@
-import matplotlib.dates as mdates
-import numpy as np
-from ._data import _locate_channel_data, _locate_channel_dtype, _convert_to_mpl_date
+from ._data import _locate_channel_data, _locate_channel_dtype
 
 def _allowed_ranged_marks(enc_channel, mark):
     """TODO: DOCS
@@ -94,12 +92,6 @@ _mappings = {
     'stroke': _process_stroke,
 }
 
-# _line_mapping = {
-#     'x': lambda d: ('x', d),
-#     'y': lambda d: ('y', d),
-#     'args': lambda x, y: [x, y]
-# }
-
 def _convert(chart):
     """Convert an altair encoding to a Matplotlib figure
 
@@ -130,12 +122,4 @@ def _convert(chart):
 
         mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
 
-    #     if chart.mark in ['point', 'circle', 'square']:
-    #         mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
-    #     elif chart.mark == 'line' and channel in ['x', 'y']:
-    #         mapping[_line_mapping[channel](data)[0]] = _line_mapping[channel](data)[1]
-    #
-    # if chart.mark == 'line':
-    #     mapping['args'] = _line_mapping['args'](mapping['x'], mapping['y'])  # plot() doesn't take kwargs for x and y
-    
     return mapping
