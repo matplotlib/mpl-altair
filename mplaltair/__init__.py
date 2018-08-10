@@ -1,4 +1,4 @@
-import parse_chart
+import mplaltair.parse_chart as parse_chart
 import matplotlib
 import altair
 import matplotlib.pyplot as plt
