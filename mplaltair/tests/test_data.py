@@ -57,6 +57,13 @@ def test_data_shorthand_temporal():
     assert list(data) == list(_data._convert_to_mpl_date(df['combination'].values))
 
 
+def test_data_value_quantitative():
+    chart = alt.Chart(df).mark_point().encode(opacity=alt.value(0.5))
+    for channel in chart.to_dict()['encoding']:
+        data = _data._locate_channel_data(chart, channel)
+    assert list(data) == list(_data._convert_to_mpl_date(df['combination'].values))
+
+
 @pytest.mark.parametrize("column", ['a', 'b', 'c'])
 def test_data_aggregate_quantitative_fail(column):
     """"'Passes' if it raises a NotImplementedError"""
