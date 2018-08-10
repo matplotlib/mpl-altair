@@ -93,11 +93,7 @@ def _locate_channel_data(chart, channel):
     else:  # field is required if the above are not present.
         data = chart.data[channel_val.get('field')].values
 
-    # Take care of temporal conversion immediately
-    if _locate_channel_dtype(chart, channel) == 'temporal':
-        return _convert_to_mpl_date(data)
-    else:
-        return data
+    return data
 
 
 def _aggregate_channel():

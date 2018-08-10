@@ -273,6 +273,7 @@ class TestLines(object):
         )
         fig, _ = convert(chart)
         return fig
+        # plt.show()
 
     @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
     @pytest.mark.parametrize('o', ['d:Q', 'c:O', 'dates:T'])
@@ -284,6 +285,7 @@ class TestLines(object):
         )
         fig, ax = convert(chart)
         return fig
+        # plt.show()
 
     @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_convert')
     @pytest.mark.parametrize('c,o', [('d:Q', 'd:Q'), ('c:N', 'c:O'), ('dates:T', 'dates:T')])
