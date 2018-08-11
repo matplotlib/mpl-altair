@@ -1,6 +1,4 @@
-import matplotlib.dates as mdates
-import numpy as np
-from ._data import _locate_channel_data, _locate_channel_dtype, _convert_to_mpl_date
+from ._data import _locate_channel_data, _locate_channel_dtype
 
 def _allowed_ranged_marks(enc_channel, mark):
     """TODO: DOCS
@@ -80,6 +78,7 @@ def _process_stroke(dtype, data):
     """
     raise NotImplementedError
 
+
 _mappings = {
     'x': _process_x,
     'y': _process_y,
@@ -120,9 +119,7 @@ def _convert(chart):
     for channel in chart.to_dict()['encoding']:
         data = _locate_channel_data(chart, channel)
         dtype = _locate_channel_dtype(chart, channel)
-        if dtype == 'temporal':
-            data = _convert_to_mpl_date(data)
 
         mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
-    
+
     return mapping

@@ -23,10 +23,13 @@ def test_data_field_quantitative(column, dtype):
     chart = alt.Chart(df).mark_point().encode(alt.X(field=column, type=dtype))
     for channel in chart.to_dict()['encoding']:
         data = _data._locate_channel_data(chart, channel)
-    assert list(data) == list(df[column].values)
+    if dtype == 'temporal':
+        assert list(data) == list(_data._convert_to_mpl_date(df[column].values))
+    else:
+        assert list(data) == list(df[column].values)
 
 
-@pytest.mark.parametrize("column", ['a', 'b', 'c', 'combination'])
+@pytest.mark.parametrize("column", ['a', 'b', 'c'])
 def test_data_shorthand_quantitative(column):
     chart = alt.Chart(df).mark_point().encode(alt.X(column))
     for channel in chart.to_dict()['encoding']:
@@ -34,11 +37,11 @@ def test_data_shorthand_quantitative(column):
     assert list(data) == list(df[column].values)
 
 
-def test_data_value_quantitative():
-    chart = alt.Chart(df).mark_point().encode(opacity=alt.value(0.5))
+def test_data_shorthand_temporal():
+    chart = alt.Chart(df).mark_point().encode(alt.X('combination'))
     for channel in chart.to_dict()['encoding']:
         data = _data._locate_channel_data(chart, channel)
-    assert data == 0.5
+    assert list(data) == list(_data._convert_to_mpl_date(df['combination'].values))
 
 
 @pytest.mark.parametrize("column", ['a', 'b', 'c'])

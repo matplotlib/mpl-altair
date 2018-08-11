@@ -1,4 +1,6 @@
+import pandas as pd
 from ._exceptions import ValidationError
+from ._utils import _fetch
 import matplotlib.dates as mdates
 import matplotlib.cbook as cbook
 from datetime import datetime
@@ -51,13 +53,19 @@ def _locate_channel_data(chart, channel):
 
     channel_val = chart.to_dict()['encoding'][channel]
     if channel_val.get('value'):
-        return channel_val.get('value')
+        data = channel_val.get('value')
     elif channel_val.get('aggregate'):
-        return _aggregate_channel()
+        data = _aggregate_channel()
     elif channel_val.get('timeUnit'):
-        return _handle_timeUnit()
+        data = _handle_timeUnit()
     else:  # field is required if the above are not present.
-        return chart.data[channel_val.get('field')].values
+        data = chart.data[channel_val.get('field')].values
+
+    # Take care of temporal conversion immediately
+    if _locate_channel_dtype(chart, channel) == 'temporal':
+        return _convert_to_mpl_date(data)
+    else:
+        return data
 
 
 def _aggregate_channel():
@@ -109,6 +117,35 @@ def _locate_channel_axis(chart, channel):
     else:
         return {}
 
+
+def _locate_channel_field(chart, channel):
+    return chart.to_dict()['encoding'][channel]['field']
+
+
+# FROM ENCODINGS=======================================================================================================
+def _normalize_data(chart):
+    """Converts the data to a Pandas dataframe. Originally Nabarun's code (PR #5).
+
+    Parameters
+    ----------
+    chart : altair.Chart
+        The Altair chart object
+    """
+    spec = chart.to_dict()
+    if not spec['data']:
+        raise ValidationError('Please specify a data source.')
+
+    if spec['data'].get('url'):
+        df = pd.DataFrame(_fetch(spec['data']['url']))
+    elif spec['data'].get('values'):
+        return
+    else:
+        raise NotImplementedError('Given data specification is unsupported at the moment.')
+
+    chart.data = df
+# END STUFF FROM ENCODINGS=============================================================================================
+
+
 def _convert_to_mpl_date(data):
     """Converts datetime, datetime64, strings, and Altair DateTime objects to Matplotlib dates.
 
@@ -127,7 +164,7 @@ def _convert_to_mpl_date(data):
         if len(data) == 0:
             return []
         else:
-            return [_convert_to_mpl_date(i) for i in data]
+            return np.asarray([_convert_to_mpl_date(i) for i in data])
     else:
         if isinstance(data, str):  # string format for dates
             data = mdates.datestr2num(data)
@@ -153,9 +190,8 @@ def _altair_DateTime_to_datetime(dt):
     A datetime object
     """
     MONTHS = {'Jan': 1, 'January': 1, 'Feb': 2, 'February': 2, 'Mar': 3, 'March': 3, 'Apr': 4, 'April': 4,
-              'May': 5, 'May': 5, 'Jun': 6, 'June': 6, 'Jul': 7, 'July': 7, 'Aug': 8, 'August': 8,
-              'Sep': 9, 'Sept': 9, 'September': 9, 'Oct': 10, 'October': 10, 'Nov': 11, 'November': 11,
-              'Dec': 12, 'December': 12}
+              'May': 5, 'Jun': 6, 'June': 6, 'Jul': 7, 'July': 7, 'Aug': 8, 'August': 8, 'Sep': 9, 'Sept': 9,
+              'September': 9, 'Oct': 10, 'October': 10, 'Nov': 11, 'November': 11, 'Dec': 12, 'December': 12}
 
     alt_to_datetime_kw_mapping = {'date': 'day', 'hours': 'hour', 'milliseconds': 'microsecond', 'minutes': 'minute',
                        'month': 'month', 'seconds': 'second', 'year': 'year'}

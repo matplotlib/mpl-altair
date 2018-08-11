@@ -33,13 +33,19 @@ def _set_limits(channel, scale):
         elif 'type' in scale and scale['type'] != 'linear':
             lims = _set_scale_type(channel, scale)
         else:
-            # Check that a positive minimum is zero if zero is True:
-            if ('zero' not in scale or scale['zero'] == True) and min(channel['data']) > 0:
-                lims[_axis_kwargs[channel['axis']].get('min')] = 0  # quantitative sets min to be 0 by default
+            # Include zero on the axis (or not).
+            # In Altair, scale.zero defaults to False unless the data is unbinned quantitative.
+            if channel['mark'] == 'line' and channel['axis'] == 'x':
+                # Contrary to documentation, Altair defaults to scale.zero=False for the x-axis on line graphs.
+                pass
+            else:
+                # Check that a positive minimum is zero if scale.zero is True:
+                if ('zero' not in scale or scale['zero'] == True) and min(channel['data']) > 0:
+                    lims[_axis_kwargs[channel['axis']].get('min')] = 0  # quantitative sets min to be 0 by default
 
-            # Check that a negative maximum is zero if zero is True:
-            if ('zero' not in scale or scale['zero'] == True) and max(channel['data']) < 0:
-                lims[_axis_kwargs[channel['axis']].get('max')] = 0
+                # Check that a negative maximum is zero if scale.zero is True:
+                if ('zero' not in scale or scale['zero'] == True) and max(channel['data']) < 0:
+                    lims[_axis_kwargs[channel['axis']].get('max')] = 0
 
     elif channel['dtype'] == 'temporal':
         # determine limits
@@ -221,9 +227,8 @@ def convert_axis(ax, chart):
         if channel in ['x', 'y']:
             chart_info = {'ax': ax, 'axis': channel,
                           'data': _locate_channel_data(chart, channel),
-                          'dtype': _locate_channel_dtype(chart, channel)}
-            if chart_info['dtype'] == 'temporal':
-                chart_info['data'] = _convert_to_mpl_date(chart_info['data'])
+                          'dtype': _locate_channel_dtype(chart, channel),
+                          'mark': chart.mark}
 
             scale_info = _locate_channel_scale(chart, channel)
             axis_info = _locate_channel_axis(chart, channel)
