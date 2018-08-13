@@ -10,9 +10,10 @@ def _set_limits(channel, mark, ax):
     Parameters
     ----------
     channel : parse_chart.ChannelMetadata
-        The mapping of the channel data and metadata
-    scale : dict
-        The mapping of the scale metadata and the scale data
+        The channel data and metadata
+    mark : str
+        The chart's mark
+    ax : matplotlib.axes
     """
 
     _axis_kwargs = {
@@ -28,31 +29,32 @@ def _set_limits(channel, mark, ax):
             if channel.scale['domain'] == 'unaggregated':
                 raise NotImplementedError
             else:
-                lims[_axis_kwargs[channel.channel].get('min')] = channel.scale['domain'][0]
-                lims[_axis_kwargs[channel.channel].get('max')] = channel.scale['domain'][1]
+                lims[_axis_kwargs[channel.name].get('min')] = channel.scale['domain'][0]
+                lims[_axis_kwargs[channel.name].get('max')] = channel.scale['domain'][1]
         elif 'type' in channel.scale and channel.scale['type'] != 'linear':
             lims = _set_scale_type(channel, ax)
         else:
             # Include zero on the axis (or not).
             # In Altair, scale.zero defaults to False unless the data is unbinned quantitative.
-            if mark == 'line' and channel.channel == 'x':  # TODO: fix channel['mark']
+            if mark == 'line' and channel.name == 'x':
                 # Contrary to documentation, Altair defaults to scale.zero=False for the x-axis on line graphs.
+                # Pass to skip.
                 pass
             else:
                 # Check that a positive minimum is zero if scale.zero is True:
                 if ('zero' not in channel.scale or channel.scale['zero'] == True) and min(channel.data) > 0:
-                    lims[_axis_kwargs[channel.channel].get('min')] = 0  # quantitative sets min to be 0 by default
+                    lims[_axis_kwargs[channel.name].get('min')] = 0  # quantitative sets min to be 0 by default
 
                 # Check that a negative maximum is zero if scale.zero is True:
                 if ('zero' not in channel.scale or channel.scale['zero'] == True) and max(channel.data) < 0:
-                    lims[_axis_kwargs[channel.channel].get('max')] = 0
+                    lims[_axis_kwargs[channel.name].get('max')] = 0
 
     elif channel.type == 'temporal':
         # determine limits
         if 'domain' in channel.scale:
             domain = _convert_to_mpl_date(channel.scale['domain'])
-            lims[_axis_kwargs[channel.channel].get('min')] = domain[0]
-            lims[_axis_kwargs[channel.channel].get('max')] = domain[1]
+            lims[_axis_kwargs[channel.name].get('min')] = domain[0]
+            lims[_axis_kwargs[channel.name].get('max')] = domain[1]
         elif 'type' in channel.scale and channel.scale['type'] != 'time':
             lims = _set_scale_type(channel, channel.scale)
 
@@ -60,7 +62,7 @@ def _set_limits(channel, mark, ax):
         raise NotImplementedError  # Ordinal and Nominal go here?
 
     # set the limits
-    if channel.channel == 'x':
+    if channel.name == 'x':
         ax.set_xlim(**lims)
     else:
         ax.set_ylim(**lims)
@@ -73,10 +75,9 @@ def _set_scale_type(channel, ax):
 
     Parameters
     ----------
-    channel : dict
-        The mapping of the channel data and metadata
-    scale : dict
-        The mapping of the scale metadata and the scale data
+    channel : parse_chart.ChannelMetadata
+        The channel data and metadata
+    ax : matplotlib.axes
 
     Returns
     -------
@@ -104,15 +105,15 @@ def _set_scale_type(channel, ax):
         When Matplotlib gets a power scale, the following should work:
         
         exponent = 2  # default exponent value for 'pow' scale
-        if scale['type'] == 'sqrt':
+        if channel.scale['type'] == 'sqrt':
             exponent = 0.5
-        elif 'exponent' in scale:
-            exponent = scale['exponent']
+        elif 'exponent' in channel.scale:
+            exponent = channel.scale['exponent']
 
-        if channel['axis'] == 'x':
-            channel['ax'].set_xscale('power_scale', exponent=exponent)
+        if channel.name == 'x':
+            ax.set_xscale('power_scale', exponent=exponent)
         else:  # y-axis
-            channel['ax'].set_yscale('power_scale', exponent=exponent)
+            ax.set_yscale('power_scale', exponent=exponent)
         """
         raise NotImplementedError
 
@@ -131,20 +132,20 @@ def _set_tick_locator(channel, ax):
     Parameters
     ----------
     channel : parse_chart.ChannelMetadata
-        The mapping of the channel data and metadata
-    axis : matplotlib.axes
+        The channel data and metadata
+    ax : matplotlib.axes
         The mapping of the axis metadata and the scale data
     """
     current_axis = {'x': ax.xaxis, 'y': ax.yaxis}
     if 'values' in channel.axis:
         if channel.type == 'temporal':
-            current_axis[channel.channel].set_major_locator(ticker.FixedLocator(_convert_to_mpl_date(channel.axis.get('values'))))
+            current_axis[channel.name].set_major_locator(ticker.FixedLocator(_convert_to_mpl_date(channel.axis.get('values'))))
         elif channel.type == 'quantitative':
-            current_axis[channel.channel].set_major_locator(ticker.FixedLocator(channel.axis.get('values')))
+            current_axis[channel.name].set_major_locator(ticker.FixedLocator(channel.axis.get('values')))
         else:
             raise NotImplementedError
     elif 'tickCount' in channel.axis:
-        current_axis[channel.channel].set_major_locator(
+        current_axis[channel.name].set_major_locator(
             ticker.MaxNLocator(steps=[2, 5, 10], nbins=channel.axis.get('tickCount')+1, min_n_ticks=channel.axis.get('tickCount'))
         )
 
@@ -156,8 +157,8 @@ def _set_tick_formatter(channel, ax):
     Parameters
     ----------
     channel : parse_chart.ChannelMetadata
-        The mapping of the channel data and metadata
-    axis : dict
+        The channel data and metadata
+    ax : matplotlib.axes
         The mapping of the axis metadata and the scale data
 
     Notes
@@ -179,15 +180,15 @@ def _set_tick_formatter(channel, ax):
         if not format_str:
             format_str = '%b %d, %Y'
 
-        current_axis[channel.channel].set_major_formatter(mdates.DateFormatter(format_str))  # May fail silently
+        current_axis[channel.name].set_major_formatter(mdates.DateFormatter(format_str))  # May fail silently
 
     elif channel.type == 'quantitative':
         if format_str:
-            current_axis[channel.channel].set_major_formatter(ticker.StrMethodFormatter('{x:' + format_str + '}'))
+            current_axis[channel.name].set_major_formatter(ticker.StrMethodFormatter('{x:' + format_str + '}'))
 
             # Verify that the format string is valid for Matplotlib and exit nicely if not.
             try:
-                current_axis[channel.channel].get_major_formatter().__call__(1)
+                current_axis[channel.name].get_major_formatter().__call__(1)
             except ValueError:
                 raise ValueError("Matplotlib only supports format strings as used by `str.format()`."
                                  "Some format strings that work in Altair may not work in Matplotlib."
@@ -202,11 +203,11 @@ def _set_label_angle(channel, ax):
         Parameters
         ----------
         channel : parse_chart.ChannelMetadata
-            The mapping of the channel data and metadata
-        axis : matplotlib.axes
+            The channel data and metadata
+        ax : matplotlib.axes
             The mapping of the axis metadata and the scale data
         """
-    if channel.type == 'temporal' and channel.channel == 'x':
+    if channel.type == 'temporal' and channel.name == 'x':
         for label in ax.get_xticklabels():
             # Rotate the labels on the x-axis so they don't run into each other.
             label.set_rotation(30)
@@ -220,8 +221,8 @@ def convert_axis(ax, chart):
     ----------
     ax
         The Matplotlib axis to be modified
-    chart
-        The Altair chart
+    chart : parse_chart.ChartMetadata
+        The chart data and metadata
     """
 
     for channel in [chart.encoding['x'], chart.encoding['y']]:

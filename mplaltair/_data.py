@@ -38,116 +38,117 @@ def _normalize_data(chart):
 
     chart.data = df
 
-def _locate_channel_dtype(chart, channel):
-    """Locates dtype used for each channel
-        Parameters
-        ----------
-        chart
-            The Altair chart
-        channel
-            The Altair channel being examined
 
-        Returns
-        -------
-        A string representing the data type from the Altair chart ('quantitative', 'ordinal', 'numeric', 'temporal')
-        """
-
-    channel_val = chart.to_dict()['encoding'][channel]
-    if channel_val.get('type'):
-        return channel_val.get('type')
-    else:
-        # TODO: find some way to deal with 'value' so that, opacity, for instance, can be plotted with a value defined
-        if channel_val.get('value'):
-            raise NotImplementedError
-        raise NotImplementedError
-
-
-def _locate_channel_data(chart, channel):
-    """Locates data used for each channel
-
-    Parameters
-    ----------
-    chart
-        The Altair chart
-    channel
-        The Altair channel being examined
-
-    Returns
-    -------
-    A numpy ndarray containing the data used for the channel
-
-    Raises
-    ------
-    ValidationError
-        Raised when the specification does not contain any data attribute
-
-    """
-
-    channel_val = chart.to_dict()['encoding'][channel]
-    if channel_val.get('value'):
-        data = channel_val.get('value')
-    elif channel_val.get('aggregate'):
-        data = _aggregate_channel()
-    elif channel_val.get('timeUnit'):
-        data = _handle_timeUnit()
-    else:  # field is required if the above are not present.
-        data = chart.data[channel_val.get('field')].values
-
-    return data
+# def _locate_channel_dtype(chart, channel):
+#     """Locates dtype used for each channel
+#         Parameters
+#         ----------
+#         chart
+#             The Altair chart
+#         channel
+#             The Altair channel being examined
+#
+#         Returns
+#         -------
+#         A string representing the data type from the Altair chart ('quantitative', 'ordinal', 'numeric', 'temporal')
+#         """
+#
+#     channel_val = chart.to_dict()['encoding'][channel]
+#     if channel_val.get('type'):
+#         return channel_val.get('type')
+#     else:
+#         # TODO: find some way to deal with 'value' so that, opacity, for instance, can be plotted with a value defined
+#         if channel_val.get('value'):
+#             raise NotImplementedError
+#         raise NotImplementedError
 
 
-def _aggregate_channel():
-    raise NotImplementedError
-
-
-def _handle_timeUnit():
-    raise NotImplementedError
-
-
-def _locate_channel_scale(chart, channel):
-    """Locates the channel's scale information.
-
-    Parameters
-    ----------
-    chart
-        The Altair chart
-    channel
-        The Altair channel being examined
-
-    Returns
-    -------
-    A dictionary with the scale information
-    """
-    channel_val = chart.to_dict()['encoding'][channel]
-    if channel_val.get('scale'):
-        return channel_val.get('scale')
-    else:
-        return {}
-
-
-def _locate_channel_axis(chart, channel):
-    """Locates the channel's scale information.
-
-    Parameters
-    ----------
-    chart
-        The Altair chart
-    channel
-        The Altair channel being examined
-
-    Returns
-    -------
-    A dictionary with the axis information
-    """
-    channel_val = chart.to_dict()['encoding'][channel]
-    if channel_val.get('axis'):
-        return channel_val.get('axis')
-    else:
-        return {}
-
-
-def _locate_channel_field(chart, channel):
-    return chart.to_dict()['encoding'][channel]['field']
+# def _locate_channel_data(chart, channel):
+#     """Locates data used for each channel
+#
+#     Parameters
+#     ----------
+#     chart
+#         The Altair chart
+#     channel
+#         The Altair channel being examined
+#
+#     Returns
+#     -------
+#     A numpy ndarray containing the data used for the channel
+#
+#     Raises
+#     ------
+#     ValidationError
+#         Raised when the specification does not contain any data attribute
+#
+#     """
+#
+#     channel_val = chart.to_dict()['encoding'][channel]
+#     if channel_val.get('value'):
+#         data = channel_val.get('value')
+#     elif channel_val.get('aggregate'):
+#         data = _aggregate_channel()
+#     elif channel_val.get('timeUnit'):
+#         data = _handle_timeUnit()
+#     else:  # field is required if the above are not present.
+#         data = chart.data[channel_val.get('field')].values
+#
+#     return data
+#
+#
+# def _aggregate_channel():
+#     raise NotImplementedError
+#
+#
+# def _handle_timeUnit():
+#     raise NotImplementedError
+#
+#
+# def _locate_channel_scale(chart, channel):
+#     """Locates the channel's scale information.
+#
+#     Parameters
+#     ----------
+#     chart
+#         The Altair chart
+#     channel
+#         The Altair channel being examined
+#
+#     Returns
+#     -------
+#     A dictionary with the scale information
+#     """
+#     channel_val = chart.to_dict()['encoding'][channel]
+#     if channel_val.get('scale'):
+#         return channel_val.get('scale')
+#     else:
+#         return {}
+#
+#
+# def _locate_channel_axis(chart, channel):
+#     """Locates the channel's scale information.
+#
+#     Parameters
+#     ----------
+#     chart
+#         The Altair chart
+#     channel
+#         The Altair channel being examined
+#
+#     Returns
+#     -------
+#     A dictionary with the axis information
+#     """
+#     channel_val = chart.to_dict()['encoding'][channel]
+#     if channel_val.get('axis'):
+#         return channel_val.get('axis')
+#     else:
+#         return {}
+#
+#
+# def _locate_channel_field(chart, channel):
+#     return chart.to_dict()['encoding'][channel]['field']
 
 
 def _convert_to_mpl_date(data):

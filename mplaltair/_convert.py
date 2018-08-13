@@ -99,8 +99,8 @@ def _convert(chart):
 
     Parameters
     ----------
-    chart
-        The Altair chart.
+    chart : parse_chart.ChartMetadata
+        Data and metadata for the Altair chart
 
     Returns
     -------
