@@ -85,6 +85,12 @@ class ChartMetadata(object):
     """
 
     def __init__(self, alt_chart):
+
+        if not alt_chart.to_dict()['mark']:
+            raise ValueError("Mark not provided")
+        if not alt_chart.to_dict().get('encoding'):
+            raise ValueError("Ranged encoding channels like x2, y2 not allowed for Mark: {}".format(alt_chart.mark))
+
         _normalize_data(alt_chart)
         self.data = alt_chart.data
         self.mark = alt_chart.mark

@@ -62,11 +62,11 @@ def _handle_line(chart, ax):
     groups = []
     kwargs = {}
 
-    if chart.encoding['opacity']:
+    if chart.encoding.get('opacity'):
         groups.append('opacity')
-    if chart.encoding['stroke']:
+    if chart.encoding.get('stroke'):
         groups.append('stroke')
-    elif chart.encoding['color']:
+    elif chart.encoding.get('color'):
         groups.append('color')
 
     list_fields = lambda c, g: [chart.encoding[i].field for i in g]

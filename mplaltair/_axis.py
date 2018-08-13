@@ -229,18 +229,3 @@ def convert_axis(ax, chart):
         _set_tick_locator(channel, ax)
         _set_tick_formatter(channel, ax)
         _set_label_angle(channel, ax)
-
-    # for channel in chart.to_dict()['encoding']:
-    #     if channel in ['x', 'y']:
-    #         chart_info = {'ax': ax, 'axis': channel,
-    #                       'data': _locate_channel_data(chart, channel),
-    #                       'dtype': _locate_channel_dtype(chart, channel),
-    #                       'mark': chart.mark}
-    #
-    #         scale_info = _locate_channel_scale(chart, channel)
-    #         axis_info = _locate_channel_axis(chart, channel)
-    #
-    #         # _set_limits(chart_info, scale_info)
-    #         _set_tick_locator(chart_info, axis_info)
-    #         _set_tick_formatter(chart_info, axis_info)
-    #         _set_label_angle(chart_info, axis_info)

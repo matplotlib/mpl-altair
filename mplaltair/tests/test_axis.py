@@ -3,6 +3,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 from mplaltair import convert
+from .._axis import convert_axis
+from parse_chart import ChartMetadata
 import pytest
 
 df_quant = pd.DataFrame({
@@ -50,7 +52,8 @@ def test_axis_set_tick_formatter_fail():
      This test is just for temporary coverage purposes."""
     from .._axis import _set_tick_formatter
     _, ax = plt.subplots()
-    _set_tick_formatter({'ax': ax, 'dtype': 'ordinal'}, {})
+    chart = ChartMetadata(alt.Chart(df_quant).mark_point().encode('a:N', 'c:O'))
+    _set_tick_formatter(chart.encoding['x'], ax)
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
