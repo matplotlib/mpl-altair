@@ -125,27 +125,27 @@ def _set_scale_type(channel, ax):
     return lims
 
 
-def _set_tick_locator(channel, axis):
+def _set_tick_locator(channel, ax):
     """Set the tick locator if it needs to vary from the default locator
 
     Parameters
     ----------
-    channel : dict
+    channel : parse_chart.ChannelMetadata
         The mapping of the channel data and metadata
-    axis : dict
+    axis : matplotlib.axes
         The mapping of the axis metadata and the scale data
     """
-    current_axis = {'x': channel['ax'].xaxis, 'y': channel['ax'].yaxis}
-    if 'values' in axis:
-        if channel['dtype'] == 'temporal':
-            current_axis[channel['axis']].set_major_locator(ticker.FixedLocator(_convert_to_mpl_date(axis.get('values'))))
-        elif channel['dtype'] == 'quantitative':
-            current_axis[channel['axis']].set_major_locator(ticker.FixedLocator(axis.get('values')))
+    current_axis = {'x': ax.xaxis, 'y': ax.yaxis}
+    if 'values' in channel.axis:
+        if channel.type == 'temporal':
+            current_axis[channel.channel].set_major_locator(ticker.FixedLocator(_convert_to_mpl_date(channel.axis.get('values'))))
+        elif channel.type == 'quantitative':
+            current_axis[channel.channel].set_major_locator(ticker.FixedLocator(channel.axis.get('values')))
         else:
             raise NotImplementedError
-    elif 'tickCount' in axis:
-        current_axis[channel['axis']].set_major_locator(
-            ticker.MaxNLocator(steps=[2, 5, 10], nbins=axis.get('tickCount')+1, min_n_ticks=axis.get('tickCount'))
+    elif 'tickCount' in channel.axis:
+        current_axis[channel.channel].set_major_locator(
+            ticker.MaxNLocator(steps=[2, 5, 10], nbins=channel.axis.get('tickCount')+1, min_n_ticks=channel.axis.get('tickCount'))
         )
 
 
@@ -225,7 +225,7 @@ def convert_axis(ax, chart):
 
     for channel in [chart.encoding['x'], chart.encoding['y']]:
         _set_limits(channel, chart.mark, ax)
-        # _set_tick_locator(channel, ax)
+        _set_tick_locator(channel, ax)
         # _set_tick_formatter(channel, ax)
         # _set_label_angle(channel, ax)
 
