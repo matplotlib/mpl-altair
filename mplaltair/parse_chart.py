@@ -41,6 +41,9 @@ class ChannelMetadata(object):
         ValidationError
             Raised when the specification does not contain any data attribute
         """
+        if not alt_chart.to_dict().get('encoding'):
+            raise ValueError("Encoding is not provided with the chart specification")
+
         channel_val = alt_chart.to_dict()['encoding'][self.channel]
         if channel_val.get('value'):
             return channel_val.get('value')
@@ -86,11 +89,11 @@ class ChartMetadata(object):
         self.data = alt_chart.data
         self.mark = alt_chart.mark
         self.encoding = {}
-        ALTAIR_ENCODINGS = ['color', 'detail', 'fill', 'href', 'key', 'latitude', 'latitude2', 'longitude',
-                            'longitude2',
-                            'opacity', 'order', 'shape', 'size', 'stroke', 'text', 'tooltip', 'x', 'x2', 'y', 'y2']
+        # ALTAIR_ENCODINGS = ['color', 'detail', 'fill', 'href', 'key', 'latitude', 'latitude2', 'longitude',
+        #                     'longitude2',
+        #                     'opacity', 'order', 'shape', 'size', 'stroke', 'text', 'tooltip', 'x', 'x2', 'y', 'y2']
         for k, v in alt_chart.to_dict()['encoding'].items():
             self.encoding[k] = ChannelMetadata(k, v, alt_chart, self.data)
-        for i in ALTAIR_ENCODINGS:
-            if i not in alt_chart.to_dict()['encoding'].keys():
-                self.encoding[i] = None
+        # for i in ALTAIR_ENCODINGS:
+        #     if i not in alt_chart.to_dict()['encoding'].keys():
+        #         self.encoding[i] = None
