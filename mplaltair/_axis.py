@@ -4,12 +4,12 @@ import numpy as np
 from ._data import _locate_channel_data, _locate_channel_dtype, _locate_channel_scale, _locate_channel_axis, _convert_to_mpl_date
 
 
-def _set_limits(channel, scale):
+def _set_limits(channel, mark, ax):
     """Set the axis limits on the Matplotlib axis
 
     Parameters
     ----------
-    channel : dict
+    channel : parse_chart.ChannelMetadata
         The mapping of the channel data and metadata
     scale : dict
         The mapping of the scale metadata and the scale data
@@ -22,51 +22,51 @@ def _set_limits(channel, scale):
 
     lims = {}
 
-    if channel['dtype'] == 'quantitative':
+    if channel.type == 'quantitative':
         # determine limits
-        if 'domain' in scale:  # domain takes precedence over zero in Altair
-            if scale['domain'] == 'unaggregated':
+        if 'domain' in channel.scale:  # domain takes precedence over zero in Altair
+            if channel.scale['domain'] == 'unaggregated':
                 raise NotImplementedError
             else:
-                lims[_axis_kwargs[channel['axis']].get('min')] = scale['domain'][0]
-                lims[_axis_kwargs[channel['axis']].get('max')] = scale['domain'][1]
-        elif 'type' in scale and scale['type'] != 'linear':
-            lims = _set_scale_type(channel, scale)
+                lims[_axis_kwargs[channel.channel].get('min')] = channel.scale['domain'][0]
+                lims[_axis_kwargs[channel.channel].get('max')] = channel.scale['domain'][1]
+        elif 'type' in channel.scale and channel.scale['type'] != 'linear':
+            lims = _set_scale_type(channel, ax)
         else:
             # Include zero on the axis (or not).
             # In Altair, scale.zero defaults to False unless the data is unbinned quantitative.
-            if channel['mark'] == 'line' and channel['axis'] == 'x':
+            if mark == 'line' and channel.channel == 'x':  # TODO: fix channel['mark']
                 # Contrary to documentation, Altair defaults to scale.zero=False for the x-axis on line graphs.
                 pass
             else:
                 # Check that a positive minimum is zero if scale.zero is True:
-                if ('zero' not in scale or scale['zero'] == True) and min(channel['data']) > 0:
-                    lims[_axis_kwargs[channel['axis']].get('min')] = 0  # quantitative sets min to be 0 by default
+                if ('zero' not in channel.scale or channel.scale['zero'] == True) and min(channel.data) > 0:
+                    lims[_axis_kwargs[channel.channel].get('min')] = 0  # quantitative sets min to be 0 by default
 
                 # Check that a negative maximum is zero if scale.zero is True:
-                if ('zero' not in scale or scale['zero'] == True) and max(channel['data']) < 0:
-                    lims[_axis_kwargs[channel['axis']].get('max')] = 0
+                if ('zero' not in channel.scale or channel.scale['zero'] == True) and max(channel.data) < 0:
+                    lims[_axis_kwargs[channel.channel].get('max')] = 0
 
-    elif channel['dtype'] == 'temporal':
+    elif channel.type == 'temporal':
         # determine limits
-        if 'domain' in scale:
-            domain = _convert_to_mpl_date(scale['domain'])
-            lims[_axis_kwargs[channel['axis']].get('min')] = domain[0]
-            lims[_axis_kwargs[channel['axis']].get('max')] = domain[1]
-        elif 'type' in scale and scale['type'] != 'time':
-            lims = _set_scale_type(channel, scale)
+        if 'domain' in channel.scale:
+            domain = _convert_to_mpl_date(channel.scale['domain'])
+            lims[_axis_kwargs[channel.channel].get('min')] = domain[0]
+            lims[_axis_kwargs[channel.channel].get('max')] = domain[1]
+        elif 'type' in channel.scale and channel.scale['type'] != 'time':
+            lims = _set_scale_type(channel, channel.scale)
 
     else:
         raise NotImplementedError  # Ordinal and Nominal go here?
 
     # set the limits
-    if channel['axis'] == 'x':
-        channel['ax'].set_xlim(**lims)
+    if channel.channel == 'x':
+        ax.set_xlim(**lims)
     else:
-        channel['ax'].set_ylim(**lims)
+        ax.set_ylim(**lims)
 
 
-def _set_scale_type(channel, scale):
+def _set_scale_type(channel, ax):
     """If the scale is non-linear, change the scale and return appropriate axis limits.
     The 'linear' and 'time' scale types are not included here because quantitative defaults to 'linear'
     and temporal defaults to 'time'. The 'utc' and 'sequential' scales are currently not supported.
@@ -84,22 +84,22 @@ def _set_scale_type(channel, scale):
         The axis limit mapped to the appropriate axis parameter for scales that change axis limit behavior
     """
     lims = {}
-    if scale['type'] == 'log':
+    if channel.scale['type'] == 'log':
 
         base = 10  # default base is 10 in altair
-        if 'base' in scale:
-            base = scale['base']
+        if 'base' in channel.scale:
+            base = channel.scale['base']
 
-        if channel['axis'] == 'x':
-            channel['ax'].set_xscale('log', basex=base)
+        if channel.channel == 'x':
+            ax.set_xscale('log', basex=base)
             # lower limit: round down to nearest major tick (using log base change rule)
-            lims['left'] = base**np.floor(np.log10(channel['data'].min())/np.log10(base))
+            lims['left'] = base**np.floor(np.log10(channel.data.min())/np.log10(base))
         else:  # y-axis
-            channel['ax'].set_yscale('log', basey=base)
+            ax.set_yscale('log', basey=base)
             # lower limit: round down to nearest major tick (using log base change rule)
-            lims['bottom'] = base**np.floor(np.log10(channel['data'].min())/np.log10(base))
+            lims['bottom'] = base**np.floor(np.log10(channel.data.min())/np.log10(base))
 
-    elif scale['type'] == 'pow' or scale['type'] == 'sqrt':
+    elif channel.scale['type'] == 'pow' or channel.scale['type'] == 'sqrt':
         """The 'sqrt' scale is just the 'pow' scale with exponent = 0.5.
         When Matplotlib gets a power scale, the following should work:
         
@@ -116,9 +116,9 @@ def _set_scale_type(channel, scale):
         """
         raise NotImplementedError
 
-    elif scale['type'] == 'utc':
+    elif channel.scale['type'] == 'utc':
         raise NotImplementedError
-    elif scale['type'] == 'sequential':
+    elif channel.scale['type'] == 'sequential':
         raise NotImplementedError("sequential scales used primarily for continuous colors")
     else:
         raise NotImplementedError
@@ -223,17 +223,23 @@ def convert_axis(ax, chart):
         The Altair chart
     """
 
-    for channel in chart.to_dict()['encoding']:
-        if channel in ['x', 'y']:
-            chart_info = {'ax': ax, 'axis': channel,
-                          'data': _locate_channel_data(chart, channel),
-                          'dtype': _locate_channel_dtype(chart, channel),
-                          'mark': chart.mark}
+    for channel in [chart.encoding['x'], chart.encoding['y']]:
+        _set_limits(channel, chart.mark, ax)
+        # _set_tick_locator(channel, ax)
+        # _set_tick_formatter(channel, ax)
+        # _set_label_angle(channel, ax)
 
-            scale_info = _locate_channel_scale(chart, channel)
-            axis_info = _locate_channel_axis(chart, channel)
-
-            _set_limits(chart_info, scale_info)
-            _set_tick_locator(chart_info, axis_info)
-            _set_tick_formatter(chart_info, axis_info)
-            _set_label_angle(chart_info, axis_info)
+    # for channel in chart.to_dict()['encoding']:
+    #     if channel in ['x', 'y']:
+    #         chart_info = {'ax': ax, 'axis': channel,
+    #                       'data': _locate_channel_data(chart, channel),
+    #                       'dtype': _locate_channel_dtype(chart, channel),
+    #                       'mark': chart.mark}
+    #
+    #         scale_info = _locate_channel_scale(chart, channel)
+    #         axis_info = _locate_channel_axis(chart, channel)
+    #
+    #         # _set_limits(chart_info, scale_info)
+    #         _set_tick_locator(chart_info, axis_info)
+    #         _set_tick_formatter(chart_info, axis_info)
+    #         _set_label_angle(chart_info, axis_info)
