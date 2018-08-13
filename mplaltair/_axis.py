@@ -196,18 +196,18 @@ def _set_tick_formatter(channel, ax):
         raise NotImplementedError  # Nominal and Ordinal go here
 
 
-def _set_label_angle(channel, axis):
+def _set_label_angle(channel, ax):
     """Set the label angle. TODO: handle axis.labelAngle from Altair
 
         Parameters
         ----------
-        channel : dict
+        channel : parse_chart.ChannelMetadata
             The mapping of the channel data and metadata
-        axis : dict
+        axis : matplotlib.axes
             The mapping of the axis metadata and the scale data
         """
-    if channel['dtype'] == 'temporal' and channel['axis'] == 'x':
-        for label in channel['ax'].get_xticklabels():
+    if channel.type == 'temporal' and channel.channel == 'x':
+        for label in ax.get_xticklabels():
             # Rotate the labels on the x-axis so they don't run into each other.
             label.set_rotation(30)
             label.set_ha('right')
@@ -228,7 +228,7 @@ def convert_axis(ax, chart):
         _set_limits(channel, chart.mark, ax)
         _set_tick_locator(channel, ax)
         _set_tick_formatter(channel, ax)
-        # _set_label_angle(channel, ax)
+        _set_label_angle(channel, ax)
 
     # for channel in chart.to_dict()['encoding']:
     #     if channel in ['x', 'y']:
