@@ -149,13 +149,13 @@ def _set_tick_locator(channel, ax):
         )
 
 
-def _set_tick_formatter(channel, axis):
+def _set_tick_formatter(channel, ax):
     """Set the tick formatter.
 
 
     Parameters
     ----------
-    channel : dict
+    channel : parse_chart.ChannelMetadata
         The mapping of the channel data and metadata
     axis : dict
         The mapping of the axis metadata and the scale data
@@ -168,25 +168,26 @@ def _set_tick_formatter(channel, axis):
     For formatting of temporal data, Matplotlib does not support some format strings that Altair supports (%L, %Q, %s).
     Matplotlib only supports datetime.strftime formatting for dates.
     """
-    current_axis = {'x': channel['ax'].xaxis, 'y': channel['ax'].yaxis}
+    current_axis = {'x': ax.xaxis, 'y': ax.yaxis}
     format_str = ''
 
-    if 'format' in axis:
-        format_str = axis['format']
+    # format_str = channel.axis.get('format', '')
+    if 'format' in channel.axis:
+        format_str = channel.axis['format']
 
-    if channel['dtype'] == 'temporal':
+    if channel.type == 'temporal':
         if not format_str:
             format_str = '%b %d, %Y'
 
-        current_axis[channel['axis']].set_major_formatter(mdates.DateFormatter(format_str))  # May fail silently
+        current_axis[channel.channel].set_major_formatter(mdates.DateFormatter(format_str))  # May fail silently
 
-    elif channel['dtype'] == 'quantitative':
+    elif channel.type == 'quantitative':
         if format_str:
-            current_axis[channel['axis']].set_major_formatter(ticker.StrMethodFormatter('{x:' + format_str + '}'))
+            current_axis[channel.channel].set_major_formatter(ticker.StrMethodFormatter('{x:' + format_str + '}'))
 
             # Verify that the format string is valid for Matplotlib and exit nicely if not.
             try:
-                current_axis[channel['axis']].get_major_formatter().__call__(1)
+                current_axis[channel.channel].get_major_formatter().__call__(1)
             except ValueError:
                 raise ValueError("Matplotlib only supports format strings as used by `str.format()`."
                                  "Some format strings that work in Altair may not work in Matplotlib."
@@ -226,7 +227,7 @@ def convert_axis(ax, chart):
     for channel in [chart.encoding['x'], chart.encoding['y']]:
         _set_limits(channel, chart.mark, ax)
         _set_tick_locator(channel, ax)
-        # _set_tick_formatter(channel, ax)
+        _set_tick_formatter(channel, ax)
         # _set_label_angle(channel, ax)
 
     # for channel in chart.to_dict()['encoding']:
