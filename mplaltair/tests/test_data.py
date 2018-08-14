@@ -3,6 +3,10 @@ import pandas as pd
 import matplotlib.dates as mdates
 import mplaltair._data as _data
 import pytest
+from vega_datasets import data
+
+from mplaltair._data import _normalize_data
+from mplaltair._exceptions import ValidationError
 
 df = pd.DataFrame({
     "a": [1, 2, 3, 4, 5], "b": [1.1, 2.2, 3.3, 4.4, 5.5], "c": [1, 2.2, 3, 4.4, 5],
@@ -13,6 +17,15 @@ df = pd.DataFrame({
     "quantitative": [1.1, 2.1, 3.1, 4.1, 5.1]
 })
 
+def test_data_list():
+    chart = alt.Chart(pd.DataFrame({'a': [1], 'b': [2], 'c': [3]})).mark_point()
+    _normalize_data(chart)
+    assert type(chart.data) == pd.DataFrame
+
+def test_data_url():
+    chart = alt.Chart(data.cars.url).mark_point()
+    _normalize_data(chart)
+    assert type(chart.data) == pd.DataFrame
 
 # _locate_channel_data() tests
 

@@ -4,6 +4,42 @@ import matplotlib.cbook as cbook
 from datetime import datetime
 import numpy as np
 
+import pandas as pd
+
+from ._utils import _fetch
+
+def _normalize_data(chart):
+    """Converts the data to a Pandas dataframe
+
+    Parameters
+    ----------
+    chart : altair.Chart
+    The vega-lite specification in json format
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ValidationError
+    Raised when the specification does not contain any data attribute
+
+    NotImplementedError
+    Raised when the data specification has an unsupported data source
+    """
+
+    spec = chart.to_dict()
+
+    if spec['data'].get('url'):
+        df = pd.DataFrame(_fetch(spec['data']['url']))
+    elif spec['data'].get('values'):
+        return
+    else:
+        raise NotImplementedError('Given data specification is unsupported at the moment.')
+
+    chart.data = df
+
 def _locate_channel_dtype(chart, channel):
     """Locates dtype used for each channel
         Parameters
