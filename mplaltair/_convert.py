@@ -1,5 +1,3 @@
-from ._data import _locate_channel_data, _locate_channel_dtype
-
 
 def _allowed_ranged_marks(enc_channel, mark):
     """TODO: DOCS

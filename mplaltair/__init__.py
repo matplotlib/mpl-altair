@@ -1,4 +1,4 @@
-import mplaltair.parse_chart as parse_chart
+import mplaltair.parse_chart
 import matplotlib
 import altair
 import matplotlib.pyplot as plt
@@ -23,7 +23,7 @@ def convert(alt_chart):
     ax : matplotlib.axes
 
     """
-    chart = parse_chart.ChartMetadata(alt_chart)
+    chart = mplaltair.parse_chart.ChartMetadata(alt_chart)
     fig, ax = plt.subplots()
 
     if chart.mark in ['point', 'circle', 'square']:  # scatter

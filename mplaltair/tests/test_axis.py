@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from mplaltair import convert
 from .._axis import convert_axis
-from parse_chart import ChartMetadata
+from ..parse_chart import ChartMetadata
 import pytest
 
 df_quant = pd.DataFrame({

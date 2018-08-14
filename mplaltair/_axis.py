@@ -1,7 +1,7 @@
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
 import numpy as np
-from ._data import _locate_channel_data, _locate_channel_dtype, _locate_channel_scale, _locate_channel_axis, _convert_to_mpl_date
+from ._data import _convert_to_mpl_date
 
 
 def _set_limits(channel, mark, ax):
@@ -170,11 +170,7 @@ def _set_tick_formatter(channel, ax):
     Matplotlib only supports datetime.strftime formatting for dates.
     """
     current_axis = {'x': ax.xaxis, 'y': ax.yaxis}
-    format_str = ''
-
-    # format_str = channel.axis.get('format', '')
-    if 'format' in channel.axis:
-        format_str = channel.axis['format']
+    format_str = channel.axis.get('format', '')
 
     if channel.type == 'temporal':
         if not format_str:
