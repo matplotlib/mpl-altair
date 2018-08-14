@@ -8,7 +8,9 @@ class ChannelMetadata(object):
     Attributes
     ----------
     name : str
+        The name of the encoding channel
     data : np.array
+        The data linked to the channel (temporal data is converted)
     axis : dict
     bin : boolean, None
     field : str
@@ -20,16 +22,17 @@ class ChannelMetadata(object):
     type : str
     """
     def __init__(self, channel, alt_chart):
-        self.name = channel  # Not from Altair
-        self.data = self._locate_channel_data(alt_chart)  # Not from Altair
-        self.axis = alt_chart.to_dict()['encoding'][self.name].get('axis', {})
-        self.bin = alt_chart.to_dict()['encoding'][self.name].get('bin', None)
-        self.field = alt_chart.to_dict()['encoding'][self.name].get('field', None)
-        self.scale = alt_chart.to_dict()['encoding'][self.name].get('scale', {})
-        self.sort = alt_chart.to_dict()['encoding'][self.name].get('sort', None)
-        self.stack = alt_chart.to_dict()['encoding'][self.name].get('stack', None)
-        self.timeUnit = alt_chart.to_dict()['encoding'][self.name].get('aggregate', None)
-        self.title = alt_chart.to_dict()['encoding'][self.name].get('title', None)
+        chart_dict = alt_chart.to_dict()
+        self.name = channel
+        self.data = self._locate_channel_data(alt_chart)
+        self.axis = chart_dict['encoding'][self.name].get('axis', {})
+        self.bin = chart_dict['encoding'][self.name].get('bin', None)
+        self.field = chart_dict['encoding'][self.name].get('field', None)
+        self.scale = chart_dict['encoding'][self.name].get('scale', {})
+        self.sort = chart_dict['encoding'][self.name].get('sort', None)
+        self.stack = chart_dict['encoding'][self.name].get('stack', None)
+        self.timeUnit = chart_dict['encoding'][self.name].get('aggregate', None)
+        self.title = chart_dict['encoding'][self.name].get('title', None)
         self.type = self._locate_channel_dtype(alt_chart)
 
         if self.type == 'temporal':
@@ -67,6 +70,7 @@ class ChannelMetadata(object):
 
     def _locate_channel_dtype(self, alt_chart):
         """Locates dtype used for each channel
+
         Parameters
         ----------
         alt_chart : altair.Chart

@@ -41,16 +41,6 @@ def test_data_shorthand_quantitative(column):
         else:
             assert list(data) == list(df[column].values)
 
-# TODO: figure out how to test
-# def test_data_value_quantitative():
-#     chart = alt.Chart(df).mark_point().encode(opacity=alt.value(0.5))
-#     try:
-#         chart = parse_chart.ChartMetadata(chart)
-#     except NotImplementedError:
-#         for channel in chart.encoding:
-#             data = chart.encoding[channel].data
-#             assert list(data) == 0.5
-
 
 @pytest.mark.parametrize("column", ['a', 'b', 'c'])
 def test_data_aggregate_quantitative_fail(column):
