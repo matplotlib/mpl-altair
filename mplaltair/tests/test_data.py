@@ -17,6 +17,7 @@ df = pd.DataFrame({
     "quantitative": [1.1, 2.1, 3.1, 4.1, 5.1]
 })
 
+
 def test_data_list():
     chart = alt.Chart(pd.DataFrame({'a': [1], 'b': [2], 'c': [3]})).mark_point()
     _normalize_data(chart)
@@ -26,83 +27,6 @@ def test_data_url():
     chart = alt.Chart(data.cars.url).mark_point()
     _normalize_data(chart)
     assert type(chart.data) == pd.DataFrame
-
-# _locate_channel_data() tests
-
-@pytest.mark.parametrize("column, dtype", [
-    ('a', 'quantitative'), ('b', 'quantitative'), ('c', 'quantitative'), ('combination', 'temporal')
-])
-def test_data_field_quantitative(column, dtype):
-    chart = alt.Chart(df).mark_point().encode(alt.X(field=column, type=dtype))
-    for channel in chart.to_dict()['encoding']:
-        data = _data._locate_channel_data(chart, channel)
-        assert list(data) == list(df[column].values)
-
-
-@pytest.mark.parametrize("column", ['a', 'b', 'c'])
-def test_data_shorthand_quantitative(column):
-    chart = alt.Chart(df).mark_point().encode(alt.X(column))
-    for channel in chart.to_dict()['encoding']:
-        data = _data._locate_channel_data(chart, channel)
-    assert list(data) == list(df[column].values)
-
-
-def test_data_shorthand_temporal():
-    chart = alt.Chart(df).mark_point().encode(alt.X('combination'))
-    for channel in chart.to_dict()['encoding']:
-        data = _data._locate_channel_data(chart, channel)
-    assert list(data) == list(df['combination'].values)
-
-
-def test_data_value_quantitative():
-    chart = alt.Chart(df).mark_point().encode(opacity=alt.value(0.5))
-    for channel in chart.to_dict()['encoding']:
-        data = _data._locate_channel_data(chart, channel)
-    assert list(data) == list(_data._convert_to_mpl_date(df['combination'].values))
-
-
-@pytest.mark.parametrize("column", ['a', 'b', 'c'])
-def test_data_aggregate_quantitative_fail(column):
-    """"'Passes' if it raises a NotImplementedError"""
-    chart = alt.Chart(df).mark_point().encode(alt.X(field=column, type='quantitative', aggregate='average'))
-    for channel in chart.to_dict()['encoding']:
-        with pytest.raises(NotImplementedError):
-            data = _data._locate_channel_data(chart, channel)
-
-
-def test_data_timeUnit_shorthand_temporal_fail():
-    chart = alt.Chart(df).mark_point().encode(alt.X('month(combination):T'))
-    for channel in chart.to_dict()['encoding']:
-        with pytest.raises(NotImplementedError):
-            data = _data._locate_channel_data(chart, channel)
-
-
-def test_data_timeUnit_field_temporal_fail():
-    """"'Passes' if it raises a NotImplementedError"""
-    chart = alt.Chart(df).mark_point().encode(alt.X(field='combination', type='temporal', timeUnit='month'))
-    for channel in chart.to_dict()['encoding']:
-        with pytest.raises(NotImplementedError):
-            data = _data._locate_channel_data(chart, channel)
-
-
-# _locate_channel_dtype() tests
-
-@pytest.mark.parametrize('column, expected', [
-    ('a:Q', 'quantitative'), ('nom:N', 'nominal'), ('ord:O', 'ordinal'), ('combination:T', 'temporal')
-])
-def test_data_dtype(column, expected):
-    chart = alt.Chart(df).mark_point().encode(alt.X(column))
-    for channel in chart.to_dict()['encoding']:
-        dtype = _data._locate_channel_dtype(chart, channel)
-    assert dtype == expected
-
-
-def test_data_dtype_fail():
-    """"'Passes' if it raises a NotImplementedError"""
-    chart = alt.Chart(df).mark_point().encode(opacity=alt.value(.5))
-    for channel in chart.to_dict()['encoding']:
-        with pytest.raises(NotImplementedError):
-            dtype = _data._locate_channel_dtype(chart, channel)
 
 # test date conversion:
 

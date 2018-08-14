@@ -91,7 +91,7 @@ def _set_scale_type(channel, ax):
         if 'base' in channel.scale:
             base = channel.scale['base']
 
-        if channel.channel == 'x':
+        if channel.name == 'x':
             ax.set_xscale('log', basex=base)
             # lower limit: round down to nearest major tick (using log base change rule)
             lims['left'] = base**np.floor(np.log10(channel.data.min())/np.log10(base))

@@ -53,7 +53,6 @@ def test_axis_set_tick_formatter_fail():
     from .._axis import _set_tick_formatter
     _, ax = plt.subplots()
     chart = ChartMetadata(alt.Chart(df_quant).mark_point().encode('a:N', 'c:O'))
-    _set_tick_formatter(chart.encoding['x'], ax)
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')

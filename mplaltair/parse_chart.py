@@ -54,8 +54,6 @@ class ChannelMetadata(object):
         A numpy ndarray containing the data used for the channel
 
         """
-        if not alt_chart.to_dict().get('encoding'):
-            raise ValueError("Encoding is not provided with the chart specification")
 
         channel_val = alt_chart.to_dict()['encoding'][self.name]
         if channel_val.get('value'):
@@ -103,10 +101,8 @@ class ChartMetadata(object):
 
     def __init__(self, alt_chart):
 
-        if not alt_chart.to_dict()['mark']:
-            raise ValueError("Mark not provided")
         if not alt_chart.to_dict().get('encoding'):
-            raise ValueError("Ranged encoding channels like x2, y2 not allowed for Mark: {}".format(alt_chart.mark))
+            raise ValueError("Encoding is not provided with the chart specification")
 
         _normalize_data(alt_chart)
         self.data = alt_chart.data
