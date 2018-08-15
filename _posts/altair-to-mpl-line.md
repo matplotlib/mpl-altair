@@ -23,83 +23,19 @@ df = pd.DataFrame({
     'location': ['a', 'a', 'b', 'b', 'c', 'c', 'd', 'd']
 })
 ```
-If you need a scenario to help think about the data, imagine that you're running an experiment in several different locations and you take two measurements for each location. Now you want to visualize how the amount changed between the two sets of measurements at each location.
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+**set** | **amount** | **location**
+:---: | :---: | :---:
+1 | 1 | a
+2 | 4 | a
+1 | 5 | b
+2 | 3 | b
+1 | 1 | c
+2 | 7 | c
+1 | 2 | d
+2 | 9 | d
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>set</th>
-      <th>amount</th>
-      <th>location</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>1</td>
-      <td>a</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>4</td>
-      <td>a</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1</td>
-      <td>5</td>
-      <td>b</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>2</td>
-      <td>3</td>
-      <td>b</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>1</td>
-      <td>1</td>
-      <td>c</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>2</td>
-      <td>7</td>
-      <td>c</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>1</td>
-      <td>2</td>
-      <td>d</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>2</td>
-      <td>9</td>
-      <td>d</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+A possible scenario for this dataset would be an experiment being run in several different locations with 2 measurements taken at each location. The goal with the visualization being to visualize how the amount changed between the two sets of measurements at each location.
 
 ## Altair
 If we want to plot lines to show how each location changed between set one and set two,
