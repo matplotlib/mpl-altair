@@ -145,3 +145,4 @@ chart = alt.Chart(df).mark_line().encode(
 fig, ax = mplaltair.convert(chart)
 plt.show()
 ```
+![png](pics/altair-to-mpl-line_2.png)
