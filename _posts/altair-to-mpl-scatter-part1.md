@@ -155,3 +155,4 @@ chart = alt.Chart(cars).mark_point().encode(
 fig, ax = mplaltair.convert(chart)
 plt.show()
 ```
+![png](pics/altair-to-mpl-scatter-part1_2.png)
