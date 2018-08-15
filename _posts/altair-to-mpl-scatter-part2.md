@@ -9,7 +9,7 @@ excerpt_separator: <!--read more-->
 ---
 
 # Making a Complex Scatter Plot
-At the time of writing, mpl-altair does not support bar charts, so this post will show how to create a bar chart in Altair, Matplotlib, and how mpl-altair _should_ implement bar chart conversion in the future.
+At the time of writing, mpl-altair does not support scatter plots with nominal or ordinal color encodings, so this post will show how to create a complex scatter plot in Altair, Matplotlib, and how mpl-altair _should_ implement the chart conversion in the future.
 
 In the first part, we made a simple scatter plot. This post will look at a more complex plot.
 We'll use the cars dataset again:
@@ -90,9 +90,9 @@ plt.show()
 ![png](pics/altair-to-mpl-scatter-part2_2.png)
 
 ## mpl-altair
-At the time of writing, mpl-altair doesn't support bar charts.
+At the time of writing, mpl-altair doesn't support scatter plots with categorical colors.
 
-If mpl-altair supported bar charts, this is how an Altair chart would get rendered in mpl-altair:
+If mpl-altair supported categorical colors with scatter plots, this is how an Altair chart would get rendered in mpl-altair:
 ```python
 import altair as alt
 import matplotlib.pyplot as plt
