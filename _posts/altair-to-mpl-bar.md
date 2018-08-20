@@ -2,7 +2,7 @@
 layout: post
 title:  "Making a Bar Chart"
 date:   2018-08-15 16:00:00 -0500
-author: "Kimberly Orr and Nabarun Pal"
+author: "Kimberly Orr", "Nabarun Pal"
 categories: user-guide
 tags: "intro about bar"
 excerpt_separator: <!--read more-->
@@ -36,31 +36,21 @@ alt.Chart(df).mark_bar().encode(
 ## Matplotlib
 This is a little more complicated in Matplotlib. Since Matplotlib is procedural, we have to manually tell Matplotlib to stack the bars. Also notice that we are calling a new function now (`ax.bar()`) to get a bar plot.
 
-To stack the bars, we have to create new subset dataframes and then plot each one separately (specifying that bottom of one plot should be the top of another `bottom=a_scores`). One way to do this is to subset via indexing (option 1). Another way to do this is to use the `df.groupby()` function (option 2).
+To stack group b on top of group a, we have to use the `bottom` kwarg to tell Matplotlib where we want the bottom of each bar to be. A clean way to do this is to create an array that keeps track of the bottoms of the bars.
+
+So, in this example, we first plot group a with bottom initialized to zeros (so that each bar starts at zero). After we plot group b, we update bottom to contain group a's scores. Then, we plot group b with the updated bottom array.
+
 ```python
 import matplotlib.pyplot as plt
 ```
 ```python
-# Option 1
-fig, ax = plt.subplots()
-groups = df['group'].unique()
-a_scores = df[df['variable']=='a']['scores']
-b_scores = df[df['variable']=='b']['scores']
-ax.bar(groups, a_scores, label='a')
-ax.bar(groups, b_scores, bottom=a_scores, label='b')
-ax.set_xlabel('groups')
-ax.set_ylabel('scores')
-ax.legend()
-plt.grid()
-plt.show()
-```
-```python
-# Option 2
 fig, ax = plt.subplots()
 
-(_, a), (_, b) = df.groupby('variable')
-ax.bar(a['group'], a['scores'], label='a')
-ax.bar(b['group'], b['scores'], bottom=a['scores'], label='b')
+bottom = np.zeros(len(df['group'].unique()))  # initialize to zeros so the bottom of group a is zero
+for label, scores in df.groupby('variable'):
+    ax.bar(scores['group'], scores['scores'], bottom=bottom, label=label)
+    bottom += scores['scores']  # set bottom to be the top of the current group
+
 ax.set_xlabel('groups')
 ax.set_ylabel('scores')
 ax.legend()
