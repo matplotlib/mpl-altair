@@ -2,7 +2,7 @@
 layout: post
 title:  "Making a Line Plot"
 date:   2018-08-15 15:30:00 -0500
-author: "Kimberly Orr and Nabarun Pal"
+author: "Kimberly Orr", "Nabarun Pal"
 categories: user-guide
 tags: "intro about line"
 excerpt_separator: <!--read more-->
@@ -35,12 +35,17 @@ df = pd.DataFrame({
 1 | 2 | d
 2 | 9 | d
 
-A possible scenario for this dataset would be an experiment being run in several different locations with 2 measurements taken at each location. The goal with the visualization being to visualize how the amount changed between the two sets of measurements at each location.
+A possible scenario for this dataset would be an experiment being run in several different locations with 2 measurements taken at each location. The goal of the visualization being to visualize how the amount changed between the two sets of measurements at each location.
 
 ## Altair
 If we want to plot lines to show how each location changed between set one and set two,
-we need to specify the data, tell Altair to plot lines with `mark_line()`, link the x
-encoding channel with 'set', the y channel with 'amount', and the color channel with 'location'.
+we need to
+1. specify the data: `alt.chart(df)`
+2. tell Altair to plot lines with `.mark_line()`
+3. link the encoding channels:
+    - x with 'set'
+    - y with 'amount'
+    - color with 'location'.
 ```python
 import altair as alt
 alt.Chart(df).mark_line().encode(
@@ -52,8 +57,8 @@ alt.Chart(df).mark_line().encode(
 ![png](pics/altair-to-mpl-line_0.png)
 
 ## Matplotlib
-In Matplotlib, just like with a categorical scatter plot, we have to plot a new line for every location.
-Specifying a label with each line allows us to generate a legend with `ax.legend()`.
+In Matplotlib, just like with a [categorical scatter plot]({{ site.baseurl }}{% link _posts/2018-08-15-altair-to-mpl-scatter-part2.md %}), we have to plot a new line for every location.
+Specifying a label for each line allows us to generate a legend with `ax.legend()`.
 ```python
 import matplotlib.pyplot as plt
 fig, ax = plt.subplots()
@@ -82,3 +87,19 @@ fig, ax = mplaltair.convert(chart)
 plt.show()
 ```
 ![png](pics/altair-to-mpl-line_2.png)
+
+Since the Altair chart has been converted to Matplotlib objects, it's now possible to modify the chart using Matplotlib:
+```python
+import altair as alt
+import matplotlib.pyplot as plt
+import mplaltair
+chart = alt.Chart(df).mark_line().encode(
+    alt.X('set'),
+    alt.Y('amount'),
+    alt.Color('location')
+)
+fig, ax = mplaltair.convert(chart)
+ax.set_xlabel('set')
+ax.set_ylabel('amount')
+plt.show()
+```
