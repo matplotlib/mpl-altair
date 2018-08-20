@@ -2,15 +2,15 @@
 layout: post
 title:  "Making a Scatter Plot - Part 1"
 date:   2018-08-15 15:00:00 -0500
-author: "Kimberly Orr and Nabarun Pal"
+author: "Kimberly Orr", "Nabarun Pal"
 categories: user-guide
 tags: "intro about scatter"
 excerpt_separator: <!--read more-->
 ---
 
 # Making a Scatter Plot
-This post will walk you through making a simple scatter plot in Altair, Matplotlib, and mpl-altair.
-We'll examine the cars dataset:
+This post will walk you through making a scatter plot in Altair, Matplotlib, and mpl-altair.
+We'll examine the cars dataset from [Vega's collection of datasets](https://github.com/vega/vega-datasets#vega-datasets):
 ```python
 from vega_datasets import data
 cars = data.cars()
@@ -56,7 +56,7 @@ plt.show()
 
 ## mpl-altair
 To produce the mpl-altair plot, create the Altair chart and then pass it to 
-mplaltair's `convert()` function. The resulting fig and ax are Matplotlib plots.
+mplaltair's `convert()` function. The resulting fig and ax are Matplotlib objects.
 ```python
 import altair as alt
 import matplotlib.pyplot as plt
@@ -69,3 +69,7 @@ fig, ax = mplaltair.convert(chart)
 plt.show()
 ```
 ![png](pics/altair-to-mpl-scatter-part1_2.png)
+
+Why is it beneficial to convert the Altair chart to a Matplotlib figure?
+- the figure can be modified using Matplotlib functionality, which has more functionality than Altair (by design)
+- the figure can be rendered without Altair's front-end [renderers](https://altair-viz.github.io/user_guide/renderers.html).
