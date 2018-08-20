@@ -7,6 +7,16 @@ categories: about
 tags: "intro about matplotlib altair"
 excerpt_separator: <!--read more-->
 ---
+
+# Plot Construction Overview
+We have data that we want to plot!
+```python
+df = pd.DataFrame({
+    'x': [1, 2, 3, 4], 'y': [8, 7, 6, 5], 'c': [1, 1, 2, 3]
+})
+```
+Fortunately, python gives us options for plotting that data. In this post, we'll look at plotting this data with Altair, Matplotlib, and mpl-altair.
+
 ## Altair
 Altair is a Python visualization library built on top of the Vega/Vegalite declarative grammar. As Altair's [overview](https://altair-viz.github.io/getting_started/overview.html) states:
 >The key idea is that you are declaring links between data columns and visual encoding channels, such as the x-axis, y-axis, color, etc.
@@ -21,7 +31,7 @@ Specify what type of glyph/marker should be used to represent your data:
 ```
 Then link your data columns with the encoding channels:
  ```python
-.encode(x=alt.X("column1"), y=alt.Y("column2"))
+.encode(x=alt.X('x'), y=alt.Y('y'), color=alt.Color('c'))
  ```
  
 So that a finished plot would look like:
@@ -30,7 +40,7 @@ So that a finished plot would look like:
 import altair as alt
 # plot
 alt.Chart(df).mark_point().encode(
-    x=alt.X("column1"), y=alt.Y("column2"), color=alt.Color("column3")
+    x=alt.X('x'), y=alt.Y('y'), color=alt.Color('c')
 )
 ```
 ## Matplotlib
@@ -42,7 +52,7 @@ fig, ax = plt.subplots()
 ```
 Add a scatter plot to the axes object of this figure:
 ```python
-ax.scatter(x_array, y_array)
+ax.scatter(df['x'].values, df['y'].values, c=df['c'].values)
 ```
 Show it:
 ```python
@@ -54,7 +64,7 @@ So that a plot of `y_array` vs `x_array` colored by `color_array` would look lik
 import matplotlib.pyplot as plt
 # plot
 fix, ax = plt.subplots()
-ax.scatter(x_array, y_array, c=color_array)
+ax.scatter(df['x'].values, df['y'].values, c=df['c'].values)
 plt.show()
 ```
 
@@ -66,7 +76,7 @@ import matplotlib.pyplot as plt
 import mplaltair
 # make an altair chart
 chart = alt.Chart(df).mark_point().encode(
-    alt.X("column1"), alt.Y("column2")
+    alt.X('x'), alt.Y('y'), alt.Color('c')
 )
 # convert to Matplotlib
 fig, ax = mplaltair.convert(chart)
