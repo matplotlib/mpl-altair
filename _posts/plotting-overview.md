@@ -8,20 +8,20 @@ tags: "intro about matplotlib altair"
 excerpt_separator: <!--read more-->
 ---
 ## Altair
-Altair uses a declarative grammar. As its [overview](https://altair-viz.github.io/getting_started/overview.html) states:
->The key idea is that you are declaring links between data columns and visual encoding channels, such as the x-axis, y-axis, color, etc.As the overview states, "the key idea is that you are declaring links between data columns and visual encoding channels, such as the x-axis, y-axis, color, etc."
+Altair is a Python visualization library built on top of the Vega/Vegalite declarative grammar. As Altair's [overview](https://altair-viz.github.io/getting_started/overview.html) states:
+>The key idea is that you are declaring links between data columns and visual encoding channels, such as the x-axis, y-axis, color, etc.
 
 So, the general process for creating a basic Altair plot is to specify your data:
  ```python
 alt.Chart(df)
  ``` 
-Specify what type of glyph/mark should be used to represent your data:
+Specify what type of glyph/marker should be used to represent your data:
 ```python
-mark_point()
+.mark_point()
 ```
-Then, link your data columns with the encoding channels:
+Then link your data columns with the encoding channels:
  ```python
-encode(x=alt.X("column1"), y=alt.Y("column2"))
+.encode(x=alt.X("column1"), y=alt.Y("column2"))
  ```
  
 So that a finished plot would look like:
@@ -34,9 +34,9 @@ alt.Chart(df).mark_point().encode(
 )
 ```
 ## Matplotlib
-Matplotlib is a powerful object-oriented procedural plotting library. Instead of linking data with encoding channels, Matplotlib uses an object-oriented interface to place objects on a canvas.
+Matplotlib is a powerful object-oriented procedural plotting library. The general process to create a Matplotlib plot is to first create a figure (canvas) and one or more subplots (which are objects that encapsulate plot data to facilitate adding multiple plots to a single canvas) and then add objects to the subplots (like axes, which contain glyphs, etc.). So, instead of linking data with encoding channels, Matplotlib uses an object-oriented interface to place objects on a canvas.
 
-The general thought process is to create a plot:
+The general thought process is to create the canvas/subplots:
 ```python
 fig, ax = plt.subplots()
 ```
