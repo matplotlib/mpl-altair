@@ -1,9 +1,13 @@
+import mplaltair.parse_chart
 import matplotlib
 import altair
+import matplotlib.pyplot as plt
 from ._convert import _convert
+from ._axis import convert_axis
+from ._marks import _handle_line
 
 
-def convert(chart):
+def convert(alt_chart):
     """Convert an altair encoding to a Matplotlib figure
 
 
@@ -14,10 +18,21 @@ def convert(chart):
 
     Returns
     -------
-    mapping : dict
-        Mapping from parts of the encoding to the Matplotlib artists.  This is
-        for later customization.
+    fig : matplotlib.figure
 
+    ax : matplotlib.axes
 
     """
-    return _convert(chart)
+    chart = mplaltair.parse_chart.ChartMetadata(alt_chart)
+    fig, ax = plt.subplots()
+
+    if chart.mark in ['point', 'circle', 'square']:  # scatter
+        mapping = _convert(chart)
+        ax.scatter(**mapping)
+    elif chart.mark == 'line':  # line
+        _handle_line(chart, ax)
+    else:
+        raise NotImplementedError
+    convert_axis(ax, chart)
+    fig.tight_layout()
+    return fig, ax

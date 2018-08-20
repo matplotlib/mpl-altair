@@ -1,12 +1,11 @@
+import pandas as pd
 from ._exceptions import ValidationError
+from ._utils import _fetch
 import matplotlib.dates as mdates
 import matplotlib.cbook as cbook
 from datetime import datetime
 import numpy as np
 
-import pandas as pd
-
-from ._utils import _fetch
 
 def _normalize_data(chart):
     """Converts the data to a Pandas dataframe
@@ -40,110 +39,6 @@ def _normalize_data(chart):
 
     chart.data = df
 
-def _locate_channel_dtype(chart, channel):
-    """Locates dtype used for each channel
-        Parameters
-        ----------
-        chart
-            The Altair chart
-        channel
-            The Altair channel being examined
-
-        Returns
-        -------
-        A string representing the data type from the Altair chart ('quantitative', 'ordinal', 'numeric', 'temporal')
-        """
-
-    channel_val = chart.to_dict()['encoding'][channel]
-    if channel_val.get('type'):
-        return channel_val.get('type')
-    else:
-        # TODO: find some way to deal with 'value' so that, opacity, for instance, can be plotted with a value defined
-        if channel_val.get('value'):
-            raise NotImplementedError
-        raise NotImplementedError
-
-
-def _locate_channel_data(chart, channel):
-    """Locates data used for each channel
-
-    Parameters
-    ----------
-    chart
-        The Altair chart
-    channel
-        The Altair channel being examined
-
-    Returns
-    -------
-    A numpy ndarray containing the data used for the channel
-
-    Raises
-    ------
-    ValidationError
-        Raised when the specification does not contain any data attribute
-
-    """
-
-    channel_val = chart.to_dict()['encoding'][channel]
-    if channel_val.get('value'):
-        return channel_val.get('value')
-    elif channel_val.get('aggregate'):
-        return _aggregate_channel()
-    elif channel_val.get('timeUnit'):
-        return _handle_timeUnit()
-    else:  # field is required if the above are not present.
-        return chart.data[channel_val.get('field')].values
-
-
-def _aggregate_channel():
-    raise NotImplementedError
-
-
-def _handle_timeUnit():
-    raise NotImplementedError
-
-
-def _locate_channel_scale(chart, channel):
-    """Locates the channel's scale information.
-
-    Parameters
-    ----------
-    chart
-        The Altair chart
-    channel
-        The Altair channel being examined
-
-    Returns
-    -------
-    A dictionary with the scale information
-    """
-    channel_val = chart.to_dict()['encoding'][channel]
-    if channel_val.get('scale'):
-        return channel_val.get('scale')
-    else:
-        return {}
-
-
-def _locate_channel_axis(chart, channel):
-    """Locates the channel's scale information.
-
-    Parameters
-    ----------
-    chart
-        The Altair chart
-    channel
-        The Altair channel being examined
-
-    Returns
-    -------
-    A dictionary with the axis information
-    """
-    channel_val = chart.to_dict()['encoding'][channel]
-    if channel_val.get('axis'):
-        return channel_val.get('axis')
-    else:
-        return {}
 
 def _convert_to_mpl_date(data):
     """Converts datetime, datetime64, strings, and Altair DateTime objects to Matplotlib dates.
@@ -163,7 +58,7 @@ def _convert_to_mpl_date(data):
         if len(data) == 0:
             return []
         else:
-            return [_convert_to_mpl_date(i) for i in data]
+            return np.asarray([_convert_to_mpl_date(i) for i in data])
     else:
         if isinstance(data, str):  # string format for dates
             data = mdates.datestr2num(data)
@@ -189,9 +84,8 @@ def _altair_DateTime_to_datetime(dt):
     A datetime object
     """
     MONTHS = {'Jan': 1, 'January': 1, 'Feb': 2, 'February': 2, 'Mar': 3, 'March': 3, 'Apr': 4, 'April': 4,
-              'May': 5, 'May': 5, 'Jun': 6, 'June': 6, 'Jul': 7, 'July': 7, 'Aug': 8, 'August': 8,
-              'Sep': 9, 'Sept': 9, 'September': 9, 'Oct': 10, 'October': 10, 'Nov': 11, 'November': 11,
-              'Dec': 12, 'December': 12}
+              'May': 5, 'Jun': 6, 'June': 6, 'Jul': 7, 'July': 7, 'Aug': 8, 'August': 8, 'Sep': 9, 'Sept': 9,
+              'September': 9, 'Oct': 10, 'October': 10, 'Nov': 11, 'November': 11, 'Dec': 12, 'December': 12}
 
     alt_to_datetime_kw_mapping = {'date': 'day', 'hours': 'hour', 'milliseconds': 'microsecond', 'minutes': 'minute',
                        'month': 'month', 'seconds': 'second', 'year': 'year'}

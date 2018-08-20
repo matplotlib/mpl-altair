@@ -1,5 +1,3 @@
-import matplotlib.dates as mdates
-from ._data import _locate_channel_data, _locate_channel_dtype, _convert_to_mpl_date, _normalize_data
 
 def _allowed_ranged_marks(enc_channel, mark):
     """TODO: DOCS
@@ -79,6 +77,7 @@ def _process_stroke(dtype, data):
     """
     raise NotImplementedError
 
+
 _mappings = {
     'x': _process_x,
     'y': _process_y,
@@ -98,8 +97,8 @@ def _convert(chart):
 
     Parameters
     ----------
-    chart
-        The Altair chart.
+    chart : parse_chart.ChartMetadata
+        Data and metadata for the Altair chart
 
     Returns
     -------
@@ -109,21 +108,12 @@ def _convert(chart):
     """
     mapping = {}
 
-    _normalize_data(chart)
 
-    if not chart.to_dict().get('encoding'):
-        raise ValueError("Encoding not provided with the chart specification")
+    for enc_channel in chart.encoding:
+        if not _allowed_ranged_marks(enc_channel, chart.mark):
+            raise ValueError("Ranged encoding channels like x2, y2 not allowed for Mark: {}".format(chart.mark))
 
-    for enc_channel, enc_spec in chart.to_dict()['encoding'].items():
-        if not _allowed_ranged_marks(enc_channel, chart.to_dict()['mark']):
-            raise ValueError("Ranged encoding channels like x2, y2 not allowed for Mark: {}".format(chart['mark']))
+    for k, channel in chart.encoding.items():
+        mapping[_mappings[k](channel.type, channel.data)[0]] = _mappings[k](channel.type, channel.data)[1]
 
-    for channel in chart.to_dict()['encoding']:
-        data = _locate_channel_data(chart, channel)
-        dtype = _locate_channel_dtype(chart, channel)
-        if dtype == 'temporal':
-            data = _convert_to_mpl_date(data)
-
-        mapping[_mappings[channel](dtype, data)[0]] = _mappings[channel](dtype, data)[1]
-    
     return mapping

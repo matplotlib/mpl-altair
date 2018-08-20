@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from mplaltair import convert
 from .._axis import convert_axis
+from ..parse_chart import ChartMetadata
 import pytest
 
 df_quant = pd.DataFrame({
@@ -26,18 +27,13 @@ df_temp = pd.DataFrame({
 @pytest.mark.xfail(raises=TypeError)
 def test_invalid_temporal():
     chart = alt.Chart(df_temp).mark_point().encode(alt.X('a:T'))
-    fig, ax = plt.subplots()
-    convert_axis(ax, chart)
+    convert(chart)
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
 def test_axis_more_than_x_and_y():
     chart = alt.Chart(df_quant).mark_point().encode(alt.X('a'), alt.Y('b'), color=alt.Color('c'))
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    fig.tight_layout()
+    fig, ax = convert(chart)
     return fig
 
 
@@ -46,11 +42,7 @@ def test_axis_more_than_x_and_y():
                                     (df_temp, 'months', 'years'), (df_temp, 'years', 'months'), (df_temp, 'months', 'combination')])
 def test_axis(df, x, y):
     chart = alt.Chart(df).mark_point().encode(alt.X(x), alt.Y(y))
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    fig.tight_layout()
+    fig, ax = convert(chart)
     return fig
 
 
@@ -60,7 +52,7 @@ def test_axis_set_tick_formatter_fail():
      This test is just for temporary coverage purposes."""
     from .._axis import _set_tick_formatter
     _, ax = plt.subplots()
-    _set_tick_formatter({'ax': ax, 'dtype': 'ordinal'}, {})
+    chart = ChartMetadata(alt.Chart(df_quant).mark_point().encode('a:N', 'c:O'))
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
@@ -71,12 +63,9 @@ def test_axis_zero_quantitative(x, y, zero):
         alt.X(x, scale=alt.Scale(zero=zero)),
         alt.Y(y, scale=alt.Scale(zero=zero))
     )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    fig.tight_layout()
+    fig, ax = convert(chart)
     return fig
+    # plt.show()
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
@@ -92,11 +81,7 @@ def test_axis_domain(df, x, y, x_dom, y_dom):
         alt.X(x, scale=alt.Scale(domain=x_dom)),
         alt.Y(y, scale=alt.Scale(domain=y_dom))
     )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    fig.tight_layout()
+    fig, ax = convert(chart)
     return fig
 
 
@@ -106,11 +91,7 @@ def test_axis_unaggregated_quantitative():
         alt.X('a', scale=alt.Scale(domain="unaggregated")),
         alt.Y('c', scale=alt.Scale(domain="unaggregated"))
     )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    plt.close()
-    convert_axis(ax, chart)
+    convert(chart)
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
@@ -124,11 +105,7 @@ def test_axis_values(df, y, vals):
         alt.X('a', axis=alt.Axis(values=[-1, 1, 1.5, 2.125, 3])),
         alt.Y(y, axis=alt.Axis(values=vals))
     )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    fig.tight_layout()
+    fig, ax = convert(chart)
     return fig
 
 
@@ -141,11 +118,7 @@ def test_axis_tickCount(df, x, tickCount):
     chart = alt.Chart(df).mark_point().encode(
         alt.X(x, axis=alt.Axis(tickCount=tickCount)), alt.Y('a', axis=alt.Axis(tickCount=tickCount))
     )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    fig.tight_layout()
+    fig, ax = convert(chart)
     return fig
 
 
@@ -156,11 +129,7 @@ def test_axis_scale_basic(df, column, scale_type):
         alt.X(column, scale=alt.Scale(type=scale_type)),
         alt.Y('a')
     )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    fig.tight_layout()
+    fig, ax = convert(chart)
     return fig
 
 
@@ -171,11 +140,7 @@ def test_axis_scale_type_x_quantitative(column, type, base, exponent):
         alt.X(column, scale=alt.Scale(type=type, base=base, exponent=exponent)),
         alt.Y('a')
     )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    fig.tight_layout()
+    fig, ax = convert(chart)
     return fig
 
 
@@ -186,11 +151,8 @@ def test_axis_scale_type_y_quantitative(column, type, base, exponent):
         alt.X('a'),
         alt.Y(column, scale=alt.Scale(type=type, base=base, exponent=exponent))
     )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    fig.tight_layout()
+    fig, ax = convert(chart)
+    plt.show()
     return fig
 
 
@@ -202,10 +164,7 @@ def test_axis_scale_NotImplemented_quantitative(df, x, type):
         alt.X(x, scale=alt.Scale(type=type)),
         alt.Y('a')
     )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
+    convert(chart)
 
 
 @pytest.mark.mpl_image_compare(baseline_dir='baseline_images/test_axis')
@@ -217,11 +176,7 @@ def test_axis_formatter(df, x, y, format_x, format_y):
         alt.X(x, axis=alt.Axis(format=format_x)),
         alt.Y(y, axis=alt.Axis(format=format_y))
     )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    fig.tight_layout()
+    fig, ax = convert(chart)
     return fig
 
 
@@ -233,11 +188,7 @@ def test_axis_formatter_temporal():
         alt.X('months:T', axis=alt.Axis(format='%b %Y')),
         alt.Y('hrs:T', axis=alt.Axis(format='%H:%M:%S'))
     )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
-    fig.tight_layout()
+    fig, ax = convert(chart)
     return fig
 
 
@@ -247,7 +198,4 @@ def test_axis_formatter_fail():
         alt.X('c', axis=alt.Axis(format='-$.2g')),
         alt.Y('b', axis=alt.Axis(format='+.3r'))
     )
-    mapping = convert(chart)
-    fig, ax = plt.subplots()
-    ax.scatter(**mapping)
-    convert_axis(ax, chart)
+    convert(chart)
