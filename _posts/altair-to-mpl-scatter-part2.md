@@ -11,7 +11,7 @@ excerpt_separator: <!--read more-->
 # Making a Complex Scatter Plot
 At the time of writing, mpl-altair does not support scatter plots with nominal or ordinal color encodings, so this post will show how to create a complex scatter plot in Altair, Matplotlib, and how mpl-altair _should_ implement the chart conversion in the future.
 
-In the first part, we made a simple scatter plot. This post will look at a more complex plot.
+In the [first part]({{ site.baseurl }}{% link _posts/altair-to-mpl-scatter-part1.md %}), we made a simple scatter plot. This post will look at a more complex plot.
 We'll use the cars dataset again:
 ```python
 from vega_datasets import data
@@ -29,8 +29,8 @@ cars.head()
 In addition to looking at Horsepower vs Weight, let's color each point by its origin country.
 
 ## Altair
-Since Altair is based on linking columns to encodings, we just have to specify 
-that the color encoding comes from the Origin column.
+Since Altair is based on linking columns to encodings, we have to specify 
+that the color encoding comes from the _Origin_ column.
 
 Also, notice that a legend is automatically generated.
 ```python
@@ -49,7 +49,7 @@ used
 ```python
 ax.scatter('Weight_in_lbs', 'Horsepower', c='quantitative_column', data=cars)
 ```
-However, the scatter function currently doesn't allow scalar mappables for categorical data. 
+However, the scatter function currently doesn't allow categorical color definitions for categorical data. 
 So, we have to plot points from each country as separate scatter plots on the same axes object.
 
 There are a couple options for this. One is to create subsets of your data via `df['col'].unique()`. Another is to use the `df.groupby('col')` function to create the subset within the for loop.
@@ -69,8 +69,8 @@ ax.set_ylabel('Horsepower')
 ax.set_xlim([0, None])
 ax.set_ylim([0, None])
 ax.legend(title='Origin')
-plt.grid()
-plt.show()
+ax.grid()
+fig.show()
 ```
 ![png](pics/altair-to-mpl-scatter-part2_1.png)
 
@@ -84,8 +84,8 @@ ax.set_ylabel('Horsepower')
 ax.set_xlim([0, None])
 ax.set_ylim([0, None])
 ax.legend(title='Origin')
-plt.grid()
-plt.show()
+ax.grid()
+fig.show()
 ```
 ![png](pics/altair-to-mpl-scatter-part2_2.png)
 
