@@ -2,7 +2,7 @@
 layout: post
 title:  "Making a Scatter Plot - Part 2"
 date:   2018-08-15 17:00:00 -0500
-author: "Kimberly Orr and Nabarun Pal"
+author: "Kimberly Orr", "Nabarun Pal"
 categories: user-guide
 tags: "intro about scatter"
 excerpt_separator: <!--read more-->
@@ -11,7 +11,7 @@ excerpt_separator: <!--read more-->
 # Making a Complex Scatter Plot
 At the time of writing, mpl-altair does not support scatter plots with nominal or ordinal color encodings, so this post will show how to create a complex scatter plot in Altair, Matplotlib, and how mpl-altair _should_ implement the chart conversion in the future.
 
-In the [first part]({{ site.baseurl }}{% link _posts/altair-to-mpl-scatter-part1.md %}), we made a simple scatter plot. This post will look at a more complex plot.
+In the [first part]({{ site.baseurl }}{% link _posts/2018-08-15-altair-to-mpl-scatter-part1.md %}), we made a simple scatter plot. This post will look at a more complex plot.
 We'll use the cars dataset again:
 ```python
 from vega_datasets import data
