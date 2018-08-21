@@ -2,6 +2,7 @@ import altair as alt
 import pandas as pd
 import matplotlib.dates as mdates
 import mplaltair._data as _data
+from mplaltair._exceptions import ValidationError
 import pytest
 from vega_datasets import data
 
@@ -25,6 +26,11 @@ def test_data_url():
     chart = alt.Chart(data.cars.url).mark_point()
     _data._normalize_data(chart)
     assert type(chart.data) == pd.DataFrame
+
+def test_named_data():
+    chart = alt.Chart(alt.NamedData('test-dataset')).mark_point()
+    with pytest.raises(ValidationError):
+        _data._normalize_data(chart)
 
 # test date conversion:
 

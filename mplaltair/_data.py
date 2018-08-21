@@ -34,6 +34,12 @@ def _normalize_data(chart):
         df = pd.DataFrame(_fetch(spec['data']['url']))
     elif spec['data'].get('values'):
         return
+    elif spec['data'].get('name'):
+        datasets = spec.get('datasets', {})
+        if spec['data'].get('name') in datasets.keys():
+            return
+        else:
+            raise ValidationError('Named Data is provided but no corresponding dataset is found')
     else:
         raise NotImplementedError('Given data specification is unsupported at the moment.')
 
