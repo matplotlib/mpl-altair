@@ -203,12 +203,101 @@ def _set_label_angle(channel, ax):
         ax : matplotlib.axes
             The mapping of the axis metadata and the scale data
         """
+    
+    label_angle = channel.axis.get('labelAngle')
+
+    # Sets the defaults used by altair if axis.labelAngle is not specified
+    if label_angle is None:
+        if channel.type in ['ordinal', 'nominal']:
+            label_angle = -90
+        elif channel_type in ['quantitative', 'temporal']:
+            label_angle = 0
+    
+    if channel.name == 'x':
+        for label in ax.get_xticklabels():
+            label.set_rotation(-1*label_angle)
+    elif channel.name == 'y':
+        for label in ax.get_yticklabels():
+            label.set_rotation(-1*label_angle)
+
+    # Special case for temporal encoding type to improve visual appeal
     if channel.type == 'temporal' and channel.name == 'x':
         for label in ax.get_xticklabels():
             # Rotate the labels on the x-axis so they don't run into each other.
             label.set_rotation(30)
             label.set_ha('right')
 
+def _set_axis_title(channel, ax):
+    '''Sets the axis label
+
+    Currently, does not support aggregated, binned or timeUnit specified channels
+
+    Parameters
+    ----------
+    channel: parse_chart.ChannelMetadata
+        The channel data and metadata
+    ax: maptlotlib.axes
+        The matplotlib axis to be modified
+    '''
+    if channel.title:
+        if channel.name == 'x':
+            ax.set_xlabel(title)
+        elif channel.name == 'y':
+            ax.set_ylabel(title)
+    elif channel.aggregate:
+        raise NotImplementedError
+    elif channel.bin:
+        raise NotImplementedError
+    elif channel.timeUnit:
+        raise NotImplementedError
+
+def _set_axis_label_visibility(channel, ax):
+    '''Set the axis label visibility
+
+    Parameters
+    ----------
+    channel: parse_chart.ChannelMetadata
+        The channel data and metadata
+    ax: maptlotlib.axes
+        The matplotlib axis to be modified
+    '''
+    labels = channel.axis.get('labels', True)
+
+    if channel.name == 'x':
+        ax.tick_param(labelbottom=labels, labeltop=labels)
+    elif channel.name == 'y':
+        ax.tick_param(labelleft=labels, labelright=labels)
+
+def _set_axis_orientation(channel, ax):
+    '''Set the axis orientation
+
+    Parameters
+    ----------
+    channel: parse_chart.ChannelMetadata
+        The channel data and metadata
+    ax: maptlotlib.axes
+        The matplotlib axis to be modified
+    '''
+    orient = channel.axis.get('orient')
+
+    if orient is None:
+        if channel.name == 'x':
+            orient = 'bottom'
+        elif channel.name == 'y':
+            orient = 'left'
+
+    ACTIONS = {
+        'x': {
+            'top': ax.xaxis.tick_top,
+            'bottom': ax.xaxis.tick_bottom
+        },
+        'y': {
+            'left': ax.xaxis.tick_left,
+            'right': ax.xaxis.tick_right
+        }
+    }
+
+    ACTIONS[enc][orient]()
 
 def convert_axis(ax, chart):
     """Convert elements of the altair chart to Matplotlib axis properties
@@ -226,3 +315,6 @@ def convert_axis(ax, chart):
         _set_tick_locator(channel, ax)
         _set_tick_formatter(channel, ax)
         _set_label_angle(channel, ax)
+        _set_axis_title(channel, ax)
+        _set_axis_label_visibility(channel, ax)
+        _set_axis_orientation(channel, ax)
