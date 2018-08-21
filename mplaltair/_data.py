@@ -35,7 +35,7 @@ def _normalize_data(chart):
     elif spec['data'].get('values'):
         return
     elif spec['data'].get('name'):
-        datasets = spec['datasets']
+        datasets = spec.get('datasets', {})
         if spec['data'].get('name') in datasets.keys():
             return
         else:
