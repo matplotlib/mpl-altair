@@ -34,6 +34,8 @@ def _normalize_data(chart):
         df = pd.DataFrame(_fetch(spec['data']['url']))
     elif spec['data'].get('values'):
         return
+    elif spec['data'].get('name'):
+        return
     else:
         raise NotImplementedError('Given data specification is unsupported at the moment.')
 
