@@ -1,0 +1,26 @@
+---
+layout: post
+title:  "Temporal Data in mpl-altair"
+date:   2018-08-21 3:55:00 -0500
+author: "Kimberly Orr"
+categories: dev
+tags: "about dev"
+excerpt_separator: <!--read more-->
+---
+
+# Temporal Data in mpl-altair
+
+It was necessary to create a date parser/converter since mpl-altair is a bridge between two plotting libraries that use potentially different datetime libraries.
+
+The process for plotting temporal data in mpl-altair is:
+1. Temporal data is converted when the chart is parsed and stored as a ChartMetadata object.
+    - The mpl-altair date parser takes the date objects from Altair and converts them to [Matplotlib dates](https://Matplotlib.org/api/dates_api.html#Matplotlib-date-format) (which are floating point number representations of the date).
+2. The temporal data is plotted as Matplotlib dates (floating point numbers).
+3. If temporal data is used in x or y channels, tick labels show the dates in a more human-readable form by using [Matplotlib date formatters](https://Matplotlib.org/api/dates_api.html#date-formatters) in the axis conversion.
+
+Altair (and mpl-altair) support:
+- python's native `datetime.datetime`
+- `pandas.datetime64`
+- `Altair.DateTime` (support is limited in mpl-altair)
+
+mpl-altair's date parser uses Matplotlib's `dates.date2num()` and `dates.datestr2num()` date converters as well as its own `Altair.DateTime` to Matplotlib date function.
