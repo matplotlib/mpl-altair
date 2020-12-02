@@ -31,7 +31,7 @@ setup_parameters = dict(
     version='0.0.0',
     description="Convert altair objects to Matplotlib Figures",
     author="Matplotlib Development Team",
-    install_requires=['matplotlib>=2.2.0', 'altair>=2'],
+    install_requires=['matplotlib<3.0', 'altair<3.0','pandas<0.25'],
     author_email="matplotlib-users@python.org",
     url="https://github.com/matplotlib/mpl-altair",
     packages=['mplaltair'],
